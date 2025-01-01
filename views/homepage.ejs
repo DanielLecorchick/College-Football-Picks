@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="./homepage.css">
+</head>
+<body>
+    <h2>Homepage</h2>
+    <button onclick = "picks()">Make Picks</button>
+    <button onclick = "top25()">Current Top 25</button>
+    <button onclick = "weeklyresults()">Weekly Results</button>
+    <button onclick = "leaderboard()">Season Leaderboard</button>
+
+    <script>
+        function picks() {
+            window.location.href = '/picks';
+        }
+        function top25() {
+            window.location.href = '/top25';
+        }
+        function weeklyresults() {
+            window.location.href = '/weeklyresults';
+        }
+        function leaderboard() {
+            window.location.href = '/leaderboard';
+        }
+    </script>
+</body>
+</html>

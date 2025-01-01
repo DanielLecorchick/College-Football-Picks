@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title>Top 25</title>
+    <link rel="stylesheet" href="/css/top25.css">
+</head>
+<body>
+    <h1>Top 25 College Football Rankings</h1>
+    <div id = "rankings"></div>
+
+    <script>
+        fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+
+                const rankings = data.rankings[0].ranks;
+                const rankingsDiv = document.getElementById("rankings")
+
+                rankings.forEach(rank => {
+                    const team = rank.team
+
+                    const teamDiv = document.createElement("div")
+                    teamDiv.className = "team"
+
+                    const logo = document.createElement("img")
+                    logo.src = team.logo
+                    logo.alt = `${team.name} logo`
+
+                    const details = document.createElement("p")
+                    details.textContent = `${rank.current}. ${team.location} ${team.name} (${rank.recordSummary})`
+
+                    teamDiv.appendChild(logo)
+                    teamDiv.appendChild(details)
+
+                    rankingsDiv.appendChild(teamDiv)
+                })
+            })
+            .catch(error => console.error("error fetching in rankings api", error))
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title>Picks</title>
+    <link rel="stylesheet" href="/css/picks.css">
+</head>
+<body>
+    <h1>Picks</h1>
+    <div id = "Picks"></div>
+
+    <script>
+        async function fetchTop25() {
+            try{
+                const rankingsResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
+                const rankingsData = await rankingsResponse.json()
+                const top25Teams = rankingsData.rankings[0].ranks.map(rank => rank.team.id)
+
+                const season = rankingsData.rankings[0].season
+                const startOfWeek = new Date(season.startDate)
+                const endOfWeek  = new Date(season.endDate)
+
+
+                const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
+                const gamesData = await gamesResponse.json()
+
+                const currentWeek = gamesData.week.number
+                const isWeek15 = currentWeek === 15
+
+                renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15)
+            }
+            catch (error){
+                console.error("Error fetching data:", error)
+            }
+        }
+
+
+        function renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15) {
+            const filteredGames = []
+
+            gamesData.events.forEach(game => {
+                const gameDate = new Date(game.date)
+                const homeTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === 'home')
+                const awayTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === 'away')
+
+                //error handling if there is team data missing
+                //if (!homeTeam || !awayTeam) return
+
+                const isTop25Game = top25Teams.includes(homeTeam.team.id) || top25Teams.includes(awayTeam.team.id)
+                const isThisWeek = gameDate >= startOfWeek && gameDate <= endOfWeek
+                const isConferenceChampionship = (isWeek15 && gameDate >= startOfWeek && gameDate <= endOfWeek)
+                const isArmyNavy = (homeTeam.team.name === 'Army' && awayTeam.team.name === 'Navy') || (homeTeam.team.name === 'Navy' && awayTeam.team.name === 'Army')
+                const isBowlOrCFP = game.season.type === 3
+                const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals")
+
+                if (isFCSGame) return 
+                
+                if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
+                    filteredGames.push({ gameDate, homeTeam, awayTeam })
+                }
+            })
+
+            //sorts the filtered games according to the date the occur
+            filteredGames.sort((a, b) => a.gameDate - b.gameDate)
+
+            const picksDiv = document.getElementById("Picks")
+            picksDiv.innerHTML = ""
+
+            filteredGames.forEach(({gameDate, homeTeam, awayTeam}) => {
+                const homeButton = document.createElement('button')
+                homeButton.textContent = homeTeam.team.displayName
+                //add in functionality for on click later
+                //homeButton.onclick = () => 
+
+                const awayButton = document.createElement('button')
+                awayButton.textContent = awayTeam.team.displayName
+                //add in functionality for on click later
+                //awayButton.onclick = () => 
+
+                const dateDiv = document.createElement('div')
+                dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
+
+                picksDiv.appendChild(homeButton)
+                picksDiv.appendChild(awayButton)
+                picksDiv.appendChild(document.createElement('br'))
+                picksDiv.appendChild(dateDiv)
+            })
+
+            console.log(filteredGames)
+        }
+
+            fetchTop25()
+            setInterval(fetchTop25, 600000)
+    </script>
+</body>
+</html>
