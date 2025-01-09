@@ -1,3 +1,4 @@
+<!-- not complete yet, fetches the top 25 teams from one ESPN API, then pulls game data for those top 25 teams from a seperate ESPN API  --> 
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -13,15 +14,17 @@
     <script>
         async function fetchTop25() {
             try{
+                // pulls all the top 25 teams and ranking data from the rankings API
                 const rankingsResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
                 const rankingsData = await rankingsResponse.json()
                 const top25Teams = rankingsData.rankings[0].ranks.map(rank => rank.team.id)
 
+                // pulls the start and end date of the week 
                 const season = rankingsData.rankings[0].season
                 const startOfWeek = new Date(season.startDate)
                 const endOfWeek  = new Date(season.endDate)
 
-
+                // pulls game data such as match ups and times of games from the scorecoard API
                 const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                 const gamesData = await gamesResponse.json()
 
@@ -37,16 +40,19 @@
 
 
         function renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15) {
+            //variable to store each of the games
             const filteredGames = []
 
             gamesData.events.forEach(game => {
+                //pulls data from each game for the Date, Home, and Away team
                 const gameDate = new Date(game.date)
                 const homeTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === 'home')
                 const awayTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === 'away')
 
-                //error handling if there is team data missing
-                //if (!homeTeam || !awayTeam) return
-
+                // logic to filter out games. during the regular season ensure the game includes at least one top 25 matchup and is the current week, 
+                // includes all conference championship games regardless of ranking, 
+                // includes the Army vs Navy Game regardless of ranking,
+                // includes all bowl games and college football playoff games, but excludes any FCS games
                 const isTop25Game = top25Teams.includes(homeTeam.team.id) || top25Teams.includes(awayTeam.team.id)
                 const isThisWeek = gameDate >= startOfWeek && gameDate <= endOfWeek
                 const isConferenceChampionship = (isWeek15 && gameDate >= startOfWeek && gameDate <= endOfWeek)
@@ -67,6 +73,7 @@
             const picksDiv = document.getElementById("Picks")
             picksDiv.innerHTML = ""
 
+            // creates a button for each home and away team, as well as the time so users know when to make their pick 
             filteredGames.forEach(({gameDate, homeTeam, awayTeam}) => {
                 const homeButton = document.createElement('button')
                 homeButton.textContent = homeTeam.team.displayName
@@ -90,6 +97,7 @@
             console.log(filteredGames)
         }
 
+            // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
             fetchTop25()
             setInterval(fetchTop25, 600000)
     </script>
