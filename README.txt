@@ -26,3 +26,5 @@ Within Current Top 25 everything works perfectly, it displays a logo, rank, team
 Weekly Results will show each users record for the previous week.
 
 Season Leaderboard will showcase each users total score for the season.
+
+Later on I will utilize a Raspberry Pi to host the website for access anytime anywhere. 
