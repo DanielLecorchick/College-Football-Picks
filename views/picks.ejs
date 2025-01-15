@@ -63,7 +63,7 @@
                 if (isFCSGame) return 
                 
                 if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
-                    filteredGames.push({ gameDate, homeTeam, awayTeam })
+                    filteredGames.push({ gameDate, homeTeam, awayTeam})
                 }
             })
 
@@ -75,21 +75,39 @@
 
             // creates a button for each home and away team, as well as the time so users know when to make their pick 
             filteredGames.forEach(({gameDate, homeTeam, awayTeam}) => {
-                const homeButton = document.createElement('button')
-                homeButton.textContent = homeTeam.team.displayName
+                const homeButton = document.createElement('button');
+                if (top25Teams.indexOf(homeTeam.team.id) != -1) {
+                    homeButton.textContent += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
+                }
+                homeButton.textContent += homeTeam.team.displayName
+
                 //add in functionality for on click later
                 //homeButton.onclick = () => 
 
-                const awayButton = document.createElement('button')
-                awayButton.textContent = awayTeam.team.displayName
+                const awayButton = document.createElement('button');
+                if (top25Teams.indexOf(awayTeam.team.id) != -1) {
+                    awayButton.textContent += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
+                }
+                awayButton.textContent += awayTeam.team.displayName
+
                 //add in functionality for on click later
                 //awayButton.onclick = () => 
+
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = "See Details"
+
+                detailsButton.onclick = () => {
+                    localStorage.setItem('homeTeam', JSON.stringify(homeTeam));
+                    localStorage.setItem('awayTeam', JSON.stringify(awayTeam));
+                    window.location.href = `/details?homeTeamID=${homeTeam.team.id}&awayTeamID=${awayTeam.team.id}`;
+                }
 
                 const dateDiv = document.createElement('div')
                 dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
 
                 picksDiv.appendChild(homeButton)
                 picksDiv.appendChild(awayButton)
+                picksDiv.appendChild(detailsButton)
                 picksDiv.appendChild(document.createElement('br'))
                 picksDiv.appendChild(dateDiv)
             })
