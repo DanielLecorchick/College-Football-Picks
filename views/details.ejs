@@ -17,6 +17,7 @@
                     const top25Teams = rankingsData.rankings[0].ranks.map(rank => rank.team.id)
 
                     // pulls game data such as match ups and times of games from the scorecoard API
+                    //filepath to leaders = object/events/0/competitions/0/leaders
                     const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                     const gamesData = await gamesResponse.json()
                     console.log(gamesData)

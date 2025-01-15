@@ -1,0 +1,22 @@
+﻿Daniel’s Goals:
+1. Make picks functional ie. store the users picks and score them according to the rules
+   1. two top 25 teams = 2 points
+   2. 1 top 25 team = 1 point
+   3. Bowl games with no top 25 teams = .5 points
+   4. Army vs navy = 2 points
+   5. All conference championships = 2 points
+   6. Add in some form of incentive for picking underdogs TBD
+2. Buy raspberry pi for website hosting and database
+3. Set up raspberry pi to host the website on the web
+4. Set up a SQL database for storing data needed for the website 512mb is going to go by quick otherwise
+5. Create the leaderboard and previous weeks results pages
+   1. Leaderboard will showcase everyone's point total for the season
+   2. Previous weeks results will showcase each user's record the previous week and maybe who they picked for each game?
+6. Fully flesh out the login and signup page. It currently worked however it is missing key user features such as displaying any errors such as incorrect password
+7. Finish css for the program (I don't want to do this)
+8. Create an AI to guess the winners of each game?? 
+Michael’s Goals:
+   1. . Add more relevant info to Details for previous games
+   2. Fix the Details for future games
+   3. Make css for Details
+   4. Figure out a plan for implementing bingo/casino and update this goals list
