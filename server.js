@@ -100,6 +100,15 @@ app.get('/weeklyresults', checkAuthenticated, (req, res) => {
     res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
 })
 
+app.get('/bingo', checkAuthenticated, (req, res) => {
+    res.render('bingo.ejs', {name: req.user.name, username: req.user.username})
+})
+
+app.get('/details', checkAuthenticated, (req, res) => {
+    const { homeTeam, awayTeam } = req.query;
+    res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
+})
+
 //logout route 
 app.delete('/logout', (req, res) => {
     req.logOut()

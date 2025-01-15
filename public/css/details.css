@@ -1,0 +1,8 @@
+:root {
+    --home-team-color: black; /* Default colors */
+    --away-team-color: black;
+}
+
+h1 {
+    color: var(--home-team-color);
+}
