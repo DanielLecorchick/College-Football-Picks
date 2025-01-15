@@ -30,4 +30,4 @@ Season Leaderboard has not be developed yet but will showcase each users total s
 
 Later on I will utilize a Raspberry Pi to host the website as well as hosting a database for the website. This will be a custom built SQL Database.
 
-If you wish to view the future goals for each member working on this website please go to WEBSITE GOALS.txt
+If you wish to view the future goals for each member working on this website please go to GOALS.txt
