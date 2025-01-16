@@ -1,6 +1,6 @@
 ## College Football Picks
 <p align="center">
-<img src="https://raw.githubusercontent.com/DanielLecorchick/College-Football-Top-25/refs/heads/main/public/images/osu-michigan.jpg" alt="Lagway being the GOAT", class="center">!
+<img src="https://raw.githubusercontent.com/DanielLecorchick/College-Football-Picks/refs/heads/main/public/images/dj-lagway-lagway.gif" alt="Lagway being the GOAT", class="center">!
 </p>
 
 # Table of Contents
