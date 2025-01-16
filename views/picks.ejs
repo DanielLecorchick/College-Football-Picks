@@ -58,12 +58,12 @@
                 const isConferenceChampionship = (isWeek15 && gameDate >= startOfWeek && gameDate <= endOfWeek)
                 const isArmyNavy = (homeTeam.team.name === 'Army' && awayTeam.team.name === 'Navy') || (homeTeam.team.name === 'Navy' && awayTeam.team.name === 'Army')
                 const isBowlOrCFP = game.season.type === 3
-                const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals") || game.competitions[0].notes.some(note => note.headline === "Cricket Celebration Bowl")
+                const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals")
 
                 if (isFCSGame) return 
                 
                 if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
-                    filteredGames.push({ gameDate, homeTeam, awayTeam})
+                    filteredGames.push({gameDate, homeTeam, awayTeam, game})
                 }
             })
 
@@ -73,40 +73,61 @@
             const picksDiv = document.getElementById("Picks")
             picksDiv.innerHTML = ""
 
-            // creates a button for each home and away team, as well as the time so users know when to make their pick 
-            filteredGames.forEach(({gameDate, homeTeam, awayTeam}) => {
-                const homeButton = document.createElement('button');
+            // creates a button for each home and away team,as well as the details, along with text underneath for the game date and time
+            filteredGames.forEach(({gameDate, homeTeam, awayTeam, game}) => {
+
+                //creates and handles the home team buttons
+                const homeTeamButton = document.createElement('button');
                 if (top25Teams.indexOf(homeTeam.team.id) != -1) {
-                    homeButton.textContent += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
+                    homeTeamButton.textContent += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
                 }
-                homeButton.textContent += homeTeam.team.displayName
+                homeTeamButton.textContent += homeTeam.team.displayName
 
-                //add in functionality for on click later
-                //homeButton.onclick = () => 
-
-                const awayButton = document.createElement('button');
+                //creates and handles the away team buttons
+                const awayTeamButton = document.createElement('button');
                 if (top25Teams.indexOf(awayTeam.team.id) != -1) {
-                    awayButton.textContent += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
+                    awayTeamButton.textContent += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
                 }
-                awayButton.textContent += awayTeam.team.displayName
+                awayTeamButton.textContent += awayTeam.team.displayName
 
-                //add in functionality for on click later
-                //awayButton.onclick = () => 
 
+                //grays out all buttons if the game isnt pregame
+                if(game.status.type.state !== "pre") {
+                    homeTeamButton.disabled = true
+                    awayTeamButton.disabled = true
+                }
+
+                //onclick for the home team
+                homeTeamButton.onclick = async () => {
+                    homeTeamButton.disabled = true
+                    awayTeamButton.disabled = false
+                    await PickSelection(game.id, "homeTeam")
+                }
+
+                //onlick for the away team
+                awayTeamButton.onclick = async () => {
+                    homeTeamButton.disabled = false
+                    awayTeamButton.disabled = true
+                    await PickSelection(game.id, "awayTeam")
+
+                }
+
+                //creates the details button 
                 const detailsButton = document.createElement('button');
                 detailsButton.textContent = "See Details"
-
                 detailsButton.onclick = () => {
                     localStorage.setItem('homeTeam', JSON.stringify(homeTeam));
                     localStorage.setItem('awayTeam', JSON.stringify(awayTeam));
                     window.location.href = `/details?homeTeamID=${homeTeam.team.id}&awayTeamID=${awayTeam.team.id}`;
                 }
 
+                //displays the games date and time
                 const dateDiv = document.createElement('div')
                 dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
 
-                picksDiv.appendChild(homeButton)
-                picksDiv.appendChild(awayButton)
+                //appends each of these items onto the webpage
+                picksDiv.appendChild(homeTeamButton)
+                picksDiv.appendChild(awayTeamButton)
                 picksDiv.appendChild(detailsButton)
                 picksDiv.appendChild(document.createElement('br'))
                 picksDiv.appendChild(dateDiv)
@@ -115,9 +136,30 @@
             console.log(filteredGames)
         }
 
-            // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
-            fetchTop25()
-            setInterval(fetchTop25, 600000)
+        //function to send the users pick to the database or update their pick to the database
+        //FIX ME: This will need finished its like getting there tho
+        async function PickSelection(pickGameID, homeAwayPick) {
+            const pickUserID = localStorage.getItem('userId')
+            const existingPick = await Picks.findOne({userId: pickUserID, gameId: pickGameID})
+
+            if(existingPick) {
+                existingPick.pick = homeAwayPick;
+                await existingPick.save()
+            }
+            else {
+                const newPick = new Picks({
+                    userId: pickUserID,
+                    gameId: pickGameID,
+                    pick: homeAwayPick
+                })
+                await newPick.save()
+            }
+            
+        }
+
+        // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
+        fetchTop25()
+        setInterval(fetchTop25, 600000)
     </script>
 </body>
 </html>

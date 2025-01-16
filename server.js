@@ -96,6 +96,12 @@ app.get('/picks', checkAuthenticated, (req, res) => {
     res.render('picks.ejs', {name: req.user.name, username: req.user.username})
 })
 
+/*
+app.post('/picks', checkAuthenticated, async(req,res) => {
+    //something will be needed here to post the picks once the user makes/changes picks
+})
+*/
+
 app.get('/weeklyresults', checkAuthenticated, (req, res) => {
     res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
 })
