@@ -15,6 +15,7 @@
 6. Fully flesh out the login and signup page. It currently worked however it is missing key user features such as displaying any errors such as incorrect password
 7. Finish css for the program (I don't want to do this)
 8. Create an AI to guess the winners of each game?? 
+
 Michael’s Goals:
    1. . Add more relevant info to Details for previous games
    2. Fix the Details for future games
