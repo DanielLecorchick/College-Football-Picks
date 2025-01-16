@@ -100,8 +100,8 @@ app.get('/weeklyresults', checkAuthenticated, (req, res) => {
     res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
 })
 
-app.get('/bingo', checkAuthenticated, (req, res) => {
-    res.render('bingo.ejs', {name: req.user.name, username: req.user.username})
+app.get('/casino', checkAuthenticated, (req, res) => {
+    res.render('casino.ejs', {name: req.user.name, username: req.user.username})
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {

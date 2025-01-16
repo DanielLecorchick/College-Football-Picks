@@ -59,10 +59,12 @@
                 }
 
                 var displayTable = false;
+                var past = false
                 const gameStatus = document.createElement('h2')
                 if(gameInfo.status.type.state === "post") {
                     gameStatus.textContent = "Final: " + homeTeam.score + " - " + awayTeam.score
                     displayTable = true
+                    past = true
                 }
                 else if (gameInfo.status.type.state === "pre") {
                     gameStatus.textContent = gameInfo.status.type.shortDetail
@@ -122,8 +124,14 @@
                 }
 
                 generateSubHeading("h2", "General Info:")
-                generateSubHeading("h3", ["Date: " + gameInfo.date.substring(0, 10), "Time: " + gameInfo.date.substring(11, 16),
-                    "Venue: " + gameInfo.competitions[0].venue.fullName, "Attendance: " + gameInfo.competitions[0].attendance])
+                if(past) {
+                    generateSubHeading("h3", ["Date: " + gameInfo.date.substring(0, 10), "Time: " + gameInfo.date.substring(11, 16)])
+                }
+                generateSubHeading("h3", ["Venue: " + gameInfo.competitions[0].venue.fullName])
+                if(past) {
+                    generateSubHeading("h3", ["Attendance: " + gameInfo.competitions[0].attendance])
+                }
+                
                 //const gameDetails = document.createElement('p')
                 //gameDetails.textContent = "Here you can add more game details..."
                 //detailsDiv.appendChild(gameDetails)
