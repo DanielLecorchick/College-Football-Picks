@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="/css/top25.css">
 </head>
 <body>
-    <h1>Top 25 College Football Rankings</h1>
-    <div id = "rankings"></div>
-
+    <div id="header">
+        <h1>Top 25</h1>
+    </div>
+    <div id = "rankings">
     <script>
         fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
             .then(response => response.json())
@@ -29,17 +30,37 @@
                     const logo = document.createElement("img")
                     logo.src = team.logo
                     logo.alt = `${team.name} logo`
+                    logo.style.width = "100px"
 
-                    const details = document.createElement("p")
-                    details.textContent = `${rank.current}. ${team.location} ${team.name} (${rank.recordSummary})`
+                    const details = document.createElement("span")
+                    details.textContent = `${team.location} ${team.name}`
+
+                    const record = document.createElement("gamerecord")
+                    record.textContent = `(${rank.recordSummary})`
+                    record.style.display = "block"
+
+                    const nameDiv = document.createElement("div")
+                    nameDiv.className = "name-container"
+
+                    nameDiv.appendChild(details)
+                    nameDiv.appendChild(record)
 
                     teamDiv.appendChild(logo)
-                    teamDiv.appendChild(details)
+                    teamDiv.appendChild(nameDiv)
 
-                    rankingsDiv.appendChild(teamDiv)
+                    const rankingNumber = document.createElement("rank")
+                    rankingNumber.textContent = `#${rank.current}`
+
+                    const numberedDiv = document.createElement("div")
+                    numberedDiv.className = "numbered-container"
+                    numberedDiv.appendChild(rankingNumber)
+                    numberedDiv.appendChild(teamDiv)
+
+                    rankingsDiv.appendChild(numberedDiv)
                 })
             })
             .catch(error => console.error("error fetching in rankings api", error))
     </script>
+    </div>
 </body>
 </html>

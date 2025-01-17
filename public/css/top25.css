@@ -1,0 +1,71 @@
+body {
+    background: linear-gradient(to right, rgb(255, 255, 255), rgb(179, 179, 179));
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#rankings {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, .01);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #000;
+    margin-bottom: 1%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.name-container span {
+    font-size: 2em;
+}
+
+.name-container gamerecord {
+    font-size: 1em;
+}
+
+.numbered-container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 10px;
+    width: 100%; 
+}
+
+.numbered-container rank {
+    font-size: 3em;
+    width: 60px;
+    text-align: right; 
+}
+
+
+.team {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    border-radius: 10px;
+    border: 1px solid #000;
+    margin: 10px;
+    width: 600px;
+}
+
+.team img {
+    height: auto;
+    margin: 10px;
+}
+
+.team span {
+    vertical-align: middle;
+    color: black;
+}
