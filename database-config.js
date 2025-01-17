@@ -34,32 +34,49 @@ const LoginSchema = new mongoose.Schema({
         unique: true
     }
 })
-const User = new mongoose.model("users", LoginSchema)
-module.exports = User
-
-// somethings up with this it might be because its not correctly connected yet but this error is showing comenting out the picksSchema seemed to fix it?:
-//(node:6712) [DEP0044] DeprecationWarning: The util.isArray API is deprecated. Please use Array.isArray() instead.
-//(Use node --trace-deprecation ... to show where the warning was created)
 
 
-/*
 // defines a schema for storing users picks
 const PicksSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        required: true,
-      },
-      gameId: {
+        //required: true,
+    },
+    gameId: {
         type: String,
-        required: true,
-      },
-      pick: {
+        //required: true,
+    },
+    pick: {
         type: String,
         enum: ["homeTeam", "awayTeam"],
-        required: true,
-      }
+        //required: true,
+    }
 })
+
+const ScoreSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+        //required: true,
+    },
+    correctPicks: {
+        type: Number,
+        //required: true,
+    },
+    incorrectPicks: {
+        type: Number,
+        //required: true,
+    },
+    totalPicks: {
+        type: Number,
+        //required: true,
+    }
+
+})
+
+const User = new mongoose.model("users", LoginSchema)
 const Picks = new mongoose.model("picks", PicksSchema)
-module.exports = Picks
-*/
+const Score = new mongoose.model("score", ScoreSchema)
+
+module.exports = {User, Picks, Score}
