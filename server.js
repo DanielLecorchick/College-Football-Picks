@@ -103,6 +103,8 @@ app.get('/picks', checkAuthenticated, (req, res) => {
 app.post('/picks', checkAuthenticated, async(req,res) => {
     const{userId,gameId,pick} = req.body
 
+    //userId = await User.findOne({_id})
+    
     try{
         const existingPick = await Picks.findOne({userId, gameId})
 
