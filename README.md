@@ -77,5 +77,7 @@ If you want to run the application locally:
 2. Michael Burns
    1. Details page logic
    2. Casino page logic
-   3. Most CSS work
-   4. README
+   3. Picks CSS
+   4. Top 25 CSS
+   5. Details CSS
+   6. README
