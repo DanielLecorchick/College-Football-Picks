@@ -13,9 +13,6 @@
     </div>
     <div id = "Picks">
     <script>
-        //for some reason this causes the picks to no longer show up
-        //const {User, Picks} = require('./database-config')
-
         async function fetchTop25() {
             try{
                 // pulls all the top 25 teams and ranking data from the rankings API
@@ -119,7 +116,6 @@
                     }
                 }
 
-
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.disabled = true;
                     awayTeamButton.disabled = false;
@@ -159,25 +155,16 @@
 
             console.log(filteredGames)
         }
-
-
+/*
         //function to send the users pick to the database or update their pick to the database
+        //FIX ME: This will need finished its like getting there tho
         async function PickSelection(pickGameID, homeAwayPick) {
-            const pickUserID = localStorage.getItem('_id')
-
-            //this needs updated to include the "_id" of all users when saving the pick into the DB
-            //adding this in causes picks to not show up
-            //const {User, Picks} = require('./database-config')
-            //const pickUserID = await User.find({_id})
+            const pickUserID = localStorage.getItem('userId')
 
             const response = await fetch('/picks', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    gameId: pickGameID, 
-                    pick: homeAwayPick, 
-                    userId: pickUserID
-                })
+                body: JSON.stringify({gameId: pickGameID, pick: homeAwayPick, userId: pickUserID})
             })
             const existingPick = await Picks.findOne({userId: pickUserID, gameId: pickGameID})
 
@@ -197,8 +184,7 @@
             
         
         }
-
-
+*/
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchTop25()
         setInterval(fetchTop25, 600000)

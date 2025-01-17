@@ -67,9 +67,10 @@ If you want to run the application locally:
 # Creators Contributions
 1. Dan Lecorchick
     1. Signup/login process though MongoDB
-    2. Picks page logic
-    3. Home page logic
-    4. Ranking page logic
+    2. Signup/login CSS
+    3. Picks page logic
+    4. Home page logic
+    5. Ranking page logic
 2. Michael Burns
    1. Details page logic
    2. Casino page logic
