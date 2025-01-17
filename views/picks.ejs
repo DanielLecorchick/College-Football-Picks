@@ -155,36 +155,19 @@
 
             console.log(filteredGames)
         }
-/*
-        //function to send the users pick to the database or update their pick to the database
-        //FIX ME: This will need finished its like getting there tho
-        async function PickSelection(pickGameID, homeAwayPick) {
-            const pickUserID = localStorage.getItem('userId')
 
+        //function to send the users pick to the database or update their pick to the database
+        async function PickSelection(pickGameID, homeAwayPick) {
             const response = await fetch('/picks', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({gameId: pickGameID, pick: homeAwayPick, userId: pickUserID})
-            })
-            const existingPick = await Picks.findOne({userId: pickUserID, gameId: pickGameID})
-
-
-            if(existingPick) {
-                existingPick.pick = homeAwayPick;
-                await existingPick.save()
-            }
-            else {
-                const newPick = new Picks({
-                    userId: pickUserID,
-                    gameId: pickGameID,
-                    pick: homeAwayPick
+                body: JSON.stringify({
+                    gameId: pickGameID, 
+                    pick: homeAwayPick, 
                 })
-                await newPick.save()
-            }
-            
-        
+            })
         }
-*/
+
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchTop25()
         setInterval(fetchTop25, 600000)

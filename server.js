@@ -101,9 +101,9 @@ app.get('/picks', checkAuthenticated, (req, res) => {
 
 
 app.post('/picks', checkAuthenticated, async(req,res) => {
-    const{userId,gameId,pick} = req.body
+    const {gameId,pick} = req.body
 
-    //userId = await User.findOne({_id})
+    const userId = req.user._id
     
     try{
         const existingPick = await Picks.findOne({userId, gameId})
@@ -124,7 +124,6 @@ app.post('/picks', checkAuthenticated, async(req,res) => {
     }
     catch(error) {
         console.error("error with picks", error)
-        res.redirect('/picks')
     }
 })
 
