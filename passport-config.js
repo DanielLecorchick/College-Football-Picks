@@ -7,12 +7,12 @@ const bcrypt = require('bcrypt')
 const {User} = require('./database-config')
 
 // function to initilize passport within the local strategy
-function initalize(passport, getUserByUsername, getUserById) {
+function initalize(passport) {
     // function to aithenticate user utilizing name and password
     const authenticateUser = async (username, password, done) => {
         try{
             // fetches the username to attempt to login a user by ensuring the username exists, and then by comparing passwords
-            const user = await getUserByUsername(username)
+            const user = await User.findOne({username})
             if(user == null){
                 return done(null, false, {message: 'No user with that username'})
             }
@@ -36,7 +36,7 @@ function initalize(passport, getUserByUsername, getUserById) {
     // deserealizes the users information 
     passport.deserializeUser(async (id, done) => {
         try{
-            const user = await getUserById(id)
+            const user = await User.findById(id)
             if (!user) {
                 console.log('User not found during deserialization')
                 return done(new Error('User not found'), null)

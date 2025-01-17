@@ -35,6 +35,7 @@ const LoginSchema = new mongoose.Schema({
     }
 })
 
+
 // defines a schema for storing users picks
 const PicksSchema = new mongoose.Schema({
     userId: {
@@ -53,7 +54,7 @@ const PicksSchema = new mongoose.Schema({
     }
 })
 
-ScoreSchema = new mongoose.Schema({
+const ScoreSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
@@ -73,6 +74,7 @@ ScoreSchema = new mongoose.Schema({
     }
 
 })
+
 const User = new mongoose.model("users", LoginSchema)
 const Picks = new mongoose.model("picks", PicksSchema)
 const Score = new mongoose.model("score", ScoreSchema)
