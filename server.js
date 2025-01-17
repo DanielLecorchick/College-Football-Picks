@@ -137,6 +137,11 @@ app.get('/details', checkAuthenticated, (req, res) => {
     res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
 })
 
+app.get('/general-details', checkAuthenticated, (req, res) => {
+    const { homeTeam, awayTeam } = req.query;
+    res.render('general-details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
+})
+
 //logout route 
 app.delete('/logout', (req, res) => {
     req.logOut()

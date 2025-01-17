@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/css/details.css">
 </head>
 <body>
-    <div id="details" class ="details">
+    <div class="details">
+        <div class="left"></div>
+        <div class="right"></div>
         <script>
             async function fetchTop25() {
                 try{
@@ -30,22 +32,28 @@
 
             function createDisplay(top25Teams, gamesData) {
                 // Set the webpage title and header
-                var displayTitle = ""
+                var homeTitle = ""
                 if (top25Teams.indexOf(homeTeam.team.id) != -1) {
-                    displayTitle += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
+                    homeTitle += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
                 }
-                displayTitle += homeTeam.team.displayName + " vs "
+                homeTitle += homeTeam.team.displayName
+                
+                var awayTitle = ""
                 if (top25Teams.indexOf(awayTeam.team.id) != -1) {
-                    displayTitle += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
+                    awayTitle += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
                 }
-                displayTitle += awayTeam.team.displayName
-                document.title = displayTitle
+                awayTitle += awayTeam.team.displayName
 
-                const detailsDiv = document.getElementById("details")
-                const header = document.createElement('h1')
-                header.textContent = displayTitle
-                detailsDiv.appendChild(header)
+                const leftDiv = document.getElementsByClassName("left")[0]
+                const rightDiv = document.getElementsByClassName("right")[0]
+                const leftHeader = document.createElement('h1')
+                const rightHeader = document.createElement('h1')
+                leftHeader.textContent = homeTitle
+                rightHeader.textContent = awayTitle
+                leftDiv.appendChild(leftHeader)
+                rightDiv.appendChild(rightHeader)
 
+                document.title = homeTeam.team.abbreviation + " vs " + awayTeam.team.abbreviation
                 var officialTitle = awayTeam.team.displayName + " at " + homeTeam.team.displayName
                 let gameInfo = null
                 for (let element of gamesData.events) {
@@ -58,23 +66,71 @@
                     console.log(gameInfo)
                 }
 
-                var displayTable = false;
-                var past = false
-                const gameStatus = document.createElement('h2')
-                if(gameInfo.status.type.state === "post") {
-                    gameStatus.textContent = "Final: " + homeTeam.score + " - " + awayTeam.score
-                    displayTable = true
-                    past = true
+                var pre = false
+                if (gameInfo.status.type.state === "pre") {
+                    pre = true
                 }
-                else if (gameInfo.status.type.state === "pre") {
-                    gameStatus.textContent = gameInfo.status.type.shortDetail
+                generateSubHeading("h2", "Record:", [leftDiv, rightDiv])
+                generateSubHeading("h3", `Overall: ${homeTeam.records[0].summary}`, leftDiv)
+                generateSubHeading("h3", `Overall: ${awayTeam.records[0].summary}`, rightDiv)
+                generateSubHeading("h3", `Home: ${homeTeam.records[1].summary}`, leftDiv)
+                generateSubHeading("h3", `Home: ${awayTeam.records[1].summary}`, rightDiv)
+                generateSubHeading("h3", `Away: ${homeTeam.records[2].summary}`, leftDiv)
+                generateSubHeading("h3", `Away: ${awayTeam.records[2].summary}`, rightDiv)
+                generateSubHeading("h3", `Vs. Conference: ${homeTeam.records[3].summary}`, leftDiv)
+                generateSubHeading("h3", `Vs. Conference: ${awayTeam.records[3].summary}`, rightDiv)
+                generateSubHeading("h2", "Stat Leaders:", [leftDiv, rightDiv])
+                generateSubHeading("h3", `Passing: ${homeTeam.leaders[0].leaders[0].athlete.fullName}<br>${homeTeam.leaders[0].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[0].leaders[0].athlete.headshot)
+                generateSubHeading("h3", `Passing: ${awayTeam.leaders[0].leaders[0].athlete.fullName}<br>${awayTeam.leaders[0].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[0].leaders[0].athlete.headshot)
+                generateSubHeading("h3", `Rushing: ${homeTeam.leaders[1].leaders[0].athlete.fullName}<br>${homeTeam.leaders[1].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[1].leaders[0].athlete.headshot)
+                generateSubHeading("h3", `Rushing: ${awayTeam.leaders[1].leaders[0].athlete.fullName}<br>${awayTeam.leaders[1].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[1].leaders[0].athlete.headshot)
+                generateSubHeading("h3", `Recieving: ${homeTeam.leaders[2].leaders[0].athlete.fullName}<br>${homeTeam.leaders[2].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[2].leaders[0].athlete.headshot)
+                generateSubHeading("h3", `Recieving: ${awayTeam.leaders[2].leaders[0].athlete.fullName}<br>${awayTeam.leaders[2].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[2].leaders[0].athlete.headshot)
+            
+                //const gameDetails = document.createElement('p')
+                //gameDetails.textContent = "Here you can add more game details..."
+                //detailsDiv.appendChild(gameDetails)
+            }
+
+            const generateSubHeading = (headerType, inputString, specifiedDiv, imgUrl = null) => {
+                if (!specifiedDiv) {
+                    console.error('specifiedDiv is undefined or null.');
+                    return;
                 }
-                else {
-                    gameStatus.textContent = "Ongoing"
-                    displayTable = true
-                }
-                detailsDiv.appendChild(gameStatus)
-                if (displayTable) {
+
+                const items = Array.isArray(inputString) ? inputString : [inputString];
+                items.forEach(item => {
+                    const headers = Array.isArray(specifiedDiv) ? specifiedDiv : [specifiedDiv];
+                    headers.forEach(head => {
+                        if (!head) {
+                            console.error('head is undefined or null.');
+                            return;
+                        }
+
+                        const container = document.createElement('div');
+                        container.style.display = 'flex';
+                        container.style.alignItems = 'center';
+
+                        if (imgUrl) {
+                            const img = document.createElement('img');
+                            img.src = imgUrl;
+                            img.alt = 'Athlete headshot';
+                            img.style.width = '200px'; // Adjust the size as needed
+                            img.style.height = 'auto'; // Adjust the size as needed
+                            img.style.marginRight = '10px'; // Space between image and text
+                            container.appendChild(img);
+                        }
+
+                        const genDetails = document.createElement(headerType);
+                        genDetails.innerHTML = item; // Use innerHTML to render <br> tags as HTML
+                        container.appendChild(genDetails);
+
+                        head.appendChild(container);
+                    });
+                });
+            };
+
+            const displayTable = (homeTeam, awayTeam) => {
                     const table = document.createElement('table')
                     table.style.border = "1px solid black"
 
@@ -113,30 +169,6 @@
                     detailsDiv.appendChild(table)
                 }
 
-                const generateSubHeading = (headerType, inputString) => {
-                    const items = Array.isArray(inputString) ? inputString : [inputString];
-                    items.forEach(item => {
-                        const genDetails = document.createElement(headerType)
-                        genDetails.textContent = item
-                        detailsDiv.appendChild(genDetails)
-                    })
-                    
-                }
-
-                generateSubHeading("h2", "General Info:")
-                if(past) {
-                    generateSubHeading("h3", ["Date: " + gameInfo.date.substring(0, 10), "Time: " + gameInfo.date.substring(11, 16)])
-                }
-                generateSubHeading("h3", ["Venue: " + gameInfo.competitions[0].venue.fullName])
-                if(past) {
-                    generateSubHeading("h3", ["Attendance: " + gameInfo.competitions[0].attendance])
-                }
-                
-                //const gameDetails = document.createElement('p')
-                //gameDetails.textContent = "Here you can add more game details..."
-                //detailsDiv.appendChild(gameDetails)
-            }
-
             // Retrieve data from localStorage
             const homeTeam = JSON.parse(localStorage.getItem('homeTeam'))
             const awayTeam = JSON.parse(localStorage.getItem('awayTeam'))
@@ -145,10 +177,13 @@
                 console.log(homeTeam)
                 console.log(awayTeam)
                 document.documentElement.style.setProperty('--home-team-color', `#${homeTeam.team.color}`)
+                document.documentElement.style.setProperty('--home-team-alt', `#${homeTeam.team.alternateColor}`)
                 document.documentElement.style.setProperty('--away-team-color', `#${awayTeam.team.color}`)
+                document.documentElement.style.setProperty('--away-team-alt', `#${awayTeam.team.alternateColor}`)
                 fetchTop25()
             }
         </script>
     </div>
+    <button class="banner-button">General Details</button>
 </body>
 </html>

@@ -1,8 +1,85 @@
 :root {
-    --home-team-color: black; /* Default colors */
+    --home-team-color: black;
+    --home-team-alt: black;
     --away-team-color: black;
+    --away-team-alt: black;
 }
 
-h1 {
-    color: var(--home-team-color);
+body, html {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+.details {
+    display: flex;
+    width: 100%;
+    height: 100%; /* Full viewport height */
+    position: relative;
+}
+
+.left, .right {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;  /* Align items to the start (top) */
+    flex-direction: column;  /* Allow stacking of elements vertically */
+    color: white;
+    position: relative;
+    padding: 20px;  /* Add padding to move content slightly inward */
+}
+
+.left {
+    background: linear-gradient(to right, var(--home-team-color), var(--home-team-alt));
+    border-right: 3px solid black; /* Add a black border to the right */
+}
+
+.right {
+    background: linear-gradient(to right, var(--away-team-color), var(--away-team-alt));
+    border-left: 3px solid black; /* Add a black border to the right */
+}
+
+.left h1, .right h1 {
+    font-size: 3em;
+    margin: 0 0 10px 0;  /* Add some margin below h1 */
+    text-decoration: underline;  /* Underline the h1 text */
+    text-align: center;  /* Center the h1 text */
+    width: 100%;
+}
+
+.left h2, .right h2, .left h3, .right h3 {
+    margin: 10px 0;
+    text-align: left;
+    padding-left: 5%;  /* Keep the padding */
+    width: auto; /* Allow the width to adjust to content */
+    white-space: nowrap; /* Prevent the text from breaking to a new line */
+}
+
+h2 {
+    font-size: 2em;
+}
+
+h3 {
+    font-size: 1.5em;
+}
+
+.banner-button {
+    position: fixed;  /* Fix the button at the bottom of the screen */
+    bottom: 0;  /* Place it at the bottom */
+    left: 0;  /* Align it to the left edge of the viewport */
+    width: 100%;  /* Make the button span the full width of the screen */
+    height: 50px;  /* Set a minimal height for the banner-like button */
+    background-color: #333;  /* Choose a background color */
+    color: white;  /* Set text color */
+    font-size: 2cap;  /* Adjust font size as needed */
+    text-align: center;  /* Center the text horizontally */
+    border: none;  /* Remove default border */
+    display: flex;
+    justify-content: center;  /* Center the content inside */
+    align-items: center;  /* Align text vertically */
+    cursor: pointer;  /* Change cursor to pointer on hover */
+}
+
+.banner-button:hover {
+    background-color: #555;  /* Change background color on hover */
 }

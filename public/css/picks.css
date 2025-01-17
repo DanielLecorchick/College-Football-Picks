@@ -1,0 +1,63 @@
+body {
+    background: linear-gradient(to right, rgb(255, 255, 255), rgb(179, 179, 179));
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#Picks {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, .01);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #000;
+    margin-bottom: 1%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.vs-text {
+    font-weight: bold;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.team-button {
+    width: 300px;
+}
+
+button {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+button img {
+    justify-content: flex-start;
+    margin-right: 10px;
+}
+
+button span {
+    vertical-align: middle;
+    color: black;
+}
