@@ -140,8 +140,15 @@
         //FIX ME: This will need finished its like getting there tho
         async function PickSelection(pickGameID, homeAwayPick) {
             const pickUserID = localStorage.getItem('userId')
+
+            const response = await fetch('/picks', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({gameId: pickGameID, pick: homeAwayPick, userId: pickUserID})
+            })
             const existingPick = await Picks.findOne({userId: pickUserID, gameId: pickGameID})
 
+            /*
             if(existingPick) {
                 existingPick.pick = homeAwayPick;
                 await existingPick.save()
@@ -154,6 +161,7 @@
                 })
                 await newPick.save()
             }
+            */
             
         }
 

@@ -4,6 +4,7 @@
 const {authenticate} = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
+const {User} = require('./database-config')
 
 // function to initilize passport within the local strategy
 function initalize(passport, getUserByUsername, getUserById) {
