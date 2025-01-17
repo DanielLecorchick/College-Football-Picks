@@ -41,16 +41,16 @@ const PicksSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        //required: true,
+        required: true,
     },
     gameId: {
         type: String,
-        //required: true,
+        required: true,
     },
     pick: {
         type: String,
         enum: ["homeTeam", "awayTeam"],
-        //required: true,
+        required: true,
     }
 })
 

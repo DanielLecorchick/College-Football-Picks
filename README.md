@@ -7,6 +7,7 @@
 - [Table of Contents](#table-of-contents)
 - [What is College Football Picks?](#what-is-college-football-picks)
 - [More Info](#more-info)
+- [How To Run](#how-to-run)
 - [Future plans](#future-plans)
 - [Creators Contributions](#creators-contributions)
 
@@ -35,7 +36,22 @@ Our application uses a Raspberry Pi 5 to host the webpage and an SQL database wh
 
 Information about games is pulled from ESPNs API every 10 minutes to ensure that accurate data is displayed on all pages.
 
-We used the Express.js framework from Node.js to power the application, and most of the programming was done in Embedded JavaScript, CSS, and Javascript
+We used the Express.js framework from Node.js to power the application, and most of the programming was done in Embedded JavaScript, CSS, and Javascript.
+
+# How To Run
+If you want to run the application locally:
+1. Download the zip of the [Code](https://github.com/DanielLecorchick/College-Football-Picks/archive/refs/heads/main.zip)
+2. Unzip the zip file, open the College-Football-Picks-main folder, click in the address bar to highlight the file path, and copy it to clipboard for later
+3. Install [Node.js](https://nodejs.org/en/download)
+4. Open any terminal, such as command prompt, and navigate through your file directory to the College-Football-Picks-main folder using the file path we saved earlier, and the cd command. It should look something like this
+    ```sh
+    cd C:/Users/LocalUser/Downloads/College-Football-Picks-main
+    ```
+5. Now that you are in the correct directory, run the command
+   ```sh
+    node server.js
+    ```
+6. The local server is now running. Open any web browser and go to http://localhost:3000/, and you should be able to access the full functionality!
 
 # Future plans
 - CSS needs to be developed for most pages
@@ -51,9 +67,11 @@ We used the Express.js framework from Node.js to power the application, and most
 # Creators Contributions
 1. Dan Lecorchick
     1. Signup/login process though MongoDB
-    2. Picks page
-    3. Home page
-    4. Ranking page
+    2. Picks page logic
+    3. Home page logic
+    4. Ranking page logic
 2. Michael Burns
-   1. Details page
-   2. Casino page
+   1. Details page logic
+   2. Casino page logic
+   3. Most CSS work
+   4. README

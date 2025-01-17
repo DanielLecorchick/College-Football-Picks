@@ -113,7 +113,11 @@ app.post('/picks', checkAuthenticated, async(req,res) => {
             await existingPick.save()
         }
         else {
-            const newPick =new Picks({userId,gameId,pick})
+            const newPick =new Picks({
+                userId,
+                gameId,
+                pick
+            })
             await newPick.save()
         }
         res.redirect('/picks')
@@ -136,6 +140,11 @@ app.get('/casino', checkAuthenticated, (req, res) => {
 app.get('/details', checkAuthenticated, (req, res) => {
     const { homeTeam, awayTeam } = req.query;
     res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
+})
+
+app.get('/general-details', checkAuthenticated, (req, res) => {
+    const { homeTeam, awayTeam } = req.query;
+    res.render('general-details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
 })
 
 //logout route 
