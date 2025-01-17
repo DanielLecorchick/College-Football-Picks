@@ -10,7 +10,9 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-const User = require("./database-config.js")
+const User = require('./database-config.js')
+const Picks = require('./database-config.js')
+const Score = require('./database-config.js')
 
 // imports and configures the passport config
 const initalizePassport = require('./passport-config')
@@ -96,11 +98,29 @@ app.get('/picks', checkAuthenticated, (req, res) => {
     res.render('picks.ejs', {name: req.user.name, username: req.user.username})
 })
 
-/*
+
 app.post('/picks', checkAuthenticated, async(req,res) => {
-    //something will be needed here to post the picks once the user makes/changes picks
+    const{userId,gameId,pick} = req.body
+
+    try{
+        const existingPick = await Picks.findOne({userId, gameId})
+
+        if(existingPick) {
+            existingPick.pick = pick
+            await existingPick.save()
+        }
+        else {
+            const newPick =new Picks({userId,gameId,pick})
+            await newPick.save()
+        }
+        res.redirect('/picks')
+    }
+    catch(error) {
+        console.error("error with picks", error)
+        res.redirect('/picks')
+    }
 })
-*/
+
 
 app.get('/weeklyresults', checkAuthenticated, (req, res) => {
     res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
@@ -140,6 +160,16 @@ function checkNotAuthenticated(req,res,next) {
         return res.redirect('/')
     }
     next()
+}
+
+const getUserByUsername = async (username) => {
+    const user = await User.findOne({username})
+    return user
+}
+
+const getUserById = async (id) => {
+    const user = await User.findById(id)
+    return user
 }
 
 //404 error handling
