@@ -14,7 +14,7 @@
     <div id = "Picks">
     <script>
         //for some reason this causes the picks to no longer show up
-        const {User, Picks} = require('./database-config')
+        //const {User, Picks} = require('./database-config')
 
         async function fetchTop25() {
             try{
@@ -110,21 +110,6 @@
                     homeTeamButton.disabled = true;
                     awayTeamButton.disabled = true;
                     if(homeTeam.winner) {
-                //grays out box if the user has already made a pick for that game
-                if(GameData. === gameId){
-                    if(await Picks.findOne({pick}) === "homeTeam"){
-                        homeTeamButton.disabled = true
-                        awayTeamButton.disabled = false
-                    }
-                    else if(await Picks.findOne({pick}) === "awayTeam"){
-                        homeTeamButton.disabled = false
-                        awayTeamButton.disabled = true
-                    }
-                    else{
-                        console.log("Error in checking if the user made a pick")
-                    }
-                }
-
                         homeTeamButton.style.backgroundColor = winColor;
                         awayTeamButton.style.backgroundColor = lossColor;
                     }
@@ -133,6 +118,7 @@
                         awayTeamButton.style.backgroundColor = winColor;
                     }
                 }
+
 
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.disabled = true;
