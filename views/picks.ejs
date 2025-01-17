@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="/css/picks.css">
 </head>
 <body>
-    <h1>Picks</h1>
-    <div id = "Picks"></div>
-
+    <div id="header">
+        <h1>Picks</h1>
+    </div>
+    <div id = "Picks">
     <script>
         async function fetchTop25() {
             try{
@@ -74,64 +75,83 @@
             picksDiv.innerHTML = ""
 
             // creates a button for each home and away team,as well as the details, along with text underneath for the game date and time
-            filteredGames.forEach(({gameDate, homeTeam, awayTeam, game}) => {
+            filteredGames.forEach(({ gameDate, homeTeam, awayTeam, game }) => {
+                const gameContainer = document.createElement('div');
+                gameContainer.classList.add('game-container');
 
-                //creates and handles the home team buttons
-                const homeTeamButton = document.createElement('button');
-                if (top25Teams.indexOf(homeTeam.team.id) != -1) {
-                    homeTeamButton.textContent += "#" + (top25Teams.indexOf(homeTeam.team.id)+1) + " "
-                }
-                homeTeamButton.textContent += homeTeam.team.displayName
+                const generateTeamButton = (team, imgUrl, size) => {
+                    const teamButton = document.createElement('button')
+                    const teamImg = document.createElement('img')
+                    teamImg.src = team.team.logo
+                    teamImg.alt = team.team.displayName
+                    teamImg.style.width = size
+                    teamButton.appendChild(teamImg)
 
-                //creates and handles the away team buttons
-                const awayTeamButton = document.createElement('button');
-                if (top25Teams.indexOf(awayTeam.team.id) != -1) {
-                    awayTeamButton.textContent += "#" + (top25Teams.indexOf(awayTeam.team.id)+1) + " "
-                }
-                awayTeamButton.textContent += awayTeam.team.displayName
-
-
-                //grays out all buttons if the game isnt pregame
-                if(game.status.type.state !== "pre") {
-                    homeTeamButton.disabled = true
-                    awayTeamButton.disabled = true
+                    const teamText = document.createElement('span');
+                    if (top25Teams.indexOf(team.team.id) != -1) {
+                        teamText.textContent += `#${top25Teams.indexOf(team.team.id) + 1} `
+                    }
+                    teamText.textContent += team.team.displayName
+                    teamButton.appendChild(teamText)
+                    return teamButton;
                 }
 
-                //onclick for the home team
+                const homeTeamButton = generateTeamButton(homeTeam, homeTeam.team.logo, "100px")
+                const awayTeamButton = generateTeamButton(awayTeam, awayTeam.team.logo, "100px")
+                homeTeamButton.classList.add('team-button')
+                awayTeamButton.classList.add('team-button')
+                
+                const winColor = `rgb(144, 238, 144)`;
+                const lossColor = `rgb(240, 128, 128)`;
+                if (game.status.type.state !== "pre") {
+                    homeTeamButton.disabled = true;
+                    awayTeamButton.disabled = true;
+                    if(homeTeam.winner) {
+                        homeTeamButton.style.backgroundColor = winColor;
+                        awayTeamButton.style.backgroundColor = lossColor;
+                    }
+                    else {
+                        homeTeamButton.style.backgroundColor = lossColor;
+                        awayTeamButton.style.backgroundColor = winColor;
+                    }
+                }
+
                 homeTeamButton.onclick = async () => {
-                    homeTeamButton.disabled = true
-                    awayTeamButton.disabled = false
-                    await PickSelection(game.id, "homeTeam")
-                }
+                    homeTeamButton.disabled = true;
+                    awayTeamButton.disabled = false;
+                    await PickSelection(game.id, "homeTeam");
+                };
 
-                //onlick for the away team
                 awayTeamButton.onclick = async () => {
-                    homeTeamButton.disabled = false
-                    awayTeamButton.disabled = true
-                    await PickSelection(game.id, "awayTeam")
+                    homeTeamButton.disabled = false;
+                    awayTeamButton.disabled = true;
+                    await PickSelection(game.id, "awayTeam");
+                };
 
-                }
-
-                //creates the details button 
                 const detailsButton = document.createElement('button');
-                detailsButton.textContent = "See Details"
+                detailsButton.textContent = "See Details";
                 detailsButton.onclick = () => {
                     localStorage.setItem('homeTeam', JSON.stringify(homeTeam));
                     localStorage.setItem('awayTeam', JSON.stringify(awayTeam));
                     window.location.href = `/details?homeTeamID=${homeTeam.team.id}&awayTeamID=${awayTeam.team.id}`;
-                }
+                };
 
-                //displays the games date and time
-                const dateDiv = document.createElement('div')
-                dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
+                const dateDiv = document.createElement('div');
+                dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`;
 
-                //appends each of these items onto the webpage
-                picksDiv.appendChild(homeTeamButton)
-                picksDiv.appendChild(awayTeamButton)
-                picksDiv.appendChild(detailsButton)
-                picksDiv.appendChild(document.createElement('br'))
-                picksDiv.appendChild(dateDiv)
-            })
+                const vsSpan = document.createElement('span');
+                vsSpan.textContent = "vs";
+                vsSpan.classList.add('vs-text');
+
+
+                gameContainer.appendChild(homeTeamButton)
+                gameContainer.appendChild(vsSpan)
+                gameContainer.appendChild(awayTeamButton)
+                gameContainer.appendChild(detailsButton)
+
+                picksDiv.appendChild(gameContainer)
+                picksDiv.appendChild(document.createElement('br'));
+            });
 
             console.log(filteredGames)
         }
@@ -161,5 +181,6 @@
         fetchTop25()
         setInterval(fetchTop25, 600000)
     </script>
+    </div>
 </body>
 </html>
