@@ -10,9 +10,10 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-const User = require('./database-config.js')
-const Picks = require('./database-config.js')
-const Score = require('./database-config.js')
+// const User = require('./database-config.js')
+// const Picks = require('./database-config.js')
+// const Score = require('./database-config.js')
+const{User,Picks,Score}= require('./database-config.js')
 
 // imports and configures the passport config
 const initalizePassport = require('./passport-config')

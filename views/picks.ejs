@@ -12,6 +12,9 @@
     <div id = "Picks"></div>
 
     <script>
+        //for some reason this causes the picks to no longer show up
+        //const {User, Picks} = require('./database-config')
+
         async function fetchTop25() {
             try{
                 // pulls all the top 25 teams and ranking data from the rankings API
@@ -135,9 +138,8 @@
 
             console.log(filteredGames)
         }
-/*
+
         //function to send the users pick to the database or update their pick to the database
-        //FIX ME: This will need finished its like getting there tho
         async function PickSelection(pickGameID, homeAwayPick) {
             const pickUserID = localStorage.getItem('userId')
 
@@ -147,24 +149,8 @@
                 body: JSON.stringify({gameId: pickGameID, pick: homeAwayPick, userId: pickUserID})
             })
             const existingPick = await Picks.findOne({userId: pickUserID, gameId: pickGameID})
-
-
-            if(existingPick) {
-                existingPick.pick = homeAwayPick;
-                await existingPick.save()
-            }
-            else {
-                const newPick = new Picks({
-                    userId: pickUserID,
-                    gameId: pickGameID,
-                    pick: homeAwayPick
-                })
-                await newPick.save()
-            }
-            
-        
         }
-*/
+
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchTop25()
         setInterval(fetchTop25, 600000)
