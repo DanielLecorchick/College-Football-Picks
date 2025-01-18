@@ -13,7 +13,7 @@
     </div>
     <div id = "Picks">
     <script>
-        async function fetchTop25() {
+        async function fetchGames() {
             try{
                 // pulls all the top 25 teams and ranking data from the rankings API
                 const rankingsResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
@@ -169,8 +169,8 @@
         }
 
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
-        fetchTop25()
-        setInterval(fetchTop25, 600000)
+        fetchGames()
+        setInterval(fetchGames, 600000)
     </script>
     </div>
 </body>
