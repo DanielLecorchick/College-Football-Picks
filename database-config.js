@@ -60,15 +60,15 @@ const ScoreSchema = new mongoose.Schema({
         ref: "users",
         //required: true,
     },
-    correctPicks: {
+    correctPoints: {
         type: Number,
         //required: true,
     },
-    incorrectPicks: {
+    incorrectPoints: {
         type: Number,
         //required: true,
     },
-    totalPicks: {
+    totalPoints: {
         type: Number,
         //required: true,
     }
