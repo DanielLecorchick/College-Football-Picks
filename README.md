@@ -75,8 +75,8 @@ If you want to run the application locally:
     7. Picks page logic utilizing ESPN's API
     8. Ranking page logic utilizing ESPN's API
 2. Michael Burns
-   1. Details page logic
-   2. Casino page logic
+   1. Details page logic using ESPN's API
+   2. Casino page logic/pulling from and storing data in MongoDB
    3. Picks CSS
    4. Top 25 CSS
    5. Details CSS

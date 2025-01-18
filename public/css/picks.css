@@ -11,7 +11,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
+    font-size: 2em;
+    margin-bottom: 30px;
+    width: 755.8px;
+    height: 100px;
+    border-bottom: 1px solid black;
 }
 
 #Picks {
@@ -33,10 +37,16 @@ body {
     gap: 10px;
 }
 
+.middle-div {
+    justify-content: center;
+    align-items: center;
+}
+
 .vs-text {
     font-weight: bold;
-    margin: 0;
+    margin: 20px;
     display: flex;
+    justify-content: center;
     align-items: center;
 }
 
@@ -50,6 +60,7 @@ button {
     padding: 10px;
     border: none;
     cursor: pointer;
+    border: 1px solid #000;
     border-radius: 15px;
 }
 
@@ -60,13 +71,19 @@ button:disabled {
     color: #777; 
 }
 
+button:active {
+    background-color: #555; /* Darker color */
+    color: white; /* Change text color to contrast the darker background */
+}
+
 button img {
     justify-content: flex-start;
     margin-right: 10px;
 }
 
 button span {
-    vertical-align: middle;
     color: black;
+    font-weight: bold;
+    text-align: left; 
     font-size: 1em;
 }

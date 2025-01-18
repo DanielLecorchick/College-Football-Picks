@@ -11,7 +11,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
+    font-size: 2em;
+    margin-bottom: 20px;
+    width: 724px;
+    height: 100px;
+    border-bottom: 1px solid black;
 }
 
 #rankings {
@@ -28,6 +32,7 @@ body {
 
 .name-container span {
     font-size: 2em;
+    font-weight: bold;
 }
 
 .name-container gamerecord {

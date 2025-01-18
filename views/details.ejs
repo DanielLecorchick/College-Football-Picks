@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="/css/details.css">
 </head>
 <body>
-    <div class="details">
-        <div class="left"></div>
-        <div class="right"></div>
+    <div id="details">
         <script>
             async function fetchTop25() {
                 try{
@@ -44,15 +42,6 @@
                 }
                 awayTitle += awayTeam.team.displayName
 
-                const leftDiv = document.getElementsByClassName("left")[0]
-                const rightDiv = document.getElementsByClassName("right")[0]
-                const leftHeader = document.createElement('h1')
-                const rightHeader = document.createElement('h1')
-                leftHeader.textContent = homeTitle
-                rightHeader.textContent = awayTitle
-                leftDiv.appendChild(leftHeader)
-                rightDiv.appendChild(rightHeader)
-
                 document.title = homeTeam.team.abbreviation + " vs " + awayTeam.team.abbreviation
                 var officialTitle = awayTeam.team.displayName + " at " + homeTeam.team.displayName
                 let gameInfo = null
@@ -70,67 +59,79 @@
                 if (gameInfo.status.type.state === "pre") {
                     pre = true
                 }
-                generateSubHeading("h2", "Record:", [leftDiv, rightDiv])
-                generateSubHeading("h3", `Overall: ${homeTeam.records[0].summary}`, leftDiv)
-                generateSubHeading("h3", `Overall: ${awayTeam.records[0].summary}`, rightDiv)
-                generateSubHeading("h3", `Home: ${homeTeam.records[1].summary}`, leftDiv)
-                generateSubHeading("h3", `Home: ${awayTeam.records[1].summary}`, rightDiv)
-                generateSubHeading("h3", `Away: ${homeTeam.records[2].summary}`, leftDiv)
-                generateSubHeading("h3", `Away: ${awayTeam.records[2].summary}`, rightDiv)
-                generateSubHeading("h3", `Vs. Conference: ${homeTeam.records[3].summary}`, leftDiv)
-                generateSubHeading("h3", `Vs. Conference: ${awayTeam.records[3].summary}`, rightDiv)
-                generateSubHeading("h2", "Stat Leaders:", [leftDiv, rightDiv])
-                generateSubHeading("h3", `Passing: ${homeTeam.leaders[0].leaders[0].athlete.fullName}<br>${homeTeam.leaders[0].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[0].leaders[0].athlete.headshot)
-                generateSubHeading("h3", `Passing: ${awayTeam.leaders[0].leaders[0].athlete.fullName}<br>${awayTeam.leaders[0].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[0].leaders[0].athlete.headshot)
-                generateSubHeading("h3", `Rushing: ${homeTeam.leaders[1].leaders[0].athlete.fullName}<br>${homeTeam.leaders[1].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[1].leaders[0].athlete.headshot)
-                generateSubHeading("h3", `Rushing: ${awayTeam.leaders[1].leaders[0].athlete.fullName}<br>${awayTeam.leaders[1].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[1].leaders[0].athlete.headshot)
-                generateSubHeading("h3", `Recieving: ${homeTeam.leaders[2].leaders[0].athlete.fullName}<br>${homeTeam.leaders[2].leaders[0].displayValue}`, leftDiv, homeTeam.leaders[2].leaders[0].athlete.headshot)
-                generateSubHeading("h3", `Recieving: ${awayTeam.leaders[2].leaders[0].athlete.fullName}<br>${awayTeam.leaders[2].leaders[0].displayValue}`, rightDiv, awayTeam.leaders[2].leaders[0].athlete.headshot)
-            
-                //const gameDetails = document.createElement('p')
-                //gameDetails.textContent = "Here you can add more game details..."
-                //detailsDiv.appendChild(gameDetails)
+
+                const detailsDiv = document.getElementById("details")
+
+                const homeDiv = document.createElement("div")
+                const awayDiv = document.createElement("div")
+                const generalDiv = document.createElement("div")
+
+                homeDiv.className = "data-container"
+                awayDiv.className = "data-container"
+                generalDiv.className = "data-container"
+
+                const homeHeader = document.createElement("h1")
+                const awayHeader = document.createElement("h1")
+                const generalHeader = document.createElement("h1")
+
+                homeHeader.textContent = homeTitle
+                awayHeader.textContent = awayTitle
+                generalHeader.textContent = "General Info"
+
+                homeDiv.appendChild(homeHeader)
+                awayDiv.appendChild(awayHeader)
+                generalDiv.appendChild(generalHeader)
+
+                detailsDiv.appendChild(homeDiv)
+                detailsDiv.appendChild(generalDiv)
+                detailsDiv.appendChild(awayDiv)
             }
 
-            const generateSubHeading = (headerType, inputString, specifiedDiv, imgUrl = null) => {
+            const generateSubHeading = (headerType, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
                 if (!specifiedDiv) {
-                    console.error('specifiedDiv is undefined or null.');
-                    return;
+                    console.error('specifiedDiv is undefined or null.')
+                    return
                 }
 
-                const items = Array.isArray(inputString) ? inputString : [inputString];
+                const items = Array.isArray(inputString) ? inputString : [inputString]
                 items.forEach(item => {
-                    const headers = Array.isArray(specifiedDiv) ? specifiedDiv : [specifiedDiv];
+                    const headers = Array.isArray(specifiedDiv) ? specifiedDiv : [specifiedDiv]
                     headers.forEach(head => {
                         if (!head) {
-                            console.error('head is undefined or null.');
-                            return;
+                            console.error('head is undefined or null.')
+                            return
                         }
 
-                        const container = document.createElement('div');
-                        container.style.display = 'flex';
-                        container.style.alignItems = 'center';
+                        const container = document.createElement('div')
+                        container.style.display = 'flex'
+                        container.style.alignItems = 'center'
 
                         if (imgUrl) {
-                            const img = document.createElement('img');
-                            img.src = imgUrl;
-                            img.alt = 'Athlete headshot';
-                            img.style.width = '200px'; // Adjust the size as needed
-                            img.style.height = 'auto'; // Adjust the size as needed
-                            img.style.marginRight = '10px'; // Space between image and text
-                            container.appendChild(img);
+                            const img = document.createElement('img')
+                            img.src = imgUrl
+                            img.alt = 'Athlete headshot'
+                            if(imgSize) {
+                                img.style.width = imgSize
+                                img.style.height = 'auto'
+                            }
+                            else {
+                                img.style.width = '200px'
+                                img.style.height = 'auto'
+                            }
+                            img.style.marginRight = '10px'
+                            container.appendChild(img)
                         }
 
-                        const genDetails = document.createElement(headerType);
-                        genDetails.innerHTML = item; // Use innerHTML to render <br> tags as HTML
-                        container.appendChild(genDetails);
+                        const genDetails = document.createElement(headerType)
+                        genDetails.innerHTML = item
+                        container.appendChild(genDetails)
 
-                        head.appendChild(container);
-                    });
-                });
-            };
+                        head.appendChild(container)
+                    })
+                })
+            }
 
-            const displayTable = (homeTeam, awayTeam) => {
+            const displayTable = (homeTeam, awayTeam, specifiedDiv) => {
                     const table = document.createElement('table')
                     table.style.border = "1px solid black"
 
@@ -148,7 +149,7 @@
                     const quarterLabels = [
                         ...Array.from({ length: Math.min(homeTeam.linescores.length, 4) }, (_, i) => `Q${i + 1}`),
                         ...Array.from({ length: Math.max(homeTeam.linescores.length - 4, 0) }, (_, i) => `OT${i + 1}`)
-                    ];
+                    ]
                     const tableFormat = ["Teams", ...quarterLabels, "Final"]
                     table.appendChild(createRow(tableFormat))
 
@@ -163,10 +164,10 @@
                         awayTeam.team.abbreviation,
                         ...awayTeam.linescores.map(score => score.value),
                         awayTeam.score
-                    ];
+                    ]
                     table.appendChild(createRow(awayFormat))
 
-                    detailsDiv.appendChild(table)
+                    specifiedDiv.appendChild(table)
                 }
 
             // Retrieve data from localStorage
@@ -184,6 +185,5 @@
             }
         </script>
     </div>
-    <button class="banner-button">General Details</button>
 </body>
 </html>
