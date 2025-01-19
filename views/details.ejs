@@ -62,34 +62,31 @@
 
                 const detailsDiv = document.getElementById("details")
 
+                const headerDiv = document.createElement("div")
                 const homeDiv = document.createElement("div")
                 const awayDiv = document.createElement("div")
                 const generalDiv = document.createElement("div")
 
+                headerDiv.className = "header-container"
                 homeDiv.className = "data-container"
                 awayDiv.className = "data-container"
                 generalDiv.className = "data-container"
 
-                const homeHeader = document.createElement("h1")
-                const awayHeader = document.createElement("h1")
-                const generalHeader = document.createElement("h1")
+                generateSubHeading("header", "title-div", homeTitle, headerDiv, homeTeam.team.logo, "150px")
+                generateSubHeading("header", "title-div", awayTitle, headerDiv, awayTeam.team.logo, "150px")
+                generateSubHeading("header", "title-div", gameInfo.competitions[0].odds[0].spread, homeDiv)
+                generateSubHeading("header", "title-div", "Game Info", awayDiv)
+                generateSubHeading("header", "title-div", "Game Info", generalDiv)
 
-                homeHeader.textContent = homeTitle
-                awayHeader.textContent = awayTitle
-                generalHeader.textContent = "General Info"
-
-                homeDiv.appendChild(homeHeader)
-                awayDiv.appendChild(awayHeader)
-                generalDiv.appendChild(generalHeader)
-
+                detailsDiv.appendChild(headerDiv)
                 detailsDiv.appendChild(homeDiv)
                 detailsDiv.appendChild(generalDiv)
                 detailsDiv.appendChild(awayDiv)
             }
 
-            const generateSubHeading = (headerType, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
+            const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
                 if (!specifiedDiv) {
-                    console.error('specifiedDiv is undefined or null.')
+                    console.error("specifiedDiv is undefined or null.")
                     return
                 }
 
@@ -98,27 +95,26 @@
                     const headers = Array.isArray(specifiedDiv) ? specifiedDiv : [specifiedDiv]
                     headers.forEach(head => {
                         if (!head) {
-                            console.error('head is undefined or null.')
+                            console.error("head is undefined or null.")
                             return
                         }
 
-                        const container = document.createElement('div')
-                        container.style.display = 'flex'
-                        container.style.alignItems = 'center'
+                        const container = document.createElement("div")
+                        container.className = inputClassName
 
                         if (imgUrl) {
-                            const img = document.createElement('img')
+                            const img = document.createElement("img")
                             img.src = imgUrl
-                            img.alt = 'Athlete headshot'
+                            img.alt = "Athlete headshot"
                             if(imgSize) {
                                 img.style.width = imgSize
-                                img.style.height = 'auto'
+                                img.style.height = "auto"
                             }
                             else {
-                                img.style.width = '200px'
-                                img.style.height = 'auto'
+                                img.style.width = "200px"
+                                img.style.height = "auto"
                             }
-                            img.style.marginRight = '10px'
+                            img.style.marginRight = "10px"
                             container.appendChild(img)
                         }
 
@@ -131,15 +127,19 @@
                 })
             }
 
-            const displayTable = (homeTeam, awayTeam, specifiedDiv) => {
-                    const table = document.createElement('table')
-                    table.style.border = "1px solid black"
+            const generateTable = (homeTeam, awayTeam, specifiedDiv) => {
+                    const table = document.createElement("table")
 
-                    const createRow = (data) => {
-                        const row = document.createElement('tr')
+                    const createRow = (data, rowType) => {
+                        const row = document.createElement("tr")
                         data.forEach(item => {
-                            const cell = document.createElement('td')
-                            cell.style.border = "1px solid black"
+                            let cell
+                            if(rowType === "table") {
+                                cell = document.createElement("fd")
+                            }
+                            else {
+                                cell = document.createElement("td")  
+                            }
                             cell.textContent = item
                             row.appendChild(cell)
                         })
@@ -150,8 +150,8 @@
                         ...Array.from({ length: Math.min(homeTeam.linescores.length, 4) }, (_, i) => `Q${i + 1}`),
                         ...Array.from({ length: Math.max(homeTeam.linescores.length - 4, 0) }, (_, i) => `OT${i + 1}`)
                     ]
-                    const tableFormat = ["Teams", ...quarterLabels, "Final"]
-                    table.appendChild(createRow(tableFormat))
+                    const tableFormat = ["", ...quarterLabels, "Final"]
+                    table.appendChild(createRow(tableFormat, "table"))
 
                     const homeFormat = [
                         homeTeam.team.abbreviation,
@@ -171,16 +171,16 @@
                 }
 
             // Retrieve data from localStorage
-            const homeTeam = JSON.parse(localStorage.getItem('homeTeam'))
-            const awayTeam = JSON.parse(localStorage.getItem('awayTeam'))
+            const homeTeam = JSON.parse(localStorage.getItem("homeTeam"))
+            const awayTeam = JSON.parse(localStorage.getItem("awayTeam"))
             // Ensure the data is valid
             if (homeTeam && awayTeam) {
                 console.log(homeTeam)
                 console.log(awayTeam)
-                document.documentElement.style.setProperty('--home-team-color', `#${homeTeam.team.color}`)
-                document.documentElement.style.setProperty('--home-team-alt', `#${homeTeam.team.alternateColor}`)
-                document.documentElement.style.setProperty('--away-team-color', `#${awayTeam.team.color}`)
-                document.documentElement.style.setProperty('--away-team-alt', `#${awayTeam.team.alternateColor}`)
+                document.documentElement.style.setProperty("--home-team-color", `#${homeTeam.team.color}`)
+                document.documentElement.style.setProperty("--home-team-alt", `#${homeTeam.team.alternateColor}`)
+                document.documentElement.style.setProperty("--away-team-color", `#${awayTeam.team.color}`)
+                document.documentElement.style.setProperty("--away-team-alt", `#${awayTeam.team.alternateColor}`)
                 fetchTop25()
             }
         </script>

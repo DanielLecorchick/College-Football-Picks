@@ -71,11 +71,6 @@ button:disabled {
     color: #777; 
 }
 
-button:active {
-    background-color: #555; /* Darker color */
-    color: white; /* Change text color to contrast the darker background */
-}
-
 button img {
     justify-content: flex-start;
     margin-right: 10px;
