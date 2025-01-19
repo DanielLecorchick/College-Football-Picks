@@ -9,7 +9,8 @@
 <body>
     <h1>Casino</h1>
     <script>
-        const betting_key = "<%= bettingApiKey %>"
+        require("dotenv").config()
+        const betting_key = process.env.MONGO_URI
 
         async function fetchTop25() {
                 try{
