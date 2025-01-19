@@ -10,10 +10,10 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-// const User = require('./database-config.js')
-// const Picks = require('./database-config.js')
-// const Score = require('./database-config.js')
+
+//imports from files in the rest of the app
 const{User,Picks,Score}= require('./database-config.js')
+const {fetchGamesToScore} = require('./pointsCenter')
 
 // imports and configures the passport config
 const initalizePassport = require('./passport-config')
@@ -182,6 +182,10 @@ const getUserById = async (id) => {
 app.use((req, res) => {
     res.status(404).send("Page Not Found");
 })
+
+//runs the scoring of games
+fetchGamesToScore()
+setInterval(fetchGamesToScore,300000)
 
 //starts the server at localhost:3000
 app.listen(3000)
