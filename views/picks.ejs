@@ -46,7 +46,16 @@
 
             gamesData.events.forEach(game => {
                 //pulls data from each game for the Date, Home, and Away team
-                const gameDate = new Date(game.date)
+                const startDate = new Date(game.date)
+                const formattedDate = startDate.toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                })
+                const gameDate = formattedDate.replace(/(\b0)(\d{1}):/, "$2:")
                 const homeTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "home")
                 const awayTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "away")
 
@@ -105,7 +114,7 @@
                 
                 const winColor = `rgb(144, 238, 144)`
                 const lossColor = `rgb(240, 128, 128)`
-                const pressColor = `rgb(150, 150, 150)`
+                const pressColor = `rgb(175, 175, 175)`
                 const unpressedColor = `rgb(233, 233, 237)`
 
                 
@@ -149,6 +158,8 @@
                 }
 
                 const dateDiv = document.createElement("div")
+                dateDiv.className = "date-div"
+                console.log(gameDate.toLocaleString())
                 dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
 
                 const vsSpan = document.createElement("span")
