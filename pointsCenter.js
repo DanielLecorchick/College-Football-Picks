@@ -1,4 +1,6 @@
-//FINISHME:I think this file is mostly done it just needs some testing and probably bugfixes I should finish this tomorrow
+//FINISHME:Tomorrow work on implimente updated scoring for games I dont believe this will be able to be fully tested?
+//1 point for one top 25 team, 2 points for two top 25 reams, 3 points for top 10 and 4 points for top 5
+//then scale those points by basepoints*(favorite probability/underdog probability) with a max of 10 times the original base points
 
 
 //this file will handle the scoring of the games and then storing them in the database
@@ -29,13 +31,12 @@ async function fetchGamesToScore() {
         scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15)
     }
     catch (error){
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data in points center:", error)
     }
 }
 
 async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15){
     //loops through all games
-    //gamesData.events.forEach(game => {
     for (const game of gamesData.events){
         //info to verify the game
         const gameDate = new Date(game.date)
@@ -66,29 +67,35 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
 
         //gets users picks from DB or continues if the user forgot a pick
         const userPick = await Picks.findOne({gameId: game.id})
-        if(!userPick) continue
+        if(!userPick || userPick.scored || game.status.type.state === "pre") continue
 
-        const correctPick = ((homeTeamScore > awayTeamScore) && userPick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick ==="awayTeam")
-        const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick ==="homeTeam")
+        //determines what is a correct or incorrect picks
+        const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
+        const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
 
-        const update = {
-            totalPoints: points
-        }
+        //sets what will be updated given the game outcome
+        const updates = {}
         if(correctPick) {
-            update.correctPoints = points
-            update.totalPoints = points
+            updates.correctPoints = points
+            updates.totalPoints = points
         }
         else if(incorrectPick) {
-            update.incorrectPoints = points
-            update.totalPoints = points
+            updates.incorrectPoints = points
+            updates.totalPoints = points
         }
 
+        //updates or creates a users pick totals
         await Score.updateOne(
             {userId: userPick.userId},
-            {$inc: update},
+            {$inc: updates},
             {upsert:true}
         )
+
+        await Picks.updateOne({_id: userPick._id}, {$set:{scored: true}})
     }
 }
 fetchGamesToScore()
-setInterval(fetchGamesToScore, 600000)
+setInterval(fetchGamesToScore, 300000)
+
+//exports this file so it can be used in the rest of the code
+module.exports = {fetchGamesToScore}

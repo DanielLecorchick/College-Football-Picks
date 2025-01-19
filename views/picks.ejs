@@ -70,8 +70,10 @@
                 const isBowlOrCFP = game.season.type === 3
                 const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals")
 
+                //skips fcs games
                 if (isFCSGame) return 
                 
+                //puts all the games that meet the requirements into one local variable
                 if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
                     filteredGames.push({gameDate, homeTeam, awayTeam, game})
                 }
@@ -114,6 +116,9 @@
                 const lossColor = `rgb(240, 128, 128)`
                 const pressColor = `rgb(175, 175, 175)`
                 const unpressedColor = `rgb(233, 233, 237)`
+
+                
+                //logic for if a game has happened
                 if (game.status.type.state !== "pre") {
                     homeTeamButton.disabled = true
                     awayTeamButton.disabled = true
@@ -126,6 +131,7 @@
                         awayTeamButton.style.backgroundColor = winColor
                     }
                 }
+                    
 
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.style.backgroundColor = pressColor
@@ -191,7 +197,7 @@
 
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchGames()
-        setInterval(fetchGames, 600000)
+        setInterval(fetchGames, 300000)
     </script>
     </div>
 </body>

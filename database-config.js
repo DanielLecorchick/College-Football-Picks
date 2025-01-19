@@ -51,9 +51,14 @@ const PicksSchema = new mongoose.Schema({
         type: String,
         enum: ["homeTeam", "awayTeam"],
         required: true,
+    },
+    scored: {
+        type: Boolean,
+        default: false
     }
 })
 
+//defines a schema for the storing the points after scored
 const ScoreSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -62,17 +67,19 @@ const ScoreSchema = new mongoose.Schema({
     },
     correctPoints: {
         type: Number,
+        default: 0
         //required: true,
     },
     incorrectPoints: {
         type: Number,
+        default: 0
         //required: true,
     },
     totalPoints: {
         type: Number,
+        default: 0
         //required: true,
     }
-
 })
 
 const User = new mongoose.model("users", LoginSchema)
