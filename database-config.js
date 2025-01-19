@@ -2,8 +2,9 @@
 
 // inport and config for using mongoDB
 require("dotenv").config()
+const mongoURI = process.env.MONGO_URI
 const mongoose = require("mongoose")
-const connect = mongoose.connect("mongodb+srv://Admin:u6WLtfj2lnuokjpO@login.i84jf.mongodb.net/?retryWrites=true&w=majority&appName=Login")
+const connect = mongoose.connect(mongoURI)
 
 // error handling to tell the admin if the database connected sucessfully or not
 connect.then(()=> {
