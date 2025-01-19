@@ -57,8 +57,10 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
     
         //filters out FCS games within the API
         const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals")
-        if (isFCSGame) continue 
+        if (isFCSGame) continue
         
+
+        //UPDATE ME: later on change this to basepoints given the game
         //assigns point values to each game
         let points = 0
         if(isConferenceChampionship || isArmyNavy || isTwoTop25Game) points = 2
@@ -72,6 +74,22 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         //determines what is a correct or incorrect picks
         const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
         const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
+
+
+/*
+        //work on this later
+        //gives points values based off
+        let points = 0
+        if(correctPick){
+            if(userPick.pick === ""){
+                points = basePoints
+            }
+            else if(userPick.pick === "awayTeam") {
+                points = basePoints*()
+            }
+        }
+*/
+
 
         //sets what will be updated given the game outcome
         const updates = {}
