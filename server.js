@@ -133,19 +133,14 @@ app.get('/weeklyresults', checkAuthenticated, (req, res) => {
 })
 
 app.get('/casino', checkAuthenticated, (req, res) => {
-    res.render('casino.ejs', {name: req.user.name, username: req.user.username, BETTING_API_KEY: process.env.BETTING_API_KEY})
+    const bettingApiKey = process.env.BETTING_API_KEY
+    res.render('casino.ejs', {name: req.user.name, username: req.user.username, bettingApiKey: bettingApiKey })
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {
     const { homeTeam, awayTeam } = req.query;
     res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
 })
-
-app.get('/general-details', checkAuthenticated, (req, res) => {
-    const { homeTeam, awayTeam } = req.query;
-    res.render('general-details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
-})
-
 //logout route 
 app.delete('/logout', (req, res) => {
     req.logOut()

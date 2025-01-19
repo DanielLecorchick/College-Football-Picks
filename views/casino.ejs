@@ -9,6 +9,8 @@
 <body>
     <h1>Casino</h1>
     <script>
+        const betting_key = "<%= bettingApiKey %>"
+
         async function fetchTop25() {
                 try{
                     // pulls all the top 25 teams and ranking data from the rankings API
@@ -23,17 +25,15 @@
                     const gamesData = await gamesResponse.json()
                     console.log(gamesData)
 
-                    console.log(BETTING_API_KEY)
-                    const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${BETTING_API_KEY}`)
+                    console.log(betting_key)
+                    /*const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${betting_key}`)
                     const betData = await betResponse.json()
-                    console.log(betData)
+                    console.log(betData)*/
                 }
                 catch (error){
                     console.error("Error fetching data:", error)
                 }
         }
-
-        const BETTING_API_KEY = "<%= BETTING_API_KEY %>"
         fetchTop25()
     </script>
 </body>
