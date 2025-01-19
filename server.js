@@ -133,7 +133,7 @@ app.get('/weeklyresults', checkAuthenticated, (req, res) => {
 })
 
 app.get('/casino', checkAuthenticated, (req, res) => {
-    res.render('casino.ejs', {name: req.user.name, username: req.user.username})
+    res.render('casino.ejs', {name: req.user.name, username: req.user.username, BETTING_API_KEY: process.env.BETTING_API_KEY})
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {

@@ -8,10 +8,33 @@
 </head>
 <body>
     <h1>Casino</h1>
-
-
     <script>
-        
+        async function fetchTop25() {
+                try{
+                    // pulls all the top 25 teams and ranking data from the rankings API
+                    const rankingsResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
+                    const rankingsData = await rankingsResponse.json()
+                    const top25Teams = rankingsData.rankings[0].ranks.map(rank => rank.team.id)
+
+                    // pulls game data such as match ups and times of games from the scorecoard API
+                    //filepath to leaders = object/events/0/competitions/0/leaders
+                    //filepath to bets = gameEventObject/competitions/odds[0]
+                    const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
+                    const gamesData = await gamesResponse.json()
+                    console.log(gamesData)
+
+                    console.log(BETTING_API_KEY)
+                    const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${BETTING_API_KEY}`)
+                    const betData = await betResponse.json()
+                    console.log(betData)
+                }
+                catch (error){
+                    console.error("Error fetching data:", error)
+                }
+        }
+
+        const BETTING_API_KEY = "<%= BETTING_API_KEY %>"
+        fetchTop25()
     </script>
 </body>
 </html>
