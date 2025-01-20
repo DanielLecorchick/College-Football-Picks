@@ -35,6 +35,7 @@ body, html {
     box-sizing: border-box;
     width: 31%;
     height: 95%;
+    margin-top: 250px;
 }
 
 fd {
@@ -53,31 +54,55 @@ td {
 }
 
 .table-container {
+    width: 25vw;
     display: flex;
     justify-content: center; 
     align-items: center;    
     position: relative;   
-    height: 150px;
 }
 
 .table-container table {
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding: 12px;
     border-collapse: collapse;
     justify-content: center;
     align-items: center;
     text-align: center;
-    width: 80%;
-    height: 100px;
+    width: 100%;
+    height: 100%;
+}
+
+.arrow-div-left, .arrow-div-right {
+    position: absolute;
+    font-size: 2em;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.arrow-div-left {
+    left: 34vw; 
+}
+
+.arrow-div-right {
+    right: 34vw; 
 }
 
 .header-container {
-    position: sticky;
+    background: linear-gradient(to right, rgb(179, 179, 179), rgb(255, 255, 255));
+    position: fixed;
+    display: flex;
+    justify-content: space-around;
     top: 0;
-    width: 100%;
-    height: 200px;
+    left: 0;
+    width: 90vw;
+    height: 150px;
+    padding-left: 5vw;
+    padding-right: 5vw;
     border-bottom: 1px solid #000;
     z-index: 1000;
+}
+
+.header-container .title-div {
+    width: 25vw;
 }
 
 .title-div {
