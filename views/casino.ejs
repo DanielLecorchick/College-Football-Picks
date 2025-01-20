@@ -24,8 +24,7 @@
                 const gamesData = await gamesResponse.json();
                 console.log(gamesData);
 
-                console.log(betting_key);
-                const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${betting_key}`);
+                const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds?regions=us&oddsFormat=american&apiKey=${betting_key}`);
                 const betData = await betResponse.json();
                 console.log(betData);
             } catch (error) {
