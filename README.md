@@ -77,9 +77,8 @@ If you want to run the application locally:
     9. Scoring logic for games
     10. Leaderboard page logic displaying each users points
 2. Michael Burns
-   1. Details page logic using ESPN's API
-   2. Casino page logic/pulling from and storing data in MongoDB
-   3. Picks CSS
-   4. Top 25 CSS
-   5. Details CSS
-   6. README
+   1. Details page logic using ESPN's API/CSS
+   2. Picks page logic/HTML structure/CSS
+   3. Top 25 HTML structure/CSS
+   4. Casino page logic using Odds API and MongoDB/HTML strucutre/CSS
+   5. README
