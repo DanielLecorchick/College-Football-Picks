@@ -55,10 +55,7 @@
                     console.log(gameInfo)
                 }
 
-                var pre = false
-                if (gameInfo.status.type.state === "pre") {
-                    pre = true
-                }
+                var pre = gameInfo.status.type.state === "pre";
 
                 const detailsDiv = document.getElementById("details")
 
@@ -73,9 +70,36 @@
                 generalDiv.className = "data-container"
 
                 generateSubHeading("header", "title-div", homeTitle, headerDiv, homeTeam.team.logo, "150px")
+                const startDate = new Date(gameInfo.date)
+                var formattedDate = startDate.toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                })
+                formattedDate = formattedDate.replace(/, (\d{4})/, ' $1');
+                const gameDate = formattedDate.replace(/(\b0)(\d{1}):/, "$2:")
+                if(!pre) {
+                    // ◀ ▶
+                    const tableDiv = document.createElement("div")
+                    tableDiv.className = "table-container"
+                    if(homeTeam.winner) {
+                        generateSubHeading("arrow", "arrow-div-left", "◀", headerDiv)
+                    }
+                    generateTable(homeTeam, awayTeam, tableDiv)
+                    headerDiv.appendChild(tableDiv)
+                    if(awayTeam.winner) {
+                        generateSubHeading("arrow", "arrow-div-right", "▶", headerDiv)
+                    }
+                }
+                else {
+                    generateSubHeading("header", "title-div", gameDate, headerDiv)
+                }
                 generateSubHeading("header", "title-div", awayTitle, headerDiv, awayTeam.team.logo, "150px")
-                generateSubHeading("header", "title-div", gameInfo.competitions[0].odds[0].spread, homeDiv)
-                generateSubHeading("header", "title-div", "Game Info", awayDiv)
+                generateSubHeading("header", "title-div", homeTitle, homeDiv)
+                generateSubHeading("header", "title-div", awayTitle, awayDiv)
                 generateSubHeading("header", "title-div", "Game Info", generalDiv)
 
                 detailsDiv.appendChild(headerDiv)
@@ -84,7 +108,7 @@
                 detailsDiv.appendChild(awayDiv)
             }
 
-            const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
+            const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null, imgSide = "left") => {
                 if (!specifiedDiv) {
                     console.error("specifiedDiv is undefined or null.")
                     return
