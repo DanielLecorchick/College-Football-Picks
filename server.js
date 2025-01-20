@@ -134,7 +134,7 @@ app.get('/weeklyresults', checkAuthenticated, (req, res) => {
 
 app.get('/casino', checkAuthenticated, (req, res) => {
     const bettingApiKey = process.env.BETTING_API_KEY
-    res.render('casino.ejs', {name: req.user.name, username: req.user.username, bettingApiKey: bettingApiKey })
+    res.render('casino.ejs', {name: req.user.name, username: req.user.username, bettingApiKey: bettingApiKey})
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {

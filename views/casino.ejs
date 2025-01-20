@@ -9,8 +9,7 @@
 <body>
     <h1>Casino</h1>
     <script>
-        require("dotenv").config()
-        const betting_key = process.env.betting_key
+        const betting_key = process.env.BETTING_API_KEY
 
         async function fetchTop25() {
                 try{
