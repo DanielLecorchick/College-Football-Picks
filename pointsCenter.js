@@ -8,9 +8,16 @@
 //imports database info
 const {User, Picks, Score} = require('./database-config.js')
 
+//variable used to ensure the scoring is never done multiple times concurently
+let isScoringInProgress = false
+
 //function to fetch game and ranking data from ESPN API
 async function fetchGamesToScore() {
+
+    if (isScoringInProgress) return
+
     try{
+        isScoringInProgress = true
         // pulls all the top 25 teams and ranking data from the rankings API
         const rankingsResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")
         const rankingsData = await rankingsResponse.json()
@@ -33,9 +40,15 @@ async function fetchGamesToScore() {
     catch (error){
         console.error("Error fetching data in points center:", error)
     }
+    finally {
+        isScoringInProgress = false
+    }
 }
 
 async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15){
+
+    const users = await User.find()
+
     //loops through all games
     for (const game of gamesData.events){
         //info to verify the game
@@ -67,38 +80,42 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         else if(isOneTop25Game) points = 1
         else if(isBowlOrCFP) points = .5
 
-        //gets users picks from DB or continues if the user forgot a pick
-        const userPick = await Picks.findOne({gameId: game.id})
-        if(!userPick || userPick.scored || game.status.type.state === "pre") continue
+        //loops through all users
+        for(const user of users) {
+            //gets users picks from DB or continues if the user forgot a pick
+            const userPick = await Picks.findOne({gameId: game.id, userId: user._id})
+            if(!userPick || userPick.scored === true || game.status.type.state === "pre") continue
 
-        //determines what is a correct or incorrect picks
-        const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
-        const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
+            //determines what is a correct or incorrect picks
+            const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
+            const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
 
 
-        //sets what will be updated given the game outcome
-        const updates = {}
-        if(correctPick) {
-            updates.correctPoints = points
-            updates.totalPoints = points
+            //sets what will be updated given the game outcome
+            const updates = {}
+            if(correctPick) {
+                updates.correctPoints = points
+                updates.totalPoints = points
+            }
+            else if(incorrectPick) {
+                updates.incorrectPoints = points
+                updates.totalPoints = points
+            }
+
+            //updates or creates a users pick totals
+            await Score.updateOne(
+                {userId: user._id},
+                {$inc: updates},
+                {upsert:true}
+            )
+
+            await Picks.updateOne(
+                {_id: userPick._id}, 
+                {$set:{scored: true}}
+            )
         }
-        else if(incorrectPick) {
-            updates.incorrectPoints = points
-            updates.totalPoints = points
-        }
-
-        //updates or creates a users pick totals
-        await Score.updateOne(
-            {userId: userPick.userId},
-            {$inc: updates},
-            {upsert:true}
-        )
-
-        await Picks.updateOne({_id: userPick._id}, {$set:{scored: true}})
     }
 }
-fetchGamesToScore()
-setInterval(fetchGamesToScore, 300000)
 
 //exports this file so it can be used in the rest of the code
 module.exports = {fetchGamesToScore}

@@ -64,22 +64,22 @@ const ScoreSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        //required: true,
+        required: true,
     },
     correctPoints: {
         type: Number,
-        default: 0
-        //required: true,
+        default: 0,
+        required: true,
     },
     incorrectPoints: {
         type: Number,
-        default: 0
-        //required: true,
+        default: 0,
+        required: true,
     },
     totalPoints: {
         type: Number,
-        default: 0
-        //required: true,
+        default: 0,
+        required: true,
     }
 })
 

@@ -238,9 +238,24 @@ app.use((req, res) => {
     res.status(404).send("Page Not Found");
 })
 
-//runs the scoring of games
-fetchGamesToScore()
-setInterval(fetchGamesToScore,300000)
+
+//runs the scoring of games every day at 3am
+const timeNow = new Date()
+const threeAM = new Date()
+threeAM.setHours(3,0,0,0)
+
+if(timeNow > threeAM) threeAM.setDate(threeAM.getDate() + 1)
+
+const delay = threeAM - timeNow
+setTimeout(() => {
+    fetchGamesToScore()
+    setInterval(fetchGamesToScore, 86400000)
+}, delay)
+
+
+//for testing
+//fetchGamesToScore()
+//setInterval(fetchGamesToScore,10000)
 
 //starts the server at localhost:3000
 app.listen(3000)

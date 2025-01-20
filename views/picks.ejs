@@ -130,7 +130,7 @@
                         awayTeamButton.style.backgroundColor = winColor
                     }
                 }
-                
+                    
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.style.backgroundColor = pressColor
                     awayTeamButton.style.backgroundColor = unpressedColor
@@ -195,7 +195,7 @@
 
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchGames()
-        setInterval(fetchGames, 300000)
+        setInterval(fetchGames, 40000)
     </script>
     </div>
 </body>
