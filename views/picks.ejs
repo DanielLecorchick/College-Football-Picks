@@ -75,18 +75,18 @@
                 
                 //puts all the games that meet the requirements into one local variable
                 if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
-                    filteredGames.push({gameDate, homeTeam, awayTeam, game})
+                    filteredGames.push({startDate, gameDate, homeTeam, awayTeam, game})
                 }
             })
 
             //sorts the filtered games according to the date the occur
-            filteredGames.sort((a, b) => a.gameDate - b.gameDate)
+            filteredGames.sort((a, b) => a.startDate - b.startDate)
 
             const picksDiv = document.getElementById("Picks")
             picksDiv.innerHTML = ""
 
             // creates a button for each home and away team,as well as the details, along with text underneath for the game date and time
-            filteredGames.forEach(({ gameDate, homeTeam, awayTeam, game }) => {
+            filteredGames.forEach(({ startDate, gameDate, homeTeam, awayTeam, game }) => {
                 const gameContainer = document.createElement("div")
                 gameContainer.classList.add("game-container")
 
