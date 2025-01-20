@@ -66,7 +66,7 @@ If you want to run the application locally:
 
 # Creators Contributions
 1. Daniel Lecorchick
-    1. Set up Node.js server utilizing the Express framework for authentication, rounding, and rendering
+    1. Set up Node.js server utilizing the Express framework for authentication, routing, and rendering
     2. Signup/login process utlizing bcrypt and passport
     3. Signup/login CSS
     4. Set up MongoDB Database and database-config
@@ -75,6 +75,7 @@ If you want to run the application locally:
     7. Picks page logic utilizing ESPN's API
     8. Ranking page logic utilizing ESPN's API
     9. Scoring logic for games
+    10. Leaderboard page logic displaying each users points
 2. Michael Burns
    1. Details page logic using ESPN's API
    2. Casino page logic/pulling from and storing data in MongoDB
