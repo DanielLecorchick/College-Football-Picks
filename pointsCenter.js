@@ -76,21 +76,6 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
 
 
-/*
-        //work on this later
-        //gives points values based off
-        let points = 0
-        if(correctPick){
-            if(userPick.pick === ""){
-                points = basePoints
-            }
-            else if(userPick.pick === "awayTeam") {
-                points = basePoints*()
-            }
-        }
-*/
-
-
         //sets what will be updated given the game outcome
         const updates = {}
         if(correctPick) {

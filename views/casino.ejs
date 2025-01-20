@@ -9,8 +9,7 @@
 <body>
     <h1>Casino</h1>
     <script>
-        require("dotenv").config()
-        const betting_key = process.env.betting_key
+        const betting_key = "<%=bettingApiKey%>"
 
         async function fetchTop25() {
                 try{
@@ -27,9 +26,9 @@
                     console.log(gamesData)
 
                     console.log(betting_key)
-                    /*const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${betting_key}`)
+                    const betResponse = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${betting_key}`)
                     const betData = await betResponse.json()
-                    console.log(betData)*/
+                    console.log(betData)
                 }
                 catch (error){
                     console.error("Error fetching data:", error)

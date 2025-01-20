@@ -11,10 +11,57 @@
 </head>
 <body>
     <h1>Leaderboard</h1>
-
-
+    <div id = "leaderboard"></div>
     <script>
-        
+        //userid, name, total correct points, record, and percentage correct
+        fetch('/api/leaderboard') 
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+
+                const leaderboardDiv = document.getElementById("leaderboard")
+
+                data.forEach(user => {
+                    const userDiv = document.createElement("div")
+                    userDiv.className = "user"
+                    
+                    //ranking div for leaderboard
+                    const rankDiv = document.createElement("div")
+                    rankDiv.className = "rank"
+                    rankDiv.textContent = `#${user.rank}`
+
+                    //name div for leaderboard
+                    const nameDiv = document.createElement("div")
+                    nameDiv.className = "name"
+                    nameDiv.textContent = user.name
+
+                    //correct points div for leaderboard
+                    const correctPointsDiv = document.createElement("div")
+                    correctPointsDiv.className = "correct-points"
+                    correctPointsDiv.textContent = `${user.correctPoints}`
+
+                    //incorrect points div for leaderboard
+                    const incorrectPointsDiv = document.createElement("div")
+                    incorrectPointsDiv.className = "incorrect-points"
+                    incorrectPointsDiv.textContent = `${user.incorrectPoints}`
+
+                    //percentage right div for leaderboard
+                    const percentageDiv = document.createElement("div")
+                    percentageDiv.className = "percentage"
+                    percentageDiv.textContent = `${user.percentageCorrect}`
+
+                    //appends these details above to the userDiv
+                    userDiv.appendChild(rankDiv);
+                    userDiv.appendChild(nameDiv);
+                    userDiv.appendChild(correctPointsDiv);
+                    userDiv.appendChild(incorrectPointsDiv);
+                    userDiv.appendChild(percentageDiv);
+
+                    //appends the userDiv to the leaderboard div
+                    leaderboardDiv.appendChild(userDiv)
+                })
+            })
+            .catch(error => console.error("error in leaderboard", error))
     </script>
 </body>
 </html>

@@ -117,7 +117,6 @@
                 const pressColor = `rgb(175, 175, 175)`
                 const unpressedColor = `rgb(233, 233, 237)`
 
-                
                 //logic for if a game has happened
                 if (game.status.type.state !== "pre") {
                     homeTeamButton.disabled = true
@@ -131,8 +130,7 @@
                         awayTeamButton.style.backgroundColor = winColor
                     }
                 }
-                    
-
+                
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.style.backgroundColor = pressColor
                     awayTeamButton.style.backgroundColor = unpressedColor
