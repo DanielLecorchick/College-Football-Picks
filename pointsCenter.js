@@ -84,35 +84,41 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         for(const user of users) {
             //gets users picks from DB or continues if the user forgot a pick
             const userPick = await Picks.findOne({gameId: game.id, userId: user._id})
-            if(!userPick || userPick.scored === true || game.status.type.state === "pre") continue
 
-            //determines what is a correct or incorrect picks
-            const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
-            const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
-
-
-            //sets what will be updated given the game outcome
-            const updates = {}
-            if(correctPick) {
-                updates.correctPoints = points
-                updates.totalPoints = points
+            //FIX: for some reason it is still scoring when the game state is "in"
+            if(!userPick || userPick.scored === true || game.status.type.state === "pre" || game.status.type.state === "in") {
+                continue
             }
-            else if(incorrectPick) {
-                updates.incorrectPoints = points
-                updates.totalPoints = points
+            else if (game.status.type.state === "post") {
+                const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
+                const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
+                
+                //sets what will be updated given the game outcome
+                const updates = {}
+                if(correctPick) {
+                    updates.correctPoints = points
+                    updates.totalPoints = points
+                }
+                else if(incorrectPick) {
+                    updates.incorrectPoints = points
+                    updates.totalPoints = points
+                }
+
+                //updates or creates a users pick totals
+                await Score.updateOne(
+                    {userId: user._id},
+                    {$inc: updates},
+                    {upsert:true}
+                )
+
+                await Picks.updateOne(
+                    {_id: userPick._id}, 
+                    {$set:{scored: true}}
+                )
             }
-
-            //updates or creates a users pick totals
-            await Score.updateOne(
-                {userId: user._id},
-                {$inc: updates},
-                {upsert:true}
-            )
-
-            await Picks.updateOne(
-                {_id: userPick._id}, 
-                {$set:{scored: true}}
-            )
+            else {
+                continue
+            }
         }
     }
 }

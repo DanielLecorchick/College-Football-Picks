@@ -117,8 +117,14 @@
                 const pressColor = `rgb(175, 175, 175)`
                 const unpressedColor = `rgb(233, 233, 237)`
 
+                //logic for if a game is in progress
+                if (game.status.type.state === "in") {
+                    homeTeamButton.disabled = true
+                    awayTeamButton.disabled = true
+                }
+                
                 //logic for if a game has happened
-                if (game.status.type.state !== "pre") {
+                if (game.status.type.state === "post") {
                     homeTeamButton.disabled = true
                     awayTeamButton.disabled = true
                     if(homeTeam.winner) {

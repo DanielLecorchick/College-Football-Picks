@@ -238,7 +238,8 @@ app.use((req, res) => {
     res.status(404).send("Page Not Found");
 })
 
-
+/*
+//FIX: the scoring is running dispite it not being 3am rn 
 //runs the scoring of games every day at 3am
 const timeNow = new Date()
 const threeAM = new Date()
@@ -251,11 +252,11 @@ setTimeout(() => {
     fetchGamesToScore()
     setInterval(fetchGamesToScore, 86400000)
 }, delay)
-
+*/
 
 //for testing
-//fetchGamesToScore()
-//setInterval(fetchGamesToScore,10000)
+fetchGamesToScore()
+setInterval(fetchGamesToScore,10000)
 
 //starts the server at localhost:3000
 app.listen(3000)
