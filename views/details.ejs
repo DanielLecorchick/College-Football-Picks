@@ -81,14 +81,17 @@
                 })
                 formattedDate = formattedDate.replace(/, (\d{4})/, ' $1');
                 const gameDate = formattedDate.replace(/(\b0)(\d{1}):/, "$2:")
+
+                const tableDiv = document.createElement("div")
+                tableDiv.className = "table-container"
+                var usedTable = null
                 if(!pre) {
                     // ◀ ▶
-                    const tableDiv = document.createElement("div")
-                    tableDiv.className = "table-container"
                     if(homeTeam.winner) {
                         generateSubHeading("arrow", "arrow-div-left", "◀", headerDiv)
                     }
-                    generateTable(homeTeam, awayTeam, tableDiv)
+                    usedTable = generateTable(homeTeam, awayTeam, gameInfo)
+                    tableDiv.appendChild(usedTable)
                     headerDiv.appendChild(tableDiv)
                     if(awayTeam.winner) {
                         generateSubHeading("arrow", "arrow-div-right", "▶", headerDiv)
@@ -102,13 +105,19 @@
                 generateSubHeading("header", "title-div", awayTitle, awayDiv)
                 generateSubHeading("header", "title-div", "Game Info", generalDiv)
 
+                generateSubHeading("info", "paragraph-div", "Game in progress...", homeDiv)
+                generateSubHeading("info", "paragraph-div", "Game in progress...", awayDiv)
+                generateSubHeading("info", "paragraph-div", "Game in progress...", generalDiv)
+
                 detailsDiv.appendChild(headerDiv)
                 detailsDiv.appendChild(homeDiv)
                 detailsDiv.appendChild(generalDiv)
                 detailsDiv.appendChild(awayDiv)
+
+                updateTable(tableDiv, homeTeam, awayTeam, gameInfo)
             }
 
-            const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null, imgSide = "left") => {
+            const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
                 if (!specifiedDiv) {
                     console.error("specifiedDiv is undefined or null.")
                     return
@@ -129,7 +138,7 @@
                         if (imgUrl) {
                             const img = document.createElement("img")
                             img.src = imgUrl
-                            img.alt = "Athlete headshot"
+                            img.alt = "Image"
                             if(imgSize) {
                                 img.style.width = imgSize
                                 img.style.height = "auto"
@@ -151,48 +160,62 @@
                 })
             }
 
-            const generateTable = (homeTeam, awayTeam, specifiedDiv) => {
-                    const table = document.createElement("table")
+            const generateTable = (homeTeam, awayTeam, gameInfo) => {
+                const table = document.createElement("table")
 
-                    const createRow = (data, rowType) => {
-                        const row = document.createElement("tr")
-                        data.forEach(item => {
-                            let cell
-                            if(rowType === "table") {
-                                cell = document.createElement("fd")
-                            }
-                            else {
-                                cell = document.createElement("td")  
-                            }
-                            cell.textContent = item
-                            row.appendChild(cell)
-                        })
-                        return row
-                    }
-
-                    const quarterLabels = [
-                        ...Array.from({ length: Math.min(homeTeam.linescores.length, 4) }, (_, i) => `Q${i + 1}`),
-                        ...Array.from({ length: Math.max(homeTeam.linescores.length - 4, 0) }, (_, i) => `OT${i + 1}`)
-                    ]
-                    const tableFormat = ["", ...quarterLabels, "Final"]
-                    table.appendChild(createRow(tableFormat, "table"))
-
-                    const homeFormat = [
-                        homeTeam.team.abbreviation,
-                        ...homeTeam.linescores.map(score => score.value),
-                        homeTeam.score
-                    ]
-                    table.appendChild(createRow(homeFormat))
-
-                    const awayFormat = [
-                        awayTeam.team.abbreviation,
-                        ...awayTeam.linescores.map(score => score.value),
-                        awayTeam.score
-                    ]
-                    table.appendChild(createRow(awayFormat))
-
-                    specifiedDiv.appendChild(table)
+                const createRow = (data, rowType) => {
+                    const row = document.createElement("tr")
+                    data.forEach(item => {
+                        let cell
+                        if(rowType === "table") {
+                            cell = document.createElement("fd")
+                        }
+                        else {
+                            cell = document.createElement("td")  
+                        }
+                        cell.textContent = item
+                        row.appendChild(cell)
+                    })
+                    return row
                 }
+
+                const quarterLabels = [
+                    ...Array.from({ length: Math.min(homeTeam.linescores.length, 4) }, (_, i) => `Q${i + 1}`),
+                    ...Array.from({ length: Math.max(homeTeam.linescores.length - 4, 0) }, (_, i) => `OT${i + 1}`)
+                ]
+                var tableFormat = null
+                if(gameInfo.competitions[0].status.type.state === "in") {
+                    tableFormat = ["", ...quarterLabels, "T"]
+                }
+                else {
+                    tableFormat = ["", ...quarterLabels, "Final"]
+                }
+                table.appendChild(createRow(tableFormat, "table"))
+
+                const homeFormat = [
+                    homeTeam.team.abbreviation,
+                    ...homeTeam.linescores.map(score => score.value),
+                    homeTeam.score
+                ]
+                table.appendChild(createRow(homeFormat))
+
+                const awayFormat = [
+                    awayTeam.team.abbreviation,
+                    ...awayTeam.linescores.map(score => score.value),
+                    awayTeam.score
+                ]
+                table.appendChild(createRow(awayFormat))
+
+                return table;  // Return the generated table here
+            }
+
+            const updateTable = (tableDiv, homeTeam, awayTeam, gameInfo) => {
+                console.log("updating table")
+                tableDiv.innerHTML = "";
+                const newTable = generateTable(homeTeam, awayTeam, gameInfo);
+                tableDiv.appendChild(newTable);
+            }
+
 
             // Retrieve data from localStorage
             const homeTeam = JSON.parse(localStorage.getItem("homeTeam"))

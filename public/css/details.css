@@ -38,6 +38,17 @@ body, html {
     margin-top: 250px;
 }
 
+.paragraph-div {
+    color: black;
+    font-weight: bold;
+    text-align: left;
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    height: 100px;
+    padding-left: 20px;
+}
+
 fd {
     display: table-cell;
     border-bottom: 1px solid #000;
@@ -69,6 +80,7 @@ td {
     text-align: center;
     width: 100%;
     height: 100%;
+    font-weight: bold;
 }
 
 .arrow-div-left, .arrow-div-right {
@@ -103,6 +115,7 @@ td {
 
 .header-container .title-div {
     width: 25vw;
+    height: 150px;
 }
 
 .title-div {
@@ -112,7 +125,7 @@ td {
     font-size: 2em;
     display: flex;
     align-items: center;
-    height: 150px;
+    height: 100px;
 }
 
 .title-div img {
