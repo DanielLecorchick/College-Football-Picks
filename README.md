@@ -52,6 +52,8 @@ If you want to run the application locally:
     node server.js
     ```
 6. The local server is now running. Open any web browser and go to http://localhost:3000/, and you should be able to access the website with full functionality!
+   
+**Note** The .env and node_modules are not avaliable on github to keep the api keys secret. If you need to run this project locally, you can contact Michael Burns at mlburns133@gmail.com or Daniel Lecorchick at daniel.l.lecorchick@gmail.com to recieve the files.
 
 # Future plans
 - CSS needs to be developed for most pages

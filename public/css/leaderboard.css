@@ -1,5 +1,5 @@
 body {
-    background: rgb(255, 255, 255);
+    background: linear-gradient(to right, rgb(255, 255, 255), rgb(179, 179, 179));
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -13,7 +13,7 @@ body {
     align-items: center;
     font-size: 2em;
     margin-bottom: 20px;
-    width: 724px;
+    width: 956px;
     height: 100px;
     border-bottom: 1px solid black;
 }
@@ -28,4 +28,88 @@ body {
     margin-bottom: 1%;
     padding: 10px;
     box-sizing: border-box;
+}
+
+.name-container span {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.name-container gamerecord {
+    font-size: 1em;
+}
+
+.numbered-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%; 
+}
+
+.numbered-container rank {
+    font-size: 3em;
+    width: 70px;
+    text-align: right; 
+}
+
+.team-header, .team {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    width: 400px;
+}
+
+.team-header {
+    vertical-align: middle;
+    justify-content: center;
+    color: black;
+    font-size: 1em;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border: 1px solid transparent;
+}
+
+.team {
+    border-radius: 10px;
+    border: 1px solid #000;
+}
+
+.team img {
+    height: auto;
+    margin: 10px;
+}
+
+.team span {
+    vertical-align: middle;
+    color: black;
+}
+
+.rank-container, .rank-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    margin-left: 0px;
+    width: 122px;
+    border-radius: 10px;
+    vertical-align: middle;
+    color: black;
+}
+
+.rank-container {
+    height: 122px;
+    font-size: 2em;
+    font-weight: bold;
+    border: 1px solid #000;
+}
+
+.rank-container-header {
+    font-size: 1em;
+    border: 1px;
+    border: 1px solid transparent;
 }

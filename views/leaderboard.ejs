@@ -1,6 +1,3 @@
-<!-- not implimented yet, this will show a leaderboard of everyones points. 
- if the game is two top 25 teams it is 2 points, if the game is one top 25 teams it is 2 points, 
- Bowl games that dont include a top 25 team is .5 points --> 
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -10,7 +7,9 @@
     <link rel="stylesheet" href="/css/leaderboard.css">
 </head>
 <body>
-    <h1>Leaderboard</h1>
+    <div id="header">
+        <h1>Leaderboard</h1>
+    </div>
     <div id = "leaderboard"></div>
     <script>
         //userid, name, total correct points, record, and percentage correct
@@ -21,44 +20,93 @@
 
                 const leaderboardDiv = document.getElementById("leaderboard")
 
+                const rankingHeader = document.createElement("rank")
+                rankingHeader.textContent = " "
+
+                const teamHeader = document.createElement("div")
+                teamHeader.className = "team-header"
+                teamHeader.textContent = "Users"
+
+                const pointsHeader = document.createElement("div")
+                pointsHeader.className = "rank-container-header"
+                pointsHeader.textContent = "Points"
+
+                const percentHeader = document.createElement("div")
+                percentHeader.className = "rank-container-header"
+                percentHeader.textContent = "Point Accuracy"
+
+                const gameHeader = document.createElement("div")
+                gameHeader.className = "rank-container-header"
+                gameHeader.textContent = "Game Accuracy"
+
+                const numberedHeader = document.createElement("div")
+                numberedHeader.className = "numbered-container"
+                numberedHeader.appendChild(rankingHeader)
+                numberedHeader.appendChild(teamHeader)
+                numberedHeader.appendChild(pointsHeader)
+                numberedHeader.appendChild(percentHeader)
+                numberedHeader.appendChild(gameHeader)
+                
+                leaderboardDiv.appendChild(numberedHeader)
+
+                const testImg = "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/57.png"
+
                 data.forEach(user => {
-                    const userDiv = document.createElement("div")
-                    userDiv.className = "user"
-                    
-                    //ranking div for leaderboard
-                    const rankDiv = document.createElement("div")
-                    rankDiv.className = "rank"
-                    rankDiv.textContent = `#${user.rank}`
+                    const teamDiv = document.createElement("div")
+                    teamDiv.className = "team"
 
-                    //name div for leaderboard
+                    const logo = document.createElement("img")
+                    logo.src = testImg
+                    logo.alt = `${user.name} profile picture`
+                    logo.style.width = "100px"
+
+                    const details = document.createElement("span")
+                    details.textContent = `${user.name}`
+
+                    const totalPoints = document.createElement("span")
+                    const percentPoints = document.createElement("span")
+                    const percentGames = document.createElement("span")
+                    totalPoints.textContent = `${user.correctPoints}`
+                    percentPoints.textContent = `${((user.correctPoints/user.totalPoints)*100).toFixed(0)}%`
+                    percentGames.textContent = `${((user.correctPoints/user.totalPoints)*100).toFixed(0)}%` //NOT CORRECT, UPDATE WHEN ADDED
+
+                    const pointsContainer = document.createElement("div")
+                    pointsContainer.className = "rank-container"
+                    pointsContainer.appendChild(totalPoints)
+
+                    const percentContainer = document.createElement("div")
+                    percentContainer.className = "rank-container"
+                    percentContainer.appendChild(percentPoints)
+
+                    const gamePercentContainer = document.createElement("div")
+                    gamePercentContainer.className = "rank-container"
+                    gamePercentContainer.appendChild(percentGames)
+
                     const nameDiv = document.createElement("div")
-                    nameDiv.className = "name"
-                    nameDiv.textContent = user.name
+                    nameDiv.className = "name-container"
 
-                    //correct points div for leaderboard
-                    const correctPointsDiv = document.createElement("div")
-                    correctPointsDiv.className = "correct-points"
-                    correctPointsDiv.textContent = `${user.correctPoints}`
+                    const record = document.createElement("gamerecord")
+                    record.textContent = `(0 - 0)` //UPDATE WHEN ADDED
+                    record.style.display = "block"
 
-                    //incorrect points div for leaderboard
-                    const incorrectPointsDiv = document.createElement("div")
-                    incorrectPointsDiv.className = "incorrect-points"
-                    incorrectPointsDiv.textContent = `${user.incorrectPoints}`
+                    nameDiv.appendChild(details)
+                    nameDiv.appendChild(record)
 
-                    //percentage right div for leaderboard
-                    const percentageDiv = document.createElement("div")
-                    percentageDiv.className = "percentage"
-                    percentageDiv.textContent = `${user.percentageCorrect}`
+                    teamDiv.appendChild(logo)
+                    teamDiv.appendChild(nameDiv)
 
-                    //appends these details above to the userDiv
-                    userDiv.appendChild(rankDiv);
-                    userDiv.appendChild(nameDiv);
-                    userDiv.appendChild(correctPointsDiv);
-                    userDiv.appendChild(incorrectPointsDiv);
-                    userDiv.appendChild(percentageDiv);
+                    const rankingNumber = document.createElement("rank")
+                    rankingNumber.textContent = `#${user.rank}`
 
-                    //appends the userDiv to the leaderboard div
-                    leaderboardDiv.appendChild(userDiv)
+                    const numberedDiv = document.createElement("div")
+                    numberedDiv.className = "numbered-container"
+                    numberedDiv.appendChild(rankingNumber)
+                    numberedDiv.appendChild(teamDiv)
+                    numberedDiv.appendChild(pointsContainer)
+                    numberedDiv.appendChild(percentContainer)
+                    numberedDiv.appendChild(gamePercentContainer)
+
+                    leaderboardDiv.appendChild(numberedDiv)
                 })
             })
             .catch(error => console.error("error in leaderboard", error))

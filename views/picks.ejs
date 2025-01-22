@@ -1,4 +1,3 @@
-<!-- not complete yet, fetches the top 25 teams from one ESPN API, then pulls game data for those top 25 teams from a seperate ESPN API  --> 
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -183,6 +182,9 @@
                 picksDiv.appendChild(dateDiv)
                 picksDiv.appendChild(document.createElement("br"))
             })
+
+            const headerDiv = document.getElementById("header")
+            headerDiv.style.width = `${picksDiv.offsetWidth}px`;
 
             console.log(filteredGames)
         }
