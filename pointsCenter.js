@@ -69,9 +69,9 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         const isBowlOrCFP = game.season.type === 3
     
         //filters out FCS games within the API
-        const isFCSGame = game.competitions[0].notes.some(note => note.headline === "FCS Championship") || game.competitions[0].notes.some(note => note.headline === "FCS Championship - Semifinals")
-        if (isFCSGame) continue
-        
+        if (game.competitions[0].notes.some(note => note.headline.includes("FCS Championship"))) {
+            continue
+        }
 
         //UPDATE ME: later on change this to basepoints given the game
         //assigns point values to each game
@@ -91,15 +91,17 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
             }
             else if (game.status.type.state === "post") {
                 const correctPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="homeTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="awayTeam")
-                const incorrectPick = ((homeTeamScore > awayTeamScore) && userPick.pick ==="awayTeam") || ((homeTeamScore < awayTeamScore) && userPick.pick ==="homeTeam")
+                const incorrectPick = !correctPick
                 
                 //sets what will be updated given the game outcome
                 const updates = {}
                 if(correctPick) {
+                    user.correctGames = 1
                     updates.correctPoints = points
                     updates.totalPoints = points
                 }
                 else if(incorrectPick) {
+                    user.incorrectGames = 1
                     updates.incorrectPoints = points
                     updates.totalPoints = points
                 }

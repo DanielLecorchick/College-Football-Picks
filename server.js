@@ -95,30 +95,29 @@ app.get('/top25', checkAuthenticated, (req, res) => {
 app.get('/leaderboard', checkAuthenticated, async(req, res) => {
     //fetches data from the score schema
     const leaderboard = await Score.find()
-        .populate('userId', 'name')
+        .populate('userId', 'firstName lastName username')
         .sort({correctPoints: -1})
 
     //maps all the data from the database
-    const leaderboardInfo = leaderboard.map((entry, index) =>{
+    const leaderboardInfo = leaderboard.map((entry, index) => {
         const user = entry.userId
         const correctPoints = entry.correctPoints
         const incorrectPoints = entry.incorrectPoints
         const totalPoints = entry.totalPoints
-        let percentageCorrect = "0.00"
-
-        //calculation for the percent
-        if(totalPoints > 0){
-            percentageCorrect = ((correctPoints/totalPoints) *100).toFixed(2)
-        }
+        const correctGames = entry.correctGames
+        const incorrectGames = entry.incorrectGames
 
         //returns leaderboard info
         return{
             rank: index + 1,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
             correctPoints,
             incorrectPoints,
             totalPoints,
-            percentageCorrect
+            correctGames,
+            incorrectGames
         }
     })
     res.render('leaderboard.ejs', {name: req.user.name, username: req.user.username, leaderboard: leaderboardInfo})
@@ -127,30 +126,29 @@ app.get('/leaderboard', checkAuthenticated, async(req, res) => {
 app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
     //fetches data from the score schema
     const leaderboard = await Score.find()
-        .populate('userId', 'name')
+        .populate('userId', 'firstName lastName username')
         .sort({correctPoints: -1})
 
     //maps all the data from the database
-    const leaderboardInfo = leaderboard.map((entry, index) =>{
+    const leaderboardInfo = leaderboard.map((entry, index) => {
         const user = entry.userId
         const correctPoints = entry.correctPoints
         const incorrectPoints = entry.incorrectPoints
         const totalPoints = entry.totalPoints
-        let percentageCorrect = "0.00"
-
-        //calculation for the percent
-        if(totalPoints > 0){
-            percentageCorrect = ((correctPoints/totalPoints) *100).toFixed(2)
-        }
+        const correctGames = entry.correctGames
+        const incorrectGames = entry.incorrectGames
 
         //returns leaderboard info
         return{
             rank: index + 1,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
             correctPoints,
             incorrectPoints,
             totalPoints,
-            percentageCorrect
+            correctGames,
+            incorrectGames
         }
     })
     res.json(leaderboardInfo)

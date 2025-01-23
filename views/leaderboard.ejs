@@ -61,14 +61,14 @@
                     logo.style.width = "100px"
 
                     const details = document.createElement("span")
-                    details.textContent = `${user.name}`
+                    details.textContent = `${user.firstName} ${user.lastName}`
 
                     const totalPoints = document.createElement("span")
                     const percentPoints = document.createElement("span")
                     const percentGames = document.createElement("span")
                     totalPoints.textContent = `${user.correctPoints}`
                     percentPoints.textContent = `${((user.correctPoints/user.totalPoints)*100).toFixed(0)}%`
-                    percentGames.textContent = `${((user.correctPoints/user.totalPoints)*100).toFixed(0)}%` //NOT CORRECT, UPDATE WHEN ADDED
+                    percentGames.textContent = `${((user.correctGames/user.totalGames)*100).toFixed(0)}%`
 
                     const pointsContainer = document.createElement("div")
                     pointsContainer.className = "rank-container"
@@ -86,7 +86,7 @@
                     nameDiv.className = "name-container"
 
                     const record = document.createElement("gamerecord")
-                    record.textContent = `(0 - 0)` //UPDATE WHEN ADDED
+                    record.textContent = `(${user.correctGames} - ${user.incorrectGames})` //UPDATE WHEN ADDED
                     record.style.display = "block"
 
                     nameDiv.appendChild(details)

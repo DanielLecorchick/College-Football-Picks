@@ -88,6 +88,16 @@ const ScoreSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         required: true,
+    },
+    correctGames: {
+        type: Number,
+        default: 0,
+        required: true,
+    },
+    incorrectGames: {
+        type: Number,
+        default: 0,
+        required: true,
     }
 })
 
