@@ -8,7 +8,7 @@
 </head>
 <body>
     <div id="header">
-        <h1>Picks</h1>
+        <h1 id="headerText">Picks</h1>
     </div>
     <div id = "Picks">
     <script>
@@ -27,9 +27,13 @@
                 // pulls game data such as match ups and times of games from the scorecoard API
                 const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                 const gamesData = await gamesResponse.json()
+                console.log(gamesData)
 
                 const currentWeek = gamesData.week.number
                 const isWeek15 = currentWeek === 15
+
+                const headerText = document.getElementById("headerText")
+                headerText.textContent = `Week ${currentWeek} Picks`
 
                 renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15)
             }
@@ -54,7 +58,10 @@
                     minute: "2-digit",
                     hour12: true,
                 })
-                const gameDate = formattedDate.replace(/(\b0)(\d{1}):/, "$2:")
+                var gameDate = formattedDate.replace(/(\b0)(\d{1}):/, "$2:")
+                if(offseason && gameDate.substring(12) === "12:00 AM") {
+                    gameDate = gameDate.substring(0, 12) + "Time TBA"
+                }
                 const homeTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "home")
                 const awayTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "away")
 
@@ -73,7 +80,7 @@
                 if (isFCSGame) return 
                 
                 //puts all the games that meet the requirements into one local variable
-                if ((isTop25Game && isThisWeek) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
+                if ((isTop25Game && isThisWeek) || (isTop25Game && offseason) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
                     filteredGames.push({startDate, gameDate, homeTeam, awayTeam, game})
                 }
             })
@@ -83,7 +90,6 @@
 
             const picksDiv = document.getElementById("Picks")
             picksDiv.innerHTML = ""
-
             // creates a button for each home and away team,as well as the details, along with text underneath for the game date and time
             filteredGames.forEach(({ startDate, gameDate, homeTeam, awayTeam, game }) => {
                 const gameContainer = document.createElement("div")
@@ -199,6 +205,17 @@
                 })
             })
         }
+
+        const currentYear = new Date().getFullYear()
+        const january20th = new Date(currentYear, 0, 20)
+
+        // calculate Labor Day (first monday of september)
+        const september1st = new Date(currentYear, 8, 1)
+        const laborDay = new Date(september1st.getTime() + ((1 - september1st.getDay() + 7) % 7) * 24 * 60 * 60 * 1000)
+
+        // check if it is currently the offeason so we can display the first games of next season
+        const currentDate = new Date()
+        const offseason = currentDate >= january20th && currentDate <= laborDay;
 
         // every 10 minutes the functions are run to pull the data and ensure the games are correct this will be used to lock out users from making picks after game start
         fetchGames()
