@@ -114,7 +114,8 @@ app.get('/leaderboard', checkAuthenticated, async(req, res) => {
         //returns leaderboard info
         return{
             rank: index + 1,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
             correctPoints,
             incorrectPoints,
             totalPoints,
@@ -146,7 +147,8 @@ app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
         //returns leaderboard info
         return{
             rank: index + 1,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
             correctPoints,
             incorrectPoints,
             totalPoints,
