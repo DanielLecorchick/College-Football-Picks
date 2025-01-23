@@ -1,36 +1,43 @@
-<!-- Functionality works, CSS will be needed later on however. this acts as a homepage to redirect the userr to different functionalities of the site --> 
 <!DOCTYPE html>
 <html lang = "en">
 <head>
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
-    <title>Homepage</title>
-    <link rel="stylesheet" href="./homepage.css">
+    <title>College Football Picks</title>
+    <link rel="stylesheet" href="/css/homepage.css">
 </head>
 <body>
-    <h2>Homepage</h2>
-    <button onclick = "picks()">Make Picks</button>
-    <button onclick = "top25()">Current Top 25</button>
-    <button onclick = "weeklyresults()">Weekly Results</button>
-    <button onclick = "leaderboard()">Season Leaderboard</button>
-    <button onclick = "casino()">Casino</button>
+    <div id = "header">
+        <button id="profile-button" onclick = "profile()">Profile</button>
+        <head-text>College Football Picks</head-text>
+    </div>
+    <div id = "homepage">
+        <button id="make-picks" onclick = "picks()">Make Picks</button>
+        <button id="top-25" onclick = "top25()">Current Top 25</button>
+        <button id="weekly-results" onclick = "weeklyresults()">Weekly Results</button>
+        <button id="season-leaderboard" onclick = "leaderboard()">Season Leaderboard</button>
+        <button id="casino" onclick = "casino()">Casino</button>
 
-    <script>
-        function picks() {
-            window.location.href = '/picks';
-        }
-        function top25() {
-            window.location.href = '/top25';
-        }
-        function weeklyresults() {
-            window.location.href = '/weeklyresults';
-        }
-        function leaderboard() {
-            window.location.href = '/leaderboard';
-        }
-        function casino() {
-            window.location.href = '/casino';
-        }
-    </script>
+        <script>
+            function profile() {
+                window.location.href = '/profile';
+            }
+            function picks() {
+                window.location.href = '/picks';
+            }
+            function top25() {
+                window.location.href = '/top25';
+            }
+            function weeklyresults() {
+                window.location.href = '/weeklyresults';
+            }
+            function leaderboard() {
+                window.location.href = '/leaderboard';
+            }
+            function casino() {
+                window.location.href = '/casino';
+            }
+        </script>
+    </div>
 </body>
 </html>
