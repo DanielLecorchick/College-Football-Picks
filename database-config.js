@@ -16,7 +16,11 @@ connect.then(()=> {
 
 // defines a schema for storing user information collected from the sign up process
 const LoginSchema = new mongoose.Schema({
-    name:{
+    firstName:{
+        type: String,
+        required: true
+    },
+    lastName:{
         type: String,
         required: true
     },
@@ -52,6 +56,10 @@ const PicksSchema = new mongoose.Schema({
         type: String,
         enum: ["homeTeam", "awayTeam"],
         required: true,
+    },
+    weekNumber: {
+        type: String,
+        //required: true,
     },
     scored: {
         type: Boolean,
