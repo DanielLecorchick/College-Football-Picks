@@ -195,13 +195,52 @@ app.get('/casino', checkAuthenticated, (req, res) => {
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {
-    const { homeTeam, awayTeam } = req.query;
+    const { homeTeam, awayTeam } = req.query
     res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
 })
 
-app.get('/profile', checkAuthenticated, (req, res) => {
-    res.render('profile.ejs', {name: req.user.name, username: req.user.username})
+app.get('/profile', checkAuthenticated, async (req, res) => {
+    const user = await User.findById(req.user._id)
+    res.render('profile.ejs', {user: user})
+});
+
+app.post('/profile', checkAuthenticated, async (req, res) => {
+    const { firstName, lastName, username, favoriteTeam, password, confirmPassword } = req.body
+
+    if (password !== confirmPassword) {
+        console.log("Passwords do not match")
+        return res.redirect('/profile')
+    }
+
+    try {
+        const user = await User.findById(req.user._id)
+        console.log(`user id: ${user._id}`)
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if (!isPasswordValid) {
+            console.log("Incorrect password entered")
+            return res.redirect('/profile')  // redirect back with an error message
+        }
+
+        user.firstName = firstName
+        user.lastName = lastName
+        user.username = username
+        user.favoriteTeam = favoriteTeam
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10)
+            user.password = hashedPassword
+        }
+
+        await user.save();
+        console.log("Profile updated successfully")
+        res.redirect('/profile') // redirect after successful save
+    } catch (error) {
+        console.log("Error updating profile", error)
+        res.redirect('/profile') // handle the error and show it on the profile page
+    }
 })
+
 //logout route 
 app.delete('/logout', (req, res) => {
     req.logOut()

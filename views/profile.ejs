@@ -10,9 +10,27 @@
     <div id="header">
         <h1>Profile</h1>
     </div>
-    <div id = "profile"></div>
-        <script>
+    <div id = "profile">
+        <form action="/profile" method="POST">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required placeholder = "First Name">
+            
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required placeholder = "Last Name">
+            
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%= user.username %>" required placeholder = "Username">
 
-        </script>
+            <label for="username">Favorite Team</label>
+            <input type="text" id="favoriteTeam" name="favoriteTeam" value="<%= user.favoriteTeam %>" required placeholder = "Favorite Team">
+
+            <label for="password">Password</label>
+            <input type="text" id="password" name="password" required placeholder = "Password">
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="text" id="confirmPassword" name="confirmPassword" required placeholder = "Confirm Password">
+
+            <button type="submit">Update Profile</button>
+        </form>
     </div>
 </body>

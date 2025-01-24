@@ -72,31 +72,31 @@ body {
 }
 
 #make-picks {
-    background-image: url('https://raw.githubusercontent.com/DanielLecorchick/College-Football-Picks/refs/heads/main/public/images/wisconsin-football.gif');
+    background-image: url('../images/wisconsin-football.gif');
     background-blend-mode: overlay;
     background-color: rgba(197, 5, 12, 0.4);
 }
 
 #top-25 {
-    background-image: url('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWgzemRqb3VmODQ1b2oyOHhrM3RwMm5ocjJ4OXpvdHAxM25laXU2ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/H35TvGEg9XOUsiEQmF/giphy.gif');
+    background-image: url('../images/uf4.gif');
     background-blend-mode: overlay;
     background-color: rgba(0, 33, 165, 0.4);
 }
 
 #weekly-results {
-    background-image: url('https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExODN1ZXBhMG9sY2txdWt3cm9jYzFyNzYxeWM5eXBycmp4dHFkczU5biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Fk4mOgAnR1m5xRxV9U/giphy.gif');
+    background-image: url('../images/alabama2.gif');
     background-blend-mode: overlay;
     background-color: rgba(158, 27, 50, 0.4);
 }
 
 #season-leaderboard {
-    background-image: url('https://media1.tenor.com/m/nJ5QARCdPjYAAAAd/jeremiah-smith.gif');
+    background-image: url('../images/jeremiah-smith.gif');
     background-blend-mode: overlay;
     background-color: rgba(187, 0, 0, 0.4);
 }
 
 #casino {
-    background-image: url('https://raw.githubusercontent.com/DanielLecorchick/College-Football-Picks/refs/heads/main/public/images/notre-dame-notre-dame-football.gif');
+    background-image: url('../images/notre-dame-notre-dame-football.gif');
     background-blend-mode: overlay;
     background-color: rgba(12, 35, 64, 0.4);
 }
