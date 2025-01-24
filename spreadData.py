@@ -1,4 +1,9 @@
-#install numpy if u dont have it
+#later on this will be used along with pointsCenter to get the spread data and then get the probability of of the underdog winning
+#this data will then be used to caulauate underdogs point value. 
+#favorite = basePoints
+#underdog = basePoints * (favorite probability/underdog probability)
+#then save this into the database
+
 
 #this file utilizes cfp data dating back to 1980 until present day, given the chance a team at a given spread has a chance of winning
 import numpy as np
@@ -24,7 +29,7 @@ y = np.array([50.00, 50.00, 50.00, 49.18, 45.03, 44.39, 43.88, 37.50, 37.69, 36.
 ])
 
 #creates paired values
-#pairs = np.column_stack((x,y))
+pairs = np.column_stack((x,y))
 
 '''
 #a quadratic function incase we wish to use that instead of exp
@@ -39,7 +44,10 @@ def exp_function(x, a, b, c):
 
 popt, pcov = curve_fit(exp_function, x, y)
 
-#spreadFunction = 
+spread = -.5
+
+def spreadFunction(spread, *popt):
+    return exp_function(spread, *popt)
 
 
 plt.scatter(x, y, label='Data')
