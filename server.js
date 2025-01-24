@@ -10,7 +10,6 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-const fbsTeams = require('./fbsTeams.js')
 
 //imports from files in the rest of the app
 const{User,Picks,Score}= require('./database-config.js')
