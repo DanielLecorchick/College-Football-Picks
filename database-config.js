@@ -38,6 +38,15 @@ const LoginSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    verificationToken: {
+        type: String,
+        required: true,
+    },
+    verificationStatus: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     favoriteTeam: {
         type: Number,
         required: true,

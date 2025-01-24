@@ -13,9 +13,18 @@ function initalize(passport) {
         try{
             // fetches the username to attempt to login a user by ensuring the username exists, and then by comparing passwords
             const user = await User.findOne({username})
+
+            //checks if the user has verified their email
+            if(user.vericitcation === false){
+                return done(null, false, {message: 'Please verify your email'})
+            }
+
+            //checks if there is a user with that username
             if(user == null){
                 return done(null, false, {message: 'No user with that username'})
             }
+
+            //checks if the password is correct according to the DB
             if(await bcrypt.compare(password, user.password)) {
                 return done(null, user)
             }

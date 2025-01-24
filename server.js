@@ -14,6 +14,7 @@ const methodOverride = require('method-override')
 //imports from files in the rest of the app
 const{User,Picks,Score}= require('./database-config.js')
 const {fetchGamesToScore} = require('./pointsCenter')
+const fbsTeams = require('./fbsTeams.js')
 
 // imports and configures the passport config
 const initalizePassport = require('./passport-config')
@@ -59,6 +60,10 @@ app.get('/signup', checkNotAuthenticated, (req,res)=> {
     res.render('signup.ejs')
 })
 
+app.get('/api/fbsTeams', checkNotAuthenticated, (req,res)=> {
+    res.json([...fbsTeams])
+})
+
 //signup submission
 app.post('/signup', checkNotAuthenticated, async(req,res) => {
     if(req.body.password !== req.body['confirm-password']) {
@@ -72,7 +77,10 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
             lastName:req.body.lastName,
             username: req.body.username,
             email: req.body.email,
-            password: hashedPassword
+            password: hashedPassword,
+            verificationToken: randomBytes(32).toString('hex'),
+            verificationStatus: false,
+            favoriteTeam: req.body.favoriteTeam
         })
         await newUser.save()
         res.redirect('/login')
