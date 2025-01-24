@@ -10,6 +10,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const fbsTeams = require('./fbsTeams.js')
 
 //imports from files in the rest of the app
 const{User,Picks,Score}= require('./database-config.js')
@@ -209,8 +210,9 @@ app.get('/details', checkAuthenticated, (req, res) => {
 
 app.get('/profile', checkAuthenticated, async (req, res) => {
     const user = await User.findById(req.user._id)
-    res.render('profile.ejs', {user: user})
-});
+    const fbsTeamsArray = Array.from(fbsTeams)
+    res.render('profile.ejs', { user: user, fbsTeams: fbsTeamsArray })
+})
 
 app.post('/profile', checkAuthenticated, async (req, res) => {
     const { firstName, lastName, username, favoriteTeam, password, confirmPassword } = req.body
