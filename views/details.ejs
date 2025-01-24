@@ -20,7 +20,7 @@
                     //filepath to leaders = object/events/0/competitions/0/leaders
                     const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                     const gamesData = await gamesResponse.json()
-                    console.log(gamesData)
+                    //console.log(gamesData)
                     
                     createDisplay(top25Teams, gamesData)
                 }
@@ -53,7 +53,7 @@
                     }
                 }
                 if(gameInfo) {
-                    console.log(gameInfo)
+                    //console.log(gameInfo)
                 }
 
                 var pre = gameInfo.status.type.state === "pre";
@@ -216,7 +216,7 @@
             }
 
             const updateTable = (tableDiv, homeTeam, awayTeam, gameInfo) => {
-                console.log("updating table")
+                //console.log("updating table")
                 tableDiv.innerHTML = "";
                 const newTable = generateTable(homeTeam, awayTeam, gameInfo);
                 tableDiv.appendChild(newTable);
@@ -228,8 +228,8 @@
             const awayTeam = JSON.parse(localStorage.getItem("awayTeam"))
             // Ensure the data is valid
             if (homeTeam && awayTeam) {
-                console.log(homeTeam)
-                console.log(awayTeam)
+                //console.log(homeTeam)
+                //console.log(awayTeam)
                 document.documentElement.style.setProperty("--home-team-color", `#${homeTeam.team.color}`)
                 document.documentElement.style.setProperty("--home-team-alt", `#${homeTeam.team.alternateColor}`)
                 document.documentElement.style.setProperty("--away-team-color", `#${awayTeam.team.color}`)
