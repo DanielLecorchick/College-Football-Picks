@@ -39,7 +39,7 @@ const LoginSchema = new mongoose.Schema({
         unique: true
     },
     favoriteTeam: {
-        type: String,
+        type: Number,
         required: true,
     }
 })

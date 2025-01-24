@@ -21,6 +21,7 @@
                     const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                     const gamesData = await gamesResponse.json()
                     console.log(gamesData)
+                    
                     createDisplay(top25Teams, gamesData)
                 }
                 catch (error){
@@ -104,17 +105,22 @@
                 generateSubHeading("header", "title-div", homeTitle, homeDiv)
                 generateSubHeading("header", "title-div", awayTitle, awayDiv)
                 generateSubHeading("header", "title-div", "Game Info", generalDiv)
-
                 generateSubHeading("info", "paragraph-div", "Game in progress...", homeDiv)
                 generateSubHeading("info", "paragraph-div", "Game in progress...", awayDiv)
                 generateSubHeading("info", "paragraph-div", "Game in progress...", generalDiv)
 
-                detailsDiv.appendChild(headerDiv)
-                detailsDiv.appendChild(homeDiv)
-                detailsDiv.appendChild(generalDiv)
-                detailsDiv.appendChild(awayDiv)
+                const teamsDiv = document.createElement("div")
+                teamsDiv.className = "ranks-div"
+                teamsDiv.appendChild(homeDiv)
+                teamsDiv.appendChild(generalDiv)
+                teamsDiv.appendChild(awayDiv)
 
-                updateTable(tableDiv, homeTeam, awayTeam, gameInfo)
+                detailsDiv.appendChild(headerDiv)
+                detailsDiv.appendChild(teamsDiv)
+
+                if(!pre) {
+                    updateTable(tableDiv, homeTeam, awayTeam, gameInfo)
+                }
             }
 
             const generateSubHeading = (headerType, inputClassName, inputString, specifiedDiv, imgUrl = null, imgSize = null) => {
