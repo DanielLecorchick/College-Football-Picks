@@ -16,12 +16,68 @@
                 <input type = "name" id = "lastName" name = "lastName" required placeholder = "Last Name">
                 <input type = "text" id = "username" name = "username" required placeholder = "Username">
                 <input type = "email" id = "email" name = "email" required placeholder = "Email">
+                <input type = "favoriteTeam" id="favoriteTeam" name="favoriteTeam">
                 <input type = "password" id = "password" name = "password" required placeholder = "Password">
                 <input type = "password" id = "confirm-password" name = "confirm-password" required placeholder = "Confirm Password">
                 <button type = "submit">Sign Up</button>
                 <p>Already have an account? <a href = "./login" id = "login">Login</a></p>
             </form>
         </div>
+
+        <script>
+            function renderDropDown() {
+                // Populate a dropdown (select element) with team names
+                // Create the select element
+                const select = document.createElement("select");
+                select.name = "favoriteTeam";
+                select.id = "favoriteTeam";
+
+                // Add a default option
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Favorite Team";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
+                teamNames.forEach((teamID, teamName) => {
+                    const option = document.createElement("option")
+                    option.value = teamID
+                    option.textContent = teamName
+                    select.appendChild(option)
+                })
+
+                // Replace the input field with the select dropdown
+                favoriteTeamInput.replaceWith(select)
+            }
+            const fbsTeams = <%- JSON.stringify(fbsTeams) %>
+            console.log(fbsTeams)
+            const favoriteTeamInput = document.getElementById("favoriteTeam")
+
+            const teamNames = new Map()
+            const teamIDs = new Map()
+
+            fbsTeams.forEach(team => {
+                const teamName = team[0]
+                const teamID = team[1]
+                teamNames.set(teamName, teamID)  // Map "Team Name" => team_id
+                teamIDs.set(teamID, teamName)    // Map team_id => "Team Name"
+            })
+
+            console.log("teamNames:", teamNames)
+            console.log("teamIDs:", teamIDs)
+
+            renderDropDown()
+
+
+            document.querySelector("form").addEventListener("submit", (e) => {
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirm-password").value;
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert("Passwords do not match");
+            }
+        });
+        </script>
     </div>
 </body>
 </html>
