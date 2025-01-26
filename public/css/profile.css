@@ -1,8 +1,0 @@
-body {
-    background: linear-gradient(to right, rgb(255, 255, 255), rgb(179, 179, 179));
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family:'Poppins', sans-serif;
-}

@@ -5,11 +5,10 @@
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
     <title>Picks</title>
     <link rel="stylesheet" href="/css/picks.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <div id="header">
-        <h1 id="headerText">Picks</h1>
-    </div>
+    <%- include('header', { headText: '<head-text id = "headerText">Picks</head-text>' }) %>
     <div id = "Picks">
     <script>
         async function fetchGames() {

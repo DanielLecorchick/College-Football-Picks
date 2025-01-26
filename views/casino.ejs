@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casino</title>
     <link rel="stylesheet" href="/css/casino.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <h1>Casino</h1>
+    <%- include('header', { headText: '<head-text>Casino</head-text>' }) %>
     <script>
         // Passing the BETTING_API_KEY from the server to the client-side script
         const betting_key = '<%= bettingApiKey %>'
