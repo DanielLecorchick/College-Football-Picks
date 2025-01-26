@@ -8,108 +8,128 @@
 </head>
 <body>
     <div id="header">
-        <h1>Leaderboard</h1>
+        <h1>Season Leaderboard</h1>
     </div>
     <div id = "leaderboard"></div>
     <script>
+        async function fetchProfileImage(teamID) {
+            try{
+                const teamResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${teamID}`)
+                const teamData = await teamResponse.json()
+                console.log(teamData)
+                return teamData.team.logos[0].href
+            }
+            catch (error){
+                console.error("Error fetching data:", error)
+            }
+        }
         //userid, name, total correct points, record, and percentage correct
-        fetch('/api/leaderboard') 
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
+        fetch("/api/leaderboard") 
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
 
-                const leaderboardDiv = document.getElementById("leaderboard")
+            const leaderboardDiv = document.getElementById("leaderboard")
 
-                const rankingHeader = document.createElement("rank")
-                rankingHeader.textContent = " "
+            const rankingHeader = document.createElement("rank")
+            rankingHeader.textContent = " "
 
-                const teamHeader = document.createElement("div")
-                teamHeader.className = "team-header"
-                teamHeader.textContent = "Users"
+            const teamHeader = document.createElement("div")
+            teamHeader.className = "team-header"
+            teamHeader.textContent = "Users"
 
-                const pointsHeader = document.createElement("div")
-                pointsHeader.className = "rank-container-header"
-                pointsHeader.textContent = "Points"
+            const pointsHeader = document.createElement("div")
+            pointsHeader.className = "rank-container-header"
+            pointsHeader.textContent = "Points"
 
-                const percentHeader = document.createElement("div")
-                percentHeader.className = "rank-container-header"
-                percentHeader.textContent = "Point Accuracy"
+            const percentHeader = document.createElement("div")
+            percentHeader.className = "rank-container-header"
+            percentHeader.textContent = "Point Accuracy"
 
-                const gameHeader = document.createElement("div")
-                gameHeader.className = "rank-container-header"
-                gameHeader.textContent = "Game Accuracy"
+            const gameHeader = document.createElement("div")
+            gameHeader.className = "rank-container-header"
+            gameHeader.textContent = "Game Accuracy"
 
-                const numberedHeader = document.createElement("div")
-                numberedHeader.className = "numbered-container"
-                numberedHeader.appendChild(rankingHeader)
-                numberedHeader.appendChild(teamHeader)
-                numberedHeader.appendChild(pointsHeader)
-                numberedHeader.appendChild(percentHeader)
-                numberedHeader.appendChild(gameHeader)
-                
-                leaderboardDiv.appendChild(numberedHeader)
+            const numberedHeader = document.createElement("div")
+            numberedHeader.className = "numbered-container"
+            numberedHeader.appendChild(rankingHeader)
+            numberedHeader.appendChild(teamHeader)
+            numberedHeader.appendChild(pointsHeader)
+            numberedHeader.appendChild(percentHeader)
+            numberedHeader.appendChild(gameHeader)
+            
+            leaderboardDiv.appendChild(numberedHeader)
 
-                const testImg = "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/57.png"
+            // Prepare user elements and fetch images
+            const userElements = data.map(async (user) => {
+                const teamDiv = document.createElement("div")
+                teamDiv.className = "team"
 
-                data.forEach(user => {
-                    const teamDiv = document.createElement("div")
-                    teamDiv.className = "team"
+                const logo = document.createElement("img")
+                const imgURL = await fetchProfileImage(user.userID.favoriteTeam)
+                logo.src = imgURL
+                logo.alt = `${user.name} profile picture`
+                logo.style.width = "100px"
 
-                    const logo = document.createElement("img")
-                    logo.src = testImg
-                    logo.alt = `${user.name} profile picture`
-                    logo.style.width = "100px"
+                const details = document.createElement("span")
+                details.textContent = `${user.userID.firstName} ${user.userID.lastName}`
 
-                    const details = document.createElement("span")
-                    details.textContent = `${user.firstName} ${user.lastName}`
+                const totalPoints = document.createElement("span")
+                const percentPoints = document.createElement("span")
+                const percentGames = document.createElement("span")
+                totalPoints.textContent = `${user.correctPoints}`
+                percentPoints.textContent = `${((user.correctPoints / user.totalPoints) * 100).toFixed(0)}%`
+                percentGames.textContent = `${((user.correctGames / (user.correctGames + user.incorrectGames)) * 100).toFixed(0)}%`
 
-                    const totalPoints = document.createElement("span")
-                    const percentPoints = document.createElement("span")
-                    const percentGames = document.createElement("span")
-                    totalPoints.textContent = `${user.correctPoints}`
-                    percentPoints.textContent = `${((user.correctPoints/user.totalPoints)*100).toFixed(0)}%`
-                    percentGames.textContent = `${((user.correctGames/user.totalGames)*100).toFixed(0)}%`
+                const pointsContainer = document.createElement("div")
+                pointsContainer.className = "rank-container"
+                pointsContainer.appendChild(totalPoints)
 
-                    const pointsContainer = document.createElement("div")
-                    pointsContainer.className = "rank-container"
-                    pointsContainer.appendChild(totalPoints)
+                const percentContainer = document.createElement("div")
+                percentContainer.className = "rank-container"
+                percentContainer.appendChild(percentPoints)
 
-                    const percentContainer = document.createElement("div")
-                    percentContainer.className = "rank-container"
-                    percentContainer.appendChild(percentPoints)
+                const gamePercentContainer = document.createElement("div")
+                gamePercentContainer.className = "rank-container"
+                gamePercentContainer.appendChild(percentGames)
 
-                    const gamePercentContainer = document.createElement("div")
-                    gamePercentContainer.className = "rank-container"
-                    gamePercentContainer.appendChild(percentGames)
+                const nameDiv = document.createElement("div")
+                nameDiv.className = "name-container"
 
-                    const nameDiv = document.createElement("div")
-                    nameDiv.className = "name-container"
+                const record = document.createElement("gamerecord")
+                record.textContent = `(${user.correctGames} - ${user.incorrectGames})`
+                record.style.display = "block"
 
-                    const record = document.createElement("gamerecord")
-                    record.textContent = `(${user.correctGames} - ${user.incorrectGames})` //UPDATE WHEN ADDED
-                    record.style.display = "block"
+                nameDiv.appendChild(details)
+                nameDiv.appendChild(record)
 
-                    nameDiv.appendChild(details)
-                    nameDiv.appendChild(record)
+                teamDiv.appendChild(logo)
+                teamDiv.appendChild(nameDiv)
 
-                    teamDiv.appendChild(logo)
-                    teamDiv.appendChild(nameDiv)
+                const rankingNumber = document.createElement("rank")
+                rankingNumber.textContent = `#${user.rank}`
 
-                    const rankingNumber = document.createElement("rank")
-                    rankingNumber.textContent = `#${user.rank}`
+                const numberedDiv = document.createElement("div")
+                numberedDiv.className = "numbered-container"
+                numberedDiv.appendChild(rankingNumber)
+                numberedDiv.appendChild(teamDiv)
+                numberedDiv.appendChild(pointsContainer)
+                numberedDiv.appendChild(percentContainer)
+                numberedDiv.appendChild(gamePercentContainer)
 
-                    const numberedDiv = document.createElement("div")
-                    numberedDiv.className = "numbered-container"
-                    numberedDiv.appendChild(rankingNumber)
-                    numberedDiv.appendChild(teamDiv)
-                    numberedDiv.appendChild(pointsContainer)
-                    numberedDiv.appendChild(percentContainer)
-                    numberedDiv.appendChild(gamePercentContainer)
+                return numberedDiv
+            })
 
-                    leaderboardDiv.appendChild(numberedDiv)
+            // Wait for all images to be fetched before appending to the DOM
+            Promise.all(userElements).then((userDivs) => {
+                // Once all images are fetched, append user elements in order
+                userDivs.forEach(userDiv => {
+                    leaderboardDiv.appendChild(userDiv)
                 })
             })
-            .catch(error => console.error("error in leaderboard", error))
+
+        })
+        .catch(error => console.error("error in leaderboard", error))
     </script>
 </body>
 </html>

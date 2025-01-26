@@ -10,6 +10,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const crypto = require('crypto')
 
 //imports from files in the rest of the app
 const{User,Picks,Score}= require('./database-config.js')
@@ -57,7 +58,8 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 
 //signup route
 app.get('/signup', checkNotAuthenticated, (req,res)=> {
-    res.render('signup.ejs')
+    const fbsTeamsArray = Array.from(fbsTeams)
+    res.render('signup.ejs', { fbsTeams: fbsTeamsArray })
 })
 
 app.get('/api/fbsTeams', checkNotAuthenticated, (req,res)=> {
@@ -77,10 +79,10 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
             lastName:req.body.lastName,
             username: req.body.username,
             email: req.body.email,
+            favoriteTeam: req.body.favoriteTeam,
             password: hashedPassword,
-            verificationToken: randomBytes(32).toString('hex'),
+            verificationToken: crypto.randomBytes(32).toString('hex'),
             verificationStatus: false,
-            favoriteTeam: req.body.favoriteTeam
         })
         await newUser.save()
         res.redirect('/login')
@@ -103,7 +105,7 @@ app.get('/top25', checkAuthenticated, (req, res) => {
 app.get('/leaderboard', checkAuthenticated, async(req, res) => {
     //fetches data from the score schema
     const leaderboard = await Score.find()
-        .populate('userId', 'firstName lastName username')
+        .populate('userId', 'firstName lastName username favoriteTeam')
         .sort({correctPoints: -1})
 
     //maps all the data from the database
@@ -118,9 +120,7 @@ app.get('/leaderboard', checkAuthenticated, async(req, res) => {
         //returns leaderboard info
         return{
             rank: index + 1,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
+            userID : user,
             correctPoints,
             incorrectPoints,
             totalPoints,
@@ -134,7 +134,7 @@ app.get('/leaderboard', checkAuthenticated, async(req, res) => {
 app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
     //fetches data from the score schema
     const leaderboard = await Score.find()
-        .populate('userId', 'firstName lastName username')
+        .populate('userId', 'firstName lastName username favoriteTeam')
         .sort({correctPoints: -1})
 
     //maps all the data from the database
@@ -149,7 +149,7 @@ app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
         //returns leaderboard info
         return{
             rank: index + 1,
-            name: user.name,
+            userID : user,
             correctPoints,
             incorrectPoints,
             totalPoints,
@@ -213,12 +213,18 @@ app.get('/profile', checkAuthenticated, async (req, res) => {
     res.render('profile.ejs', { user: user, fbsTeams: fbsTeamsArray })
 })
 
-app.post('/profile', checkAuthenticated, async (req, res) => {
+app.get('/edit-account', checkAuthenticated, async (req, res) => {
+    const user = await User.findById(req.user._id)
+    const fbsTeamsArray = Array.from(fbsTeams)
+    res.render('edit-account.ejs', { user: user, fbsTeams: fbsTeamsArray })
+})
+
+app.post('/edit-account', checkAuthenticated, async (req, res) => {
     const { firstName, lastName, username, favoriteTeam, password, confirmPassword } = req.body
 
     if (password !== confirmPassword) {
         console.log("Passwords do not match")
-        return res.redirect('/profile')
+        return res.redirect('/edit-account')
     }
 
     try {
@@ -228,7 +234,7 @@ app.post('/profile', checkAuthenticated, async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (!isPasswordValid) {
             console.log("Incorrect password entered")
-            return res.redirect('/profile')  // redirect back with an error message
+            return res.redirect('/edit-account')  // redirect back with an error message
         }
 
         user.firstName = firstName
@@ -243,10 +249,10 @@ app.post('/profile', checkAuthenticated, async (req, res) => {
 
         await user.save();
         console.log("Profile updated successfully")
-        res.redirect('/profile') // redirect after successful save
+        res.redirect('/edit-account') // redirect after successful save
     } catch (error) {
         console.log("Error updating profile", error)
-        res.redirect('/profile') // handle the error and show it on the profile page
+        res.redirect('/edit-account') // handle the error and show it on the profile page
     }
 })
 
