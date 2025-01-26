@@ -40,12 +40,12 @@ const LoginSchema = new mongoose.Schema({
     },
     verificationToken: {
         type: String,
-        required: true,
+        //required: true,
     },
     verificationStatus: {
         type: Boolean,
-        required: true,
-        default: false
+        //required: true,
+        //default: false
     },
     favoriteTeam: {
         type: Number,
@@ -122,6 +122,7 @@ const GameSchema = new mongoose.Schema ({
     gameId: {
         type: String,
         required: true,
+        unique: true
     },
     homePicks: {
         type: Number,

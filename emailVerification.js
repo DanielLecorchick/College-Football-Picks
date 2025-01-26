@@ -16,7 +16,7 @@ const sender = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
         user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.APP_PASS
     }
 })
 
@@ -26,7 +26,7 @@ const sendEmail = async(user) => {
         const verificationToken = randomBytes(32).toString('hex')
         await User.updateOne({_id: user._id}, {verificationToken})
 
-        const verificationURL = `http://localhost:3000/verify-email?token=${verificationToken}`
+        const verificationURL = `http://localhost:3000/emailVerification?token=${verificationToken}`
 
         //content of the email that is sent to the user when they create account
         const email = {

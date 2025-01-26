@@ -17,7 +17,6 @@ const{User,Picks,Score,gamePicksData}= require('./database-config.js')
 const {fetchGamesToScore} = require('./pointsCenter.js')
 const fbsTeams = require('./fbsTeams.js')
 const {sendEmail} = require('./emailVerification.js')
-const {randomBytes} = require('crypto')
 
 
 // imports and configures the passport config
@@ -103,7 +102,7 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
     }
 })
 
-app.get('./emailVerification', async(req, res) =>{
+app.get('/emailVerification', async(req, res) =>{
     const {token} = req.query
 
     try {
