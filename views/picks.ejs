@@ -26,7 +26,7 @@
                 // pulls game data such as match ups and times of games from the scorecoard API
                 const gamesResponse = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard")
                 const gamesData = await gamesResponse.json()
-                //console.log(gamesData)
+                console.log(gamesData)
 
                 const currentWeek = gamesData.week.number
                 const isWeek15 = currentWeek === 15
@@ -41,6 +41,34 @@
             }
         }
 
+        function hexToRgb(hex) {
+            // Convert hex to RGB
+            let r = parseInt(hex.slice(0, 2), 16)
+            let g = parseInt(hex.slice(2, 4), 16)
+            let b = parseInt(hex.slice(4, 6), 16)
+
+            return { r, g, b }
+        }
+
+        function checkColorSimilarity(homeTeamColor, awayTeamColor, awayTeamAltColor) {
+            const homeRgb = hexToRgb(homeTeamColor)
+            const awayRgb = hexToRgb(awayTeamColor)
+
+            const distance = Math.sqrt(
+                Math.pow(awayRgb.r - homeRgb.r, 2) +
+                Math.pow(awayRgb.g - homeRgb.g, 2) +
+                Math.pow(awayRgb.b - homeRgb.b, 2)
+            )
+
+            // If the distance is below a threshold, colors are too similar
+            const threshold = 50
+            if (distance < threshold) {
+                // Reassign away team color to altColor
+                return awayTeamAltColor
+            }
+
+            return awayTeamColor
+        }
 
         //function to get the users picks from the database
         async function userPicks(){
@@ -76,6 +104,7 @@
 
             //gathers the game picks info from the game data api
             const gamePickInfo = await gamePickData()
+            console.log(gamePickInfo)
 
             //variable to store each of the games
             const filteredGames = []
@@ -237,11 +266,58 @@
                 gameContainer.appendChild(awayTeamButton)
 
                 dateDiv.appendChild(gameContainer)
-                picksDiv.appendChild(dateDiv)
+
+                const fullGameDiv = document.createElement("div")
+                fullGameDiv.className = "full-game-div"
+
+                const homeTeamColor = homeTeam.team.color
+                const awayTeamColor = checkColorSimilarity(homeTeamColor, awayTeam.team.color, awayTeam.team.alternateColor)
+
+                const currentGamePickInfo = gamePickInfo.find(gamePick => gamePick.gameId === game.id)
+                
+                const homePercentage = ((currentGamePickInfo.homePicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
+                const awayPercentage = ((currentGamePickInfo.awayPicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
+
+                const homePercentText = document.createElement("span")
+                homePercentText.textContent = `${homePercentage}%`
+                const totalPicksText = document.createElement("total-picks")
+                totalPicksText.textContent = `Total Picks: ${currentGamePickInfo.totalPicks}`
+                const awayPercentText = document.createElement("span")
+                awayPercentText.textContent = `${awayPercentage}%`
+
+                const teamPercentsDiv = document.createElement("div")
+                teamPercentsDiv.className = "team-percents"
+                teamPercentsDiv.appendChild(homePercentText)
+                teamPercentsDiv.appendChild(totalPicksText)
+                teamPercentsDiv.appendChild(awayPercentText)
+
+                const picksBar = document.createElement("div")
+                picksBar.className = "picks-bar"
+                
+                const homeSection = document.createElement("div")
+                homeSection.className = "picks-bar-home"
+                homeSection.style.width = `${homePercentage}%`
+                homeSection.style.backgroundColor = `#${homeTeamColor}`
+
+                const awaySection = document.createElement("div")
+                awaySection.className = "picks-bar-away"
+                awaySection.style.width = `${awayPercentage}%`
+                awaySection.style.backgroundColor = `#${awayTeamColor}`
+
+                if (homePercentage !== "100" && awayPercentage !== "100") {
+                    homeSection.style.borderRight = "1px solid #000"
+                }
+
+                picksBar.appendChild(homeSection)
+                picksBar.appendChild(awaySection)
+
+                fullGameDiv.appendChild(dateDiv)
+                fullGameDiv.appendChild(teamPercentsDiv)
+                fullGameDiv.appendChild(picksBar)
+                
+                picksDiv.appendChild(fullGameDiv)
                 picksDiv.appendChild(document.createElement("br"))
             })
-
-            //console.log(filteredGames)
         }
 
         //function to send the users pick to the database or update their pick to the database
