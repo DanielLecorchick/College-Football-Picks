@@ -12,9 +12,12 @@ const session = require('express-session')
 const methodOverride = require('method-override')
 
 //imports from files in the rest of the app
-const{User,Picks,Score}= require('./database-config.js')
-const {fetchGamesToScore} = require('./pointsCenter')
+const{User,Picks,Score,gamePicksData}= require('./database-config.js')
+const {fetchGamesToScore} = require('./pointsCenter.js')
 const fbsTeams = require('./fbsTeams.js')
+const {sendEmail} = require('./emailVerification.js')
+const {randomBytes} = require('crypto')
+
 
 // imports and configures the passport config
 const initalizePassport = require('./passport-config')
@@ -72,6 +75,8 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
     }
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
+
+        //creates a new user and saves them into the DB
         const newUser = new User({
             firstName: req.body.firstName,
             lastName:req.body.lastName,
@@ -83,6 +88,11 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
             favoriteTeam: req.body.favoriteTeam
         })
         await newUser.save()
+
+        //sends an email to the new user to allow them to verify their account
+        await sendEmail(newUser)
+
+        //redirects the user once they sign up
         res.redirect('/login')
     }
     catch(error) {
@@ -90,6 +100,24 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
         res.redirect('/signup')
     }
 })
+
+app.get('./emailVerification', async(req, res) =>{
+    const {token} = req.query
+
+    try {
+        //finds a users verification token, update the verification status, and save the update
+        const user = await User.findOne({verificationToken: token})
+        user.verificationStatus = true
+        await user.save()
+
+        res.redirect('/login')
+    }
+    catch (error) {
+        console.error("Error in the email verification:", error)
+    }
+
+})
+
 
 // renders pages if authenticated
 app.get('/homepage', checkAuthenticated, (req,res) =>{
@@ -164,12 +192,20 @@ app.get('/picks', checkAuthenticated, (req, res) => {
     res.render('picks.ejs', {name: req.user.name, username: req.user.username})
 })
 
+//api to get the individual users picks in order to display them as they update
 app.get('/api/picks', checkAuthenticated, async (req, res) => {
 
     const userId = req.user._id
     const userPicks = await Picks.find({userId}).lean()
 
     res.json(userPicks)
+})
+
+app.get('/api/gameData', checkAuthenticated, async (req, res) =>{
+    
+    const games = await gamePicksData.find().lean()
+
+    res.json(games)
 })
 
 app.post('/picks', checkAuthenticated, async(req,res) => {

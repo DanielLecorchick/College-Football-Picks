@@ -49,7 +49,7 @@ const LoginSchema = new mongoose.Schema({
     },
     favoriteTeam: {
         type: Number,
-        required: true,
+        //required: true,
     }
 })
 
@@ -75,6 +75,10 @@ const PicksSchema = new mongoose.Schema({
         //required: true,
     },
     scored: {
+        type: Boolean,
+        default: false
+    },
+    inGameSchema: {
         type: Boolean,
         default: false
     }
@@ -114,8 +118,31 @@ const ScoreSchema = new mongoose.Schema({
     }
 })
 
+const GameSchema = new mongoose.Schema ({
+    gameId: {
+        type: String,
+        required: true,
+    },
+    homePicks: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    awayPicks:{
+        type: Number,
+        default: 0,
+        required: true
+    },
+    totalPicks: {
+        type: Number,
+        default: 0,
+        required: true
+    }
+})
+
 const User = new mongoose.model("users", LoginSchema)
 const Picks = new mongoose.model("picks", PicksSchema)
 const Score = new mongoose.model("score", ScoreSchema)
+const gamePicksData = new mongoose.model("gamePicksData", GameSchema)
 
-module.exports = {User, Picks, Score}
+module.exports = {User, Picks, Score, gamePicksData}

@@ -1,5 +1,9 @@
 // sets up passport with local authentication to authenticate users by username and passport by serealizing and deserealizing user information 
 
+
+//add in logic so the code doesnt crash if someone uses an email that has already been used
+
+
 // imports modules
 const {authenticate} = require('passport')
 const LocalStrategy = require('passport-local').Strategy
@@ -15,7 +19,7 @@ function initalize(passport) {
             const user = await User.findOne({username})
 
             //checks if the user has verified their email
-            if(user.vericitcation === false){
+            if(user.verificationStatus === false){
                 return done(null, false, {message: 'Please verify your email'})
             }
 

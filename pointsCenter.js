@@ -6,7 +6,7 @@
 //this file will handle the scoring of the games and then storing them in the database
 
 //imports database info
-const {User, Picks, Score} = require('./database-config.js')
+const {User, Picks, Score, gamePicksData} = require('./database-config.js')
 
 //variable used to ensure the scoring is never done multiple times concurently
 let isScoringInProgress = false
@@ -62,6 +62,8 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
     
         //verifies game is this week
         const isThisWeek = gameDate >= startOfWeek && gameDate <= endOfWeek
+        //const isTop5Game = 
+        //const isTop10Game = 
         const isTwoTop25Game = top25Teams.includes(homeTeam.team.id) && top25Teams.includes(awayTeam.team.id)
         const isOneTop25Game = top25Teams.includes(homeTeam.team.id) || top25Teams.includes(awayTeam.team.id)
         const isConferenceChampionship = (isWeek15 && gameDate >= startOfWeek && gameDate <= endOfWeek)
@@ -76,6 +78,8 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
         //UPDATE ME: later on change this to basepoints given the game
         //assigns point values to each game
         let points = 0
+        //if (isTop5Game) points = 4
+        //else if(isTop10Game) points = 3
         if(isConferenceChampionship || isArmyNavy || isTwoTop25Game) points = 2
         else if(isOneTop25Game) points = 1
         else if(isBowlOrCFP) points = .5
@@ -85,7 +89,43 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
             //gets users picks from DB or continues if the user forgot a pick
             const userPick = await Picks.findOne({gameId: game.id, userId: user._id})
 
-            //FIX: for some reason it is still scoring when the game state is "in"
+            if(!userPick || userPick.inGameSchema) continue
+
+            //logic to get the total number of picks for each game
+            if((userPick && userPick.inGameSchema === false) && (userPick.pick === "homeTeam")) {
+                //updates or creates the game data
+                await gamePicksData.updateOne(
+                    {userId: user._id},
+                    {$inc: {homePicks: 1}},
+                    {$inc: {totalPicks: 1}},
+                    {upsert:true}
+                ) 
+
+                //sets it to true that the game has been put into the GameSchema
+                await Picks.updateOne(
+                    {_id: userPick._id},
+                    {$set:{inGameSchema: true}}
+                )
+            }
+            else if ((userPick && userPick.inGameSchema === false) && (userPick.pick === "awayTeam")) {
+                //updates or creates the game data
+                await gamePicksData.updateOne(
+                    {userId: user._id},
+                    {$inc: {awayPicks: 1}},
+                    {$inc: {totalPicks: 1}},
+                    {upsert:true}
+                ) 
+            
+                //sets it to true that the game has been put into the GameSchema
+                await Picks.updateOne(
+                    {_id: userPick._id},
+                    {$set:{inGameSchema: true}}
+                )
+            }
+            else {
+                continue
+            }
+
             if(!userPick || userPick.scored === true || game.status.type.state === "pre" || game.status.type.state === "in") {
                 continue
             }
