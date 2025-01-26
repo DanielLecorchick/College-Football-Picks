@@ -56,10 +56,26 @@
         }
 
 
+        //function to get the game pick data from the database
+        async function gamePickData() {
+            try{
+                const response = await fetch ('/api/gameData')
+                const gamePickData = await response.json()
+                return gamePickData
+            }
+            catch(error){
+                console.error("Error loading in game pick data:", error)
+            }
+        }
+
+
         async function renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15) {
         
             //gathers the users picks from the picks api
             const userPicksData = await userPicks()
+
+            //gathers the game picks info from the game data api
+            const gamePickInfo = await gamePickData()
 
             //variable to store each of the games
             const filteredGames = []
@@ -177,7 +193,7 @@
                     
                 }
                 
-                    
+                //onclick logic for when a user chooses a team if its the home team button
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.style.backgroundColor = pressColor
                     awayTeamButton.style.backgroundColor = unpressedColor
@@ -186,6 +202,7 @@
                     await PickSelection(game.id, "homeTeam")
                 }
 
+                //onclick logic for when a user chooses a team if its the away team button
                 awayTeamButton.onclick = async () => {
                     awayTeamButton.style.backgroundColor = pressColor
                     homeTeamButton.style.backgroundColor = unpressedColor
