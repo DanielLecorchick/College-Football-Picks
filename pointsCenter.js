@@ -95,24 +95,22 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
             if((userPick && userPick.inGameSchema === false) && (userPick.pick === "homeTeam")) {
                 //updates or creates the game data
                 await gamePicksData.updateOne(
-                    {userId: user._id},
-                    {$inc: {homePicks: 1}},
-                    {$inc: {totalPicks: 1}},
+                    {gameId:game.id},
+                    {$inc: {homePicks: 1, totalPicks: 1}},
                     {upsert:true}
                 ) 
 
                 //sets it to true that the game has been put into the GameSchema
                 await Picks.updateOne(
-                    {_id: userPick._id},
+                    {_id: userPick._id, gameId:game.id},
                     {$set:{inGameSchema: true}}
                 )
             }
             else if ((userPick && userPick.inGameSchema === false) && (userPick.pick === "awayTeam")) {
                 //updates or creates the game data
                 await gamePicksData.updateOne(
-                    {userId: user._id},
-                    {$inc: {awayPicks: 1}},
-                    {$inc: {totalPicks: 1}},
+                    {gameId:game.id},
+                    {$inc: {awayPicks: 1, totalPicks: 1}},
                     {upsert:true}
                 ) 
             

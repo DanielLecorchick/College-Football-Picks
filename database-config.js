@@ -122,6 +122,7 @@ const GameSchema = new mongoose.Schema ({
     gameId: {
         type: String,
         required: true,
+        unique: true
     },
     homePicks: {
         type: Number,
