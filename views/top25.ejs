@@ -5,11 +5,10 @@
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
     <title>Top 25</title>
     <link rel="stylesheet" href="/css/top25.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <div id="header">
-        <h1>Top 25</h1>
-    </div>
+    <%- include('header', { headText: '<head-text>Top 25</head-text>' }) %>
     <div id = "rankings">
     <script>
         fetch("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings")

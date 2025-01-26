@@ -3,13 +3,12 @@
 <head>
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
-    <title>Leaderboard</title>
+    <title>Season Leaderboard</title>
     <link rel="stylesheet" href="/css/leaderboard.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <div id="header">
-        <h1>Season Leaderboard</h1>
-    </div>
+    <%- include('header', { headText: '<head-text>Season Leaderboard</head-text>' }) %>
     <div id = "leaderboard"></div>
     <script>
         async function fetchProfileImage(teamID) {

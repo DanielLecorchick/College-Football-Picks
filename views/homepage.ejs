@@ -5,16 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Football Picks</title>
     <link rel="stylesheet" href="/css/homepage.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <div id="header">
-        <button id="menu-button" onclick="toggleMenu()"></button>
-        <head-text>College Football Picks</head-text>
-        <div id="dropdown-menu" class="hidden">
-            <a href="/profile">Profile</a>
-            <a href="/edit-account">Edit Account</a>
-        </div>
-    </div>
+    <%- include('header', { headText: '<head-text>College Football Picks</head-text>' }) %>
     <div id="homepage">
         <button id="make-picks" onclick="picks()">Make Picks</button>
         <button id="top-25" onclick="top25()">Current Top 25</button>
@@ -24,20 +18,6 @@
     </div>
 
     <script>
-        function toggleMenu() {
-            const dropdown = document.getElementById("dropdown-menu");
-            const menuButton = document.getElementById("menu-button");
-            
-            if (dropdown.classList.contains("show")) {
-                dropdown.classList.remove("show");
-                setTimeout(() => dropdown.classList.add("hidden"), 300);
-            } else {
-                dropdown.classList.remove("hidden");
-                const buttonRect = menuButton.getBoundingClientRect();
-                setTimeout(() => dropdown.classList.add("show"), 10);
-            }
-        }
-
         function picks() {
             window.location.href = '/picks';
         }

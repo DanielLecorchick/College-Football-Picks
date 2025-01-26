@@ -5,10 +5,12 @@
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
     <title>Profile</title>
     <link rel="stylesheet" href="/css/edit-account.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <div id="header"></div>
+    <%- include('header', { headText: undefined }) %>
     <div id = "profile-editor">
+        <h2>Edit Profile</h2>
         <form action="/edit-account" method="POST">
             <label for="firstName">First Name</label>
             <input class="editButton" type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required placeholder = "First Name">
@@ -46,20 +48,16 @@
 
             function renderPage(teamData) {
                 document.title = `${"<%= user.username %>"} Profile`
-                renderName(teamData, "header", "150px")
-            }
-
-            function renderName(teamData, appendDiv, imgSize) {
-                const nameDiv = document.getElementById(appendDiv)
-                const nameText = document.createElement("name-title")
+                const headerDiv = document.getElementById("header")
+                const nameText = document.createElement("head-text")
                 nameText.textContent = `${"<%= user.username %>"}`
 
                 const nameImg = document.createElement("img")
                 nameImg.src = teamData.team.logos[0].href
-                nameImg.style.height = imgSize
+                nameImg.style.height = "10vh"
                 nameImg.style.width = "auto"
-                nameDiv.appendChild(nameImg)
-                nameDiv.appendChild(nameText)
+                headerDiv.appendChild(nameImg)
+                headerDiv.appendChild(nameText)
             }
 
             function renderDropDown() {
