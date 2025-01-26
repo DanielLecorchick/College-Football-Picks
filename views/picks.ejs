@@ -43,7 +43,24 @@
         }
 
 
-        function renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15) {
+        //function to get the users picks from the database
+        async function userPicks(){
+            try{
+                const response = await fetch('/api/picks')
+                const userPicks = await response.json()
+                return userPicks
+            }
+            catch(error) {
+                console.error("Error fetching picks in userPicks:", error)
+            }
+        }
+
+
+        async function renderGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek15) {
+        
+            //gathers the users picks from the picks api
+            const userPicksData = await userPicks()
+
             //variable to store each of the games
             const filteredGames = []
 
@@ -141,6 +158,25 @@
                         awayTeamButton.style.backgroundColor = winColor
                     }
                 }
+                
+                //logic for if a user already has made a pick on this game before
+                const userPick = userPicksData.find(pick => pick.gameId.toString() === game.id.toString())
+                if(userPick){
+                    if(userPick.pick ==="homeTeam"){
+                        homeTeamButton.style.backgroundColor = pressColor
+                        awayTeamButton.style.backgroundColor = unpressedColor
+                        homeTeamButton.disabled = true
+                        awayTeamButton.disabled = false
+                    }
+                    else if(userPick.pick ==="awayTeam"){
+                        awayTeamButton.style.backgroundColor = pressColor
+                        homeTeamButton.style.backgroundColor = unpressedColor
+                        homeTeamButton.disabled = false
+                        awayTeamButton.disabled = true
+                    }
+                    
+                }
+                
                     
                 homeTeamButton.onclick = async () => {
                     homeTeamButton.style.backgroundColor = pressColor
@@ -204,6 +240,9 @@
                     pick: homeAwayPick, 
                 })
             })
+            if(response.ok) {
+                const updatedPicks = await userPicks()
+            }
         }
 
         const currentYear = new Date().getFullYear()

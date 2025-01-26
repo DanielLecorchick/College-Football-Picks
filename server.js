@@ -164,6 +164,13 @@ app.get('/picks', checkAuthenticated, (req, res) => {
     res.render('picks.ejs', {name: req.user.name, username: req.user.username})
 })
 
+app.get('/api/picks', checkAuthenticated, async (req, res) => {
+
+    const userId = req.user._id
+    const userPicks = await Picks.find({userId}).lean()
+
+    res.json(userPicks)
+})
 
 app.post('/picks', checkAuthenticated, async(req,res) => {
     const {gameId,pick} = req.body
@@ -191,7 +198,6 @@ app.post('/picks', checkAuthenticated, async(req,res) => {
         console.error("error with picks", error)
     }
 })
-
 
 app.get('/weeklyresults', checkAuthenticated, (req, res) => {
     res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
