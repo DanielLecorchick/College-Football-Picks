@@ -64,11 +64,17 @@
                 const teamDiv = document.createElement("div")
                 teamDiv.className = "team"
 
+                const profileLink = document.createElement("a")
+                profileLink.className = "profile-link"
+                profileLink.href = `/profiles-user-id=${user.userID._id}`
+
                 const logo = document.createElement("img")
                 const imgURL = await fetchProfileImage(user.userID.favoriteTeam)
                 logo.src = imgURL
                 logo.alt = `${user.name} profile picture`
                 logo.style.width = "100px"
+
+                profileLink.appendChild(logo)
 
                 const details = document.createElement("span")
                 details.textContent = `${user.userID.firstName} ${user.userID.lastName}`
@@ -102,7 +108,7 @@
                 nameDiv.appendChild(details)
                 nameDiv.appendChild(record)
 
-                teamDiv.appendChild(logo)
+                teamDiv.appendChild(profileLink)
                 teamDiv.appendChild(nameDiv)
 
                 const rankingNumber = document.createElement("rank")

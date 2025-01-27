@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <%- include('header', { headText: '<head-text>College Football Picks</head-text>' }) %>
+    <%- include('header', { headText: '<head-text>College Football Picks</head-text>', user: user }) %>
     <div id="homepage">
         <button id="make-picks" onclick="picks()">Make Picks</button>
         <button id="top-25" onclick="top25()">Current Top 25</button>

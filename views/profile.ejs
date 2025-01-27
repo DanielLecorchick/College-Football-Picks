@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title><%= user.username %> Profile</title>
     <link rel="stylesheet" href="/css/homepage.css">
     <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <%- include('header', { headText: '<head-text>User Profile</head-text>' }) %>
+    <%- include('header', { headText: `<head-text>${user.username} Profile</head-text>` }) %>
     <div id="profile">
-
     </div>
-    <script>
-
-    </script>
 </body>
+</html>

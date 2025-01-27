@@ -43,7 +43,7 @@ app.use(express.static('public'))
 
 // only allows users to be routed to homepage if authenticated
 app.get('/', checkAuthenticated, (req, res)=> {
-    res.render('homepage.ejs', {name: req.user.name})
+    res.render('homepage.ejs', {name: req.user.name, user: req.user})
 })
 
 //login route
@@ -142,11 +142,11 @@ app.get('/emailVerification', async(req, res) =>{
 
 // renders pages if authenticated
 app.get('/homepage', checkAuthenticated, (req,res) =>{
-    res.render('homepage.ejs', {name: req.user.name, username: req.user.username})
+    res.render('homepage.ejs', {name: req.user.name, username: req.user.username, user: req.user})
 })
 
 app.get('/top25', checkAuthenticated, (req, res) => {
-    res.render('top25.ejs', {name: req.user.name, username: req.user.username})
+    res.render('top25.ejs', {name: req.user.name, username: req.user.username, user: req.user})
 })
 
 app.get('/leaderboard', checkAuthenticated, async(req, res) => {
@@ -175,7 +175,7 @@ app.get('/leaderboard', checkAuthenticated, async(req, res) => {
             incorrectGames
         }
     })
-    res.render('leaderboard.ejs', {name: req.user.name, username: req.user.username, leaderboard: leaderboardInfo})
+    res.render('leaderboard.ejs', {name: req.user.name, username: req.user.username, user: req.user, leaderboard: leaderboardInfo})
 })
 
 app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
@@ -208,7 +208,7 @@ app.get('/api/leaderboard', checkAuthenticated, async(req, res) => {
 })
 
 app.get('/picks', checkAuthenticated, (req, res) => {
-    res.render('picks.ejs', {name: req.user.name, username: req.user.username})
+    res.render('picks.ejs', {name: req.user.name, username: req.user.username, user: req.user})
 })
 
 //api to get the individual users picks in order to display them as they update
@@ -255,24 +255,55 @@ app.post('/picks', checkAuthenticated, async(req,res) => {
 })
 
 app.get('/weeklyresults', checkAuthenticated, (req, res) => {
-    res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username})
+    res.render('weeklyresults.ejs', {name: req.user.name, username: req.user.username, user: req.user})
 })
 
 app.get('/casino', checkAuthenticated, (req, res) => {
     const bettingApiKey = process.env.BETTING_API_KEY
-    res.render('casino.ejs', {name: req.user.name, username: req.user.username, bettingApiKey: bettingApiKey})
+    res.render('casino.ejs', {name: req.user.name, username: req.user.username, user: req.user, bettingApiKey: bettingApiKey})
 })
 
 app.get('/details', checkAuthenticated, (req, res) => {
     const { homeTeam, awayTeam } = req.query
-    res.render('details.ejs', {name: req.user.name, username: req.user.username, homeTeam, awayTeam})
+    res.render('details.ejs', {name: req.user.name, username: req.user.username, user: req.user, homeTeam, awayTeam})
 })
 
-app.get('/profile', checkAuthenticated, async (req, res) => {
-    const user = await User.findById(req.user._id)
-    const fbsTeamsArray = Array.from(fbsTeams)
-    res.render('profile.ejs', { user: user, fbsTeams: fbsTeamsArray })
-})
+app.get('/profiles-user-id=:id', checkAuthenticated, async (req, res) => {
+    try {
+        const userId = req.params.id; // Get user ID from URL params
+        const user = await User.findById(userId); // Fetch the user by ID
+        
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        const fbsTeamsArray = Array.from(fbsTeams);
+        res.render('profile.ejs', { user: user, fbsTeams: fbsTeamsArray });
+    } 
+    catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get('/searchUser', async (req, res) => {
+    const {username} = req.query
+    
+    try {
+        const user = await User.findOne({username})
+        
+        if (!user) {
+            return res.status(404).json({message: "User not found"})
+        }
+        
+        // Send the user ID back to the frontend
+        res.json({userId: user._id})
+    } 
+    catch (error) {
+        console.error("Error searching user:", error)
+        res.status(500).json({message: "Internal Server Error"})
+    }
+});
 
 app.get('/edit-account', checkAuthenticated, async (req, res) => {
     const user = await User.findById(req.user._id)
