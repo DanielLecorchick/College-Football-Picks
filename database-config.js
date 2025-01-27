@@ -45,7 +45,7 @@ const LoginSchema = new mongoose.Schema({
     verificationStatus: {
         type: Boolean,
         //required: true,
-        //default: false
+        default: false
     },
     favoriteTeam: {
         type: Number,

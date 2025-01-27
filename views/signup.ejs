@@ -11,6 +11,15 @@
     <div class = "glass-container">
         <div class = "signup-box">
             <h2>Sign Up</h2>
+
+            <% if (messages.length > 0) { %>
+                <div class="flash-messages">
+                    <% messages.forEach((message) => { %>
+                        <p class="flash-message"><%= message %></p>
+                    <% }); %>
+                </div>
+            <% } %>
+
             <form action = "/signup" method = "POST">
                 <input type = "name" id = "firstName" name = "firstName" required placeholder = "First Name">
                 <input type = "name" id = "lastName" name = "lastName" required placeholder = "Last Name">
