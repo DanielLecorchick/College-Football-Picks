@@ -10,6 +10,18 @@
     box-sizing: border-box;
 }
 
+.profile-link {
+    display: inline-block;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+    border: 1px solid black;
+    margin: 5px;
+    border-radius: 10px;
+}
+
+.profile-link:hover {
+    background-color: rgb(200, 200, 200);
+}
+
 .name-container span {
     font-size: 2em;
     font-weight: bold;

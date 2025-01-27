@@ -1,24 +1,53 @@
 <div id="header">
-    <button id="menu-button" onclick="toggleMenu()"></button>
+    <!--<button id="menu-button" onclick="toggleMenu()"></button> -->
+    <button id="home-button" onclick="redirectHome()" title="Home"></button>
+    <button id="profile-button" onclick="redirectProfile()" title="Profile"></button>
+    <div class="search-container">
+        <input type="text" id="user-search" required placeholder="User Search - Enter Username">
+        <button id="search-button" onclick="searchUser()"></button>
+    </div>
     <%- headText || '' %>
     <div id="dropdown-menu" class="hidden">
-        <a href="/profile">Profile</a>
+        <a href="/profiles-user-id=<%= user._id %>">View Profile</a>
         <a href="/edit-account">Edit Account</a>
     </div>
 </div>
 
 <script>
     function toggleMenu() {
-        const dropdown = document.getElementById("dropdown-menu");
-        const menuButton = document.getElementById("menu-button");
+        const dropdown = document.getElementById("dropdown-menu")
+        const menuButton = document.getElementById("menu-button")
         
         if (dropdown.classList.contains("show")) {
-            dropdown.classList.remove("show");
-            setTimeout(() => dropdown.classList.add("hidden"), 300);
+            dropdown.classList.remove("show")
+            setTimeout(() => dropdown.classList.add("hidden"), 300)
         } else {
-            dropdown.classList.remove("hidden");
-            const buttonRect = menuButton.getBoundingClientRect();
-            setTimeout(() => dropdown.classList.add("show"), 10);
+            dropdown.classList.remove("hidden")
+            const buttonRect = menuButton.getBoundingClientRect()
+            setTimeout(() => dropdown.classList.add("show"), 10)
+        }
+    }
+    function redirectHome() {
+        window.location.href = "/homepage"
+    }
+    function redirectProfile() {
+        window.location.href = href="/profiles-user-id=<%= user._id %>"
+    }
+    async function searchUser() {
+        const searchQuery = document.getElementById('user-search').value;
+
+        if (searchQuery.trim() === "") {
+            return; // Avoid making an API call if the input is empty
+        }
+
+        const response = await fetch(`/searchUser?username=${searchQuery}`);
+        const data = await response.json();
+
+        if (data && data.userId) {
+            window.location.href = `/profiles-user-id=${data.userId}`;
+        }
+        else {
+            alert("Username not found")
         }
     }
 </script>
