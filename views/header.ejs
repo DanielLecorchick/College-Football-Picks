@@ -50,4 +50,11 @@
             alert("Username not found")
         }
     }
+
+    document.getElementById('user-search').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            searchUser()
+        }
+    });
 </script>
