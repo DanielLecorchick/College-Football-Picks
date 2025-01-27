@@ -55,13 +55,20 @@ app.get('/login', checkNotAuthenticated, (req,res)=> {
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     successRedirect: '/homepage', 
     failureRedirect: '/login', 
-    failureFlash: true
+    failureFlash: true,
+    failureMessage: 'Invalid username or password.'
 }))
 
 //signup route
 app.get('/signup', checkNotAuthenticated, (req,res)=> {
     const fbsTeamsArray = Array.from(fbsTeams)
-    res.render('signup.ejs', { fbsTeams: fbsTeamsArray })
+    
+    const flashMessages = {
+        errors: req.flash('error'),
+        success: req.flash('success')
+    }
+
+    res.render('signup.ejs', {fbsTeams: fbsTeamsArray, messages: flashMessages})
 })
 
 app.get('/api/fbsTeams', checkNotAuthenticated, (req,res)=> {
@@ -75,6 +82,19 @@ app.post('/signup', checkNotAuthenticated, async(req,res) => {
         return res.redirect('/signup')
     }
     try {
+        //error handling if a user already has that username
+        const existingUsername = await User.findOne({username: req.body.username})
+        if (existingUsername) {
+            req.flash('error', 'Username is already taken.')
+            return res.redirect('/signup')
+        }
+        //error handling if a email is already being used
+        const existingEmail = await User.findOne({email: req.body.email})
+        if (existingEmail) {
+            req.flash('error', 'Email is already registered.')
+            return res.redirect('/signup')
+        }
+
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
         //creates a new user and saves them into the DB
