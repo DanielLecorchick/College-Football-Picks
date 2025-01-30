@@ -50,6 +50,16 @@ const LoginSchema = new mongoose.Schema({
     favoriteTeam: {
         type: Number,
         //required: true,
+    },
+    friendsList: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "users",
+        default: [],
+    },
+    friendRequests: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "users",
+        default: [],
     }
 })
 
