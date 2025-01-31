@@ -248,9 +248,27 @@
                     window.location.href = `/details?homeTeamID=${homeTeam.team.id}&awayTeamID=${awayTeam.team.id}`
                 }
 
-                const dateDiv = document.createElement("div")
-                dateDiv.className = "date-div"
-                dateDiv.textContent = `Game Time: ${gameDate.toLocaleString()}`
+                const subGameDiv = document.createElement("div")
+                subGameDiv.className = "sub-game"
+
+                const gameInfoDiv = document.createElement("div")
+                gameInfoDiv.className = "game-info"
+
+                const headline = game.competitions[0].notes[0].headline;
+                console.log(headline)
+                if (headline.includes("College Football Playoff") || headline.includes("Bowl")) {
+                    const gameHeadline = document.createElement("div")
+                    gameHeadline.className = "game-headline"
+                    gameHeadline.textContent = headline
+                    subGameDiv.appendChild(gameHeadline)
+                }
+
+                const gameCompetitors = document.createElement("game-competitors")
+                gameCompetitors.textContent = `${game.name}`
+                const dateInfo = document.createElement("date-info")
+                dateInfo.textContent = `Game Time: ${gameDate.toLocaleString()}`
+                gameInfoDiv.appendChild(gameCompetitors)
+                gameInfoDiv.appendChild(dateInfo)
 
                 const vsSpan = document.createElement("span")
                 vsSpan.textContent = "vs"
@@ -265,7 +283,8 @@
                 gameContainer.appendChild(middleDiv)
                 gameContainer.appendChild(awayTeamButton)
 
-                dateDiv.appendChild(gameContainer)
+                subGameDiv.appendChild(gameInfoDiv)
+                subGameDiv.appendChild(gameContainer)
 
                 const fullGameDiv = document.createElement("div")
                 fullGameDiv.className = "full-game-div"
@@ -274,14 +293,19 @@
                 const awayTeamColor = checkColorSimilarity(homeTeamColor, awayTeam.team.color, awayTeam.team.alternateColor)
 
                 const currentGamePickInfo = gamePickInfo.find(gamePick => gamePick.gameId === game.id)
-                
-                const homePercentage = ((currentGamePickInfo.homePicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
-                const awayPercentage = ((currentGamePickInfo.awayPicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
+
+                var homePercentage= 0, awayPercentage = 0, totalPicks = 0
+
+                if(currentGamePickInfo) {
+                    homePercentage = ((currentGamePickInfo.homePicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
+                    awayPercentage = ((currentGamePickInfo.awayPicks / currentGamePickInfo.totalPicks) * 100).toFixed(0);
+                    totalPicks = currentGamePickInfo.totalPicks
+                }    
 
                 const homePercentText = document.createElement("span")
                 homePercentText.textContent = `${homePercentage}%`
                 const totalPicksText = document.createElement("total-picks")
-                totalPicksText.textContent = `Total Picks: ${currentGamePickInfo.totalPicks}`
+                totalPicksText.textContent = `${totalPicks}`
                 const awayPercentText = document.createElement("span")
                 awayPercentText.textContent = `${awayPercentage}%`
 
@@ -311,7 +335,7 @@
                 picksBar.appendChild(homeSection)
                 picksBar.appendChild(awaySection)
 
-                fullGameDiv.appendChild(dateDiv)
+                fullGameDiv.appendChild(subGameDiv)
                 fullGameDiv.appendChild(teamPercentsDiv)
                 fullGameDiv.appendChild(picksBar)
                 

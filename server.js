@@ -305,8 +305,6 @@ app.post('/api/add-friend', checkAuthenticated, async (req, res) => {
         // Save updates to the database
         await currentUser.save()
         await viewingUser.save()
-
-        res.status(200).json({ success: true })
     } 
     catch (error) {
         console.error("Error adding friend:", error)
@@ -345,8 +343,6 @@ app.post('/api/remove-friend', checkAuthenticated, async (req, res) => {
 
         await currentUser.save()
         await viewingUser.save()
-
-        res.status(200).json({ success: true })
     } 
     catch (error) {
         console.error("Error removing friend:", error)

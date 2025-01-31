@@ -60,13 +60,16 @@
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({currentUserId, viewingUserId})
                                 })
-
-                                const result = await response.json()
-
                                 if (response.ok) {
-                                    alert(result.message)
-                                } else {
-                                    alert(result.error || "Error adding friend.")
+                                    const data = await response.json()
+                                    if (data.success) {
+                                        window.location.href = `/profiles-user-id=${viewingUserId}`
+                                    }
+                                }
+                                else {
+                                    const errorData = await response.json()
+                                    console.error(errorData.error || "An error occurred.")
+                                    alert(errorData.error || "An error occurred. Please try again later.")
                                 }
                             } 
                             catch (error) {
@@ -80,19 +83,21 @@
                         friendButton.title = "Send Friend Request"
                         friendButton.onclick = async () => {
                             try {
-                                // API call to add the friend
                                 const response = await fetch('/api/add-friend', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({currentUserId, viewingUserId})
                                 })
-
-                                const result = await response.json()
-
                                 if (response.ok) {
-                                    alert(result.message)
-                                } else {
-                                    alert(result.error || "Error adding friend.")
+                                    const data = await response.json()
+                                    if (data.success) {
+                                        window.location.href = `/profiles-user-id=${viewingUserId}`
+                                    }
+                                }
+                                else {
+                                    const errorData = await response.json()
+                                    console.error(errorData.error || "An error occurred.")
+                                    alert(errorData.error || "An error occurred. Please try again later.")
                                 }
                             } 
                             catch (error) {
@@ -168,6 +173,7 @@
             tab1Header.className = "tab-header"
             tab1Header.textContent = header_text_1
             tab1Header.dataset.target = "tab-content-1"
+            tab1Header.classList.add('active-tab');
 
             detailsBoxHeader.appendChild(tab1Header)
 
@@ -204,174 +210,195 @@
         }
 
         async function appendFriendsList(container) {
-            const currentUserId = "<%= user._id %>"
-            const viewingUserId = "<%= viewingUser._id %>"
-            const friendsList = <%- JSON.stringify(friendsList) %>
-            console.log(friendsList)
-            const currentUser = currentUserId === viewingUserId
-            if(friendsList.length === 0) {
-                container.textContent = "No Friends"
-                return
+            const currentUserId = "<%= user._id %>";
+            const viewingUserId = "<%= viewingUser._id %>";
+            const friendsList = <%- JSON.stringify(friendsList) %>;
+
+            console.log(friendsList);
+            const currentUser = currentUserId === viewingUserId;
+
+            if (friendsList.length === 0) {
+                container.textContent = "No Friends";
+                return;
             }
-            friendsList.forEach(async (friend) => {
-                console.log(friend)
-                const friendElement = document.createElement("div")
-                friendElement.className = "friend-element"
 
-                const logo = document.createElement("img")
-                logo.src = await fetchTeamLogo(friend.favoriteTeam)
-                logo.style.height = "8vh"
-                logo.style.width = "auto"
+            // Use Promise.all to fetch all logos before rendering
+            const friendElements = await Promise.all(
+                friendsList.map(async (friend) => {
+                    console.log(friend);
+                    const friendElement = document.createElement("div");
+                    friendElement.className = "friend-element";
 
-                const nameDiv = document.createElement("div")
-                nameDiv.className = "name-div"
-                const userName = document.createElement("span")
-                userName.textContent = `${friend.username}`
-                const displayName = document.createElement("span")
-                displayName.textContent = `${friend.firstName} ${friend.lastName}`
-                nameDiv.appendChild(userName)
-                nameDiv.appendChild(displayName)
+                    const profileLink = document.createElement("a");
+                    profileLink.className = "profile-link";
+                    profileLink.href = `/profiles-user-id=${friend._id}`;
 
-                friendElement.appendChild(logo)
-                friendElement.appendChild(nameDiv)
+                    const logo = document.createElement("img");
+                    logo.src = await fetchTeamLogo(friend.favoriteTeam);
+                    logo.style.height = "8vh";
+                    logo.style.width = "auto";
 
-                if(currentUser) {
-                    const buttonContainer = document.createElement("div")
-                    buttonContainer.className = "button-container"
+                    profileLink.appendChild(logo);
 
-                    const removeButton = document.createElement("button")
-                    removeButton.className = "remove-friend-button"
-                    removeButton.title = "Remove Friend"
-                    buttonContainer.appendChild(removeButton)
-                    friendElement.appendChild(buttonContainer)
-                    removeButton.onclick = async () => {
-                        try {
-                            // API call to add the friend
-                            const response = await fetch('/api/remove-friend', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({currentUserId, viewingUserId: friend._id})
-                            })
-                            if (response.ok) {
-                                const data = await response.json()
-                                if (data.success) {
-                                    window.location.href = `/profiles-user-id=${currentUserId}`
+                    const nameDiv = document.createElement("div");
+                    nameDiv.className = "name-div";
+                    const userName = document.createElement("user-name");
+                    userName.textContent = `${friend.username}`;
+                    const displayName = document.createElement("display-name");
+                    displayName.textContent = `${friend.firstName} ${friend.lastName}`;
+                    nameDiv.appendChild(userName);
+                    nameDiv.appendChild(displayName);
+
+                    friendElement.appendChild(profileLink);
+                    friendElement.appendChild(nameDiv);
+
+                    if (currentUser) {
+                        const buttonContainer = document.createElement("div");
+                        buttonContainer.className = "button-container";
+
+                        const removeButton = document.createElement("button");
+                        removeButton.className = "remove-friend-button";
+                        removeButton.title = "Remove Friend";
+                        buttonContainer.appendChild(removeButton);
+                        friendElement.appendChild(buttonContainer);
+
+                        removeButton.onclick = async () => {
+                            try {
+                                const response = await fetch('/api/remove-friend', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
+                                });
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        window.location.href = `/profiles-user-id=${currentUserId}`;
+                                    }
+                                } else {
+                                    const errorData = await response.json();
+                                    console.error(errorData.error || "An error occurred.");
+                                    alert(errorData.error || "An error occurred. Please try again later.");
                                 }
+                            } catch (error) {
+                                console.error("Error handling removing friend:", error);
+                                alert("An error occurred. Please try again later.");
                             }
-                            else {
-                                const errorData = await response.json()
-                                console.error(errorData.error || "An error occurred.")
-                                alert(errorData.error || "An error occurred. Please try again later.")
-                            }
-                        } 
-                        catch (error) {
-                            console.error("Error handling removing friend:", error)
-                            alert("An error occurred. Please try again later.")
-                        }
+                        };
                     }
-                }
-                container.appendChild(friendElement)
-            })
+                    return friendElement;
+                })
+            );
+
+            // Append all elements at once in the correct order
+            friendElements.forEach(element => container.appendChild(element));
         }
 
         async function appendFriendRequests(container) {
-            const currentUserId = "<%= user._id %>"
-            const viewingUserId = "<%= viewingUser._id %>"
-            const friendRequests = <%- JSON.stringify(friendRequests) %>
-            const currentUser = currentUserId === viewingUserId
-            if(friendRequests.length === 0) {
-                container.textContent = "No Friend Requests"
-                return
+            const currentUserId = "<%= user._id %>";
+            const viewingUserId = "<%= viewingUser._id %>";
+            const friendRequests = <%- JSON.stringify(friendRequests) %>;
+            const currentUser = currentUserId === viewingUserId;
+
+            if (friendRequests.length === 0) {
+                container.textContent = "No Friend Requests";
+                return;
             }
-            friendRequests.forEach(async (friend) => {
-                console.log(friend)
-                const friendElement = document.createElement("div")
-                friendElement.className = "friend-element"
 
-                const logo = document.createElement("img")
-                logo.src = await fetchTeamLogo(friend.favoriteTeam)
-                logo.style.height = "8vh"
-                logo.style.width = "auto"
+            // Use Promise.all to fetch all logos before rendering
+            const friendRequestElements = await Promise.all(
+                friendRequests.map(async (friend) => {
+                    console.log(friend);
+                    const friendElement = document.createElement("div");
+                    friendElement.className = "friend-element";
 
-                const nameDiv = document.createElement("div")
-                nameDiv.className = "name-div"
-                const userName = document.createElement("span")
-                userName.textContent = `${friend.username}`
-                const displayName = document.createElement("span")
-                displayName.textContent = `${friend.firstName} ${friend.lastName}`
-                nameDiv.appendChild(userName)
-                nameDiv.appendChild(displayName)
+                    const profileLink = document.createElement("a");
+                    profileLink.className = "profile-link";
+                    profileLink.href = `/profiles-user-id=${friend._id}`;
 
-                friendElement.appendChild(logo)
-                friendElement.appendChild(nameDiv)
+                    const logo = document.createElement("img");
+                    logo.src = await fetchTeamLogo(friend.favoriteTeam);
+                    logo.style.height = "8vh";
+                    logo.style.width = "auto";
 
-                const buttonContainer = document.createElement("div")
-                buttonContainer.className = "button-container"
+                    profileLink.appendChild(logo);
 
-                const addButton = document.createElement("button")
-                addButton.className = "friend-button"
-                addButton.title = "Accept Request"
-                buttonContainer.appendChild(addButton)
-                addButton.onclick = async () => {
-                    try {
-                        // API call to add the friend
-                        const response = await fetch('/api/add-friend', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({currentUserId, viewingUserId: friend._id})
-                        })
-                        if (response.ok) {
-                            const data = await response.json()
-                            if (data.success) {
-                                window.location.href = `/profiles-user-id=${currentUserId}`
+                    const nameDiv = document.createElement("div");
+                    nameDiv.className = "name-div";
+                    const userName = document.createElement("user-name");
+                    userName.textContent = `${friend.username}`;
+                    const displayName = document.createElement("display-name");
+                    displayName.textContent = `${friend.firstName} ${friend.lastName}`;
+                    nameDiv.appendChild(userName);
+                    nameDiv.appendChild(displayName);
+
+                    friendElement.appendChild(profileLink);
+                    friendElement.appendChild(nameDiv);
+
+                    const buttonContainer = document.createElement("div");
+                    buttonContainer.className = "button-container";
+
+                    const addButton = document.createElement("button");
+                    addButton.className = "friend-button";
+                    addButton.title = "Accept Request";
+                    buttonContainer.appendChild(addButton);
+                    addButton.onclick = async () => {
+                        try {
+                            const response = await fetch('/api/add-friend', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
+                            });
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${currentUserId}`;
+                                }
+                            } else {
+                                const errorData = await response.json();
+                                console.error(errorData.error || "An error occurred.");
+                                alert(errorData.error || "An error occurred. Please try again later.");
                             }
+                        } catch (error) {
+                            console.error("Error handling friend request:", error);
+                            alert("An error occurred. Please try again later.");
                         }
-                        else {
-                            const errorData = await response.json()
-                            console.error(errorData.error || "An error occurred.")
-                            alert(errorData.error || "An error occurred. Please try again later.")
-                        }
-                    } 
-                    catch (error) {
-                        console.error("Error handling friend request:", error)
-                        alert("An error occurred. Please try again later.")
-                    }
-                }
+                    };
 
-                const removeButton = document.createElement("button")
-                removeButton.className = "remove-friend-button"
-                removeButton.title = "Decline Request"
-                buttonContainer.appendChild(removeButton)
+                    const removeButton = document.createElement("button");
+                    removeButton.className = "remove-friend-button";
+                    removeButton.title = "Decline Request";
+                    buttonContainer.appendChild(removeButton);
+                    friendElement.appendChild(buttonContainer);
 
-                friendElement.appendChild(buttonContainer)
-
-                removeButton.onclick = async () => {
-                    try {
-                        // API call to remove the friend
-                        const response = await fetch('/api/remove-friend', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({currentUserId, viewingUserId: friend._id})
-                        })
-                        if (response.ok) {
-                            const data = await response.json()
-                            if (data.success) {
-                                window.location.href = `/profiles-user-id=${currentUserId}`
+                    removeButton.onclick = async () => {
+                        try {
+                            const response = await fetch('/api/remove-friend', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
+                            });
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${currentUserId}`;
+                                }
+                            } else {
+                                const errorData = await response.json();
+                                console.error(errorData.error || "An error occurred.");
+                                alert(errorData.error || "An error occurred. Please try again later.");
                             }
+                        } catch (error) {
+                            console.error("Error handling removing friend:", error);
+                            alert("An error occurred. Please try again later.");
                         }
-                        else {
-                            const errorData = await response.json()
-                            console.error(errorData.error || "An error occurred.")
-                            alert(errorData.error || "An error occurred. Please try again later.")
-                        }
-                    } 
-                    catch (error) {
-                        console.error("Error handling removing friend:", error)
-                        alert("An error occurred. Please try again later.")
-                    }
-                }
-                container.appendChild(friendElement)
-            })
+                    };
+
+                    return friendElement;
+                })
+            );
+
+            // Append all elements at once in the correct order
+            friendRequestElements.forEach(element => container.appendChild(element));
         }
 
         renderPage()
