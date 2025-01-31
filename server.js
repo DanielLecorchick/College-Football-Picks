@@ -268,23 +268,128 @@ app.get('/details', checkAuthenticated, (req, res) => {
     res.render('details.ejs', {name: req.user.name, username: req.user.username, user: req.user, homeTeam, awayTeam})
 })
 
-app.get('/profiles-user-id=:id', checkAuthenticated, async (req, res) => {
+app.post('/api/add-friend', checkAuthenticated, async (req, res) => {
+    const {currentUserId, viewingUserId} = req.body
+
     try {
-        const userId = req.params.id; // Get user ID from URL params
-        const user = await User.findById(userId); // Fetch the user by ID
-        
-        if (!user) {
-            return res.status(404).send("User not found");
+        if (!currentUserId || !viewingUserId) {
+            return res.status(400).json({ error: "Invalid user data." })
         }
 
-        const fbsTeamsArray = Array.from(fbsTeams);
-        res.render('profile.ejs', { user: user, fbsTeams: fbsTeamsArray });
+        const currentUser = await User.findById(currentUserId)
+        const viewingUser = await User.findById(viewingUserId)
+
+        if (!currentUser || !viewingUser) {
+            return res.status(404).json({ error: "User not found." })
+        }
+
+        if(viewingUser.friendRequests.includes(currentUserId)) {
+            return res.status(404).json({ error: "Already sent request" })
+        }
+
+        if(viewingUser.friendsList.includes(currentUserId)) {
+            return res.status(404).json({ error: "Already friends" })
+        }
+
+        if(currentUser.friendRequests.includes(viewingUserId)) {
+            currentUser.friendsList.push(viewingUserId)
+            viewingUser.friendsList.push(currentUserId)
+            currentUser.friendRequests = currentUser.friendRequests.filter(
+                id => id.toString() !== viewingUserId
+            )
+        }
+        else {
+            viewingUser.friendRequests.push(currentUserId)
+        }
+
+        // Save updates to the database
+        await currentUser.save()
+        await viewingUser.save()
+
+        res.status(200).json({ success: true })
     } 
     catch (error) {
-        console.error("Error fetching user profile:", error);
-        res.status(500).send("Internal Server Error");
+        console.error("Error adding friend:", error)
+        res.status(500).json({ error: "Internal server error." })
     }
-});
+})
+
+app.post('/api/remove-friend', checkAuthenticated, async (req, res) => {
+    const { currentUserId, viewingUserId } = req.body
+
+    try {
+        if (!currentUserId || !viewingUserId) {
+            return res.status(400).json({ error: "Invalid user data." })
+        }
+
+        const currentUser = await User.findById(currentUserId)
+        const viewingUser = await User.findById(viewingUserId)
+
+        if (!currentUser || !viewingUser) {
+            return res.status(404).json({ error: "User not found." })
+        }
+
+        // Remove the friend from both lists if they exist
+        currentUser.friendsList = currentUser.friendsList.filter(
+            id => id.toString() !== viewingUserId
+        )
+        viewingUser.friendsList = viewingUser.friendsList.filter(
+            id => id.toString() !== currentUserId
+        )
+        currentUser.friendRequests = currentUser.friendRequests.filter(
+            id => id.toString() !== viewingUserId
+        )
+        viewingUser.friendRequests = viewingUser.friendRequests.filter(
+            id => id.toString() !== currentUserId
+        )
+
+        await currentUser.save()
+        await viewingUser.save()
+
+        res.status(200).json({ success: true })
+    } 
+    catch (error) {
+        console.error("Error removing friend:", error)
+        res.status(500).json({ error: "Internal server error." })
+    }
+})
+
+app.get('/profiles-user-id=:id', checkAuthenticated, async (req, res) => {
+    try {
+        const userId = req.params.id
+        const viewingUser = await User.findById(userId)
+
+        if (!viewingUser) {
+            return res.status(404).send("User not found")
+        }
+
+        const friendsList = []
+        for (const friendId of viewingUser.friendsList) {
+            const friend = await getUserById(friendId)
+            if (friend) {
+                friendsList.push(friend)
+            }
+        }
+
+        const friendRequests = []
+        for (const friendId of viewingUser.friendRequests) {
+            const friend = await getUserById(friendId)
+            if (friend) {
+                friendRequests.push(friend)
+            }
+        }
+
+        res.render('profile.ejs', {
+            user: req.user,
+            viewingUser: viewingUser,
+            friendsList: friendsList,
+            friendRequests: friendRequests
+        })
+    } catch (error) {
+        console.error("Error fetching user profile:", error)
+        res.status(500).send("Internal Server Error")
+    }
+})
 
 app.get('/searchUser', async (req, res) => {
     const {username} = req.query
@@ -303,7 +408,7 @@ app.get('/searchUser', async (req, res) => {
         console.error("Error searching user:", error)
         res.status(500).json({message: "Internal Server Error"})
     }
-});
+})
 
 app.get('/edit-account', checkAuthenticated, async (req, res) => {
     const user = await User.findById(req.user._id)
@@ -339,7 +444,7 @@ app.post('/edit-account', checkAuthenticated, async (req, res) => {
             user.password = hashedPassword
         }
 
-        await user.save();
+        await user.save()
         console.log("Profile updated successfully")
         res.redirect('/edit-account') // redirect after successful save
     } catch (error) {
@@ -382,7 +487,7 @@ const getUserById = async (id) => {
 
 //404 error handling
 app.use((req, res) => {
-    res.status(404).send("Page Not Found");
+    res.status(404).send("Page Not Found")
 })
 
 /*

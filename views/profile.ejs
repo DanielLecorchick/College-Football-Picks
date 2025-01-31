@@ -3,13 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= user.username %> Profile</title>
-    <link rel="stylesheet" href="/css/homepage.css">
+    <title><%= viewingUser.username %> Profile</title>
+    <link rel="stylesheet" href="/css/profile.css">
     <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <%- include('header', { headText: `<head-text>${user.username} Profile</head-text>` }) %>
-    <div id="profile">
-    </div>
+    <%- include('header', { headText: undefined }) %>
+    <div id="profile"></div>
+    <script>
+        async function fetchTeamLogo(teamId) {
+            try{
+                const teamResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${teamId}`)
+                const teamData = await teamResponse.json()
+
+                return teamData.team.logos[0].href
+            }
+            catch (error){
+                console.error("Error fetching data:", error)
+            }
+        }
+
+        async function renderPage() {
+            const currentUserId = "<%= user._id %>"
+            const viewingUserId = "<%= viewingUser._id %>"
+            const friendsListIDS = <%- JSON.stringify(viewingUser.friendsList) %>
+            const friendRequestsIDS = <%- JSON.stringify(viewingUser.friendRequests) %>
+
+            console.log(friendsListIDS)
+            console.log(friendRequestsIDS)
+
+            document.title = `${"<%= viewingUser.username %>"} Profile`
+            const headerDiv = document.getElementById("header")
+            const nameText = document.createElement("head-text")
+            nameText.textContent = `${"<%= viewingUser.username %>"} Profile`
+
+            const nameImg = document.createElement("img")
+            nameImg.src = await fetchTeamLogo(<%= viewingUser.favoriteTeam %>)
+            nameImg.style.height = "10vh"
+            nameImg.style.width = "auto"
+            headerDiv.appendChild(nameImg)
+            headerDiv.appendChild(nameText)
+
+            const profileDiv = document.getElementById("profile")
+
+            if(viewingUserId !== currentUserId) {
+                if(!friendsListIDS.includes(currentUserId)) {
+                    const friendButton = document.createElement("button")
+                    if(friendRequestsIDS.includes(currentUserId)) {
+                        friendButton.className = "remove-friend-button"
+                        friendButton.title = "Cancel Friend Request"
+                        friendButton.onclick = async () => {
+                            try {
+                                // API call to add the friend
+                                const response = await fetch('/api/remove-friend', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({currentUserId, viewingUserId})
+                                })
+
+                                const result = await response.json()
+
+                                if (response.ok) {
+                                    alert(result.message)
+                                } else {
+                                    alert(result.error || "Error adding friend.")
+                                }
+                            } 
+                            catch (error) {
+                                console.error("Error handling removing friend:", error)
+                                alert("An error occurred. Please try again later.")
+                            }
+                        }
+                    }
+                    else {
+                        friendButton.className = "friend-button"
+                        friendButton.title = "Send Friend Request"
+                        friendButton.onclick = async () => {
+                            try {
+                                // API call to add the friend
+                                const response = await fetch('/api/add-friend', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({currentUserId, viewingUserId})
+                                })
+
+                                const result = await response.json()
+
+                                if (response.ok) {
+                                    alert(result.message)
+                                } else {
+                                    alert(result.error || "Error adding friend.")
+                                }
+                            } 
+                            catch (error) {
+                                console.error("Error handling friend request:", error)
+                                alert("An error occurred. Please try again later.")
+                            }
+                        }
+                    }
+                    headerDiv.appendChild(friendButton)
+                }
+                
+                const friendsBox = createSingleDetailsBox("Friends List")
+                const friendsListContent = document.createElement('div')
+                friendsListContent.className = "tab-content tab-content-1"
+                appendFriendsList(friendsListContent)
+                friendsBox.appendChild(friendsListContent)
+
+                profileDiv.appendChild(friendsBox)
+            }
+            if(viewingUserId === currentUserId) {
+                const settingsButton = document.createElement("button")
+                settingsButton.className = "settings-button"
+                settingsButton.title = "Edit Account"
+                settingsButton.onclick = () => {
+                    window.location.href = `/edit-account`
+                }
+                headerDiv.appendChild(settingsButton)
+
+                const friendsBox = createMultiDetailsBox("Friends List", "Friend Requests")
+                const friendsListContent = document.createElement('div')
+                friendsListContent.className = "tab-content tab-content-1"
+                appendFriendsList(friendsListContent,)
+
+                const friendRequestsContent = document.createElement('div')
+                friendRequestsContent.className = "tab-content tab-content-2 hidden"
+                appendFriendRequests(friendRequestsContent)
+
+                friendsBox.appendChild(friendsListContent)
+                friendsBox.appendChild(friendRequestsContent)
+
+                profileDiv.appendChild(friendsBox)
+            }
+
+        }
+
+        function createSingleDetailsBox(header_text) {
+            const detailsBox = document.createElement('div')
+            detailsBox.className = "details-box"
+
+            const detailsBoxHeader = document.createElement('div')
+            detailsBoxHeader.className = "details-box-header"
+
+            const tab1Header = document.createElement('div')
+            tab1Header.className = "innert-tab-header"
+            tab1Header.textContent = header_text
+            tab1Header.style.borderRight = 0;
+
+            detailsBoxHeader.appendChild(tab1Header)
+
+            detailsBox.appendChild(detailsBoxHeader)
+
+            return detailsBox
+        }
+
+        function createMultiDetailsBox(header_text_1, header_text_2) {
+            const detailsBox = document.createElement('div')
+            detailsBox.className = "details-box"
+
+            const detailsBoxHeader = document.createElement('div')
+            detailsBoxHeader.className = "details-box-header"
+
+            const tab1Header = document.createElement('div')
+            tab1Header.className = "tab-header"
+            tab1Header.textContent = header_text_1
+            tab1Header.dataset.target = "tab-content-1"
+
+            detailsBoxHeader.appendChild(tab1Header)
+
+            const tab2Header = document.createElement('div')
+            tab2Header.className = "tab-header"
+            tab2Header.textContent = header_text_2
+            tab2Header.dataset.target = "tab-content-2"
+            detailsBoxHeader.appendChild(tab2Header)
+
+            detailsBox.appendChild(detailsBoxHeader)
+
+            // Add the tab-switching functionality
+            detailsBoxHeader.addEventListener('click', function (e) {
+                if (e.target.classList.contains('tab-header')) {
+                    // Get the target content from the clicked tab
+                    const targetContentClass = e.target.dataset.target
+
+                    // Hide all tab contents
+                    detailsBox.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden')
+                    })
+
+                    // Show the selected tab content
+                    detailsBox.querySelector(`.${targetContentClass}`).classList.remove('hidden')
+
+                    // Highlight the active tab
+                    detailsBox.querySelectorAll('.tab-header').forEach(tab => {
+                        tab.classList.remove('active-tab')
+                    })
+                    e.target.classList.add('active-tab')
+                }
+            })
+            return detailsBox
+        }
+
+        async function appendFriendsList(container) {
+            const currentUserId = "<%= user._id %>"
+            const viewingUserId = "<%= viewingUser._id %>"
+            const friendsList = <%- JSON.stringify(friendsList) %>
+            console.log(friendsList)
+            const currentUser = currentUserId === viewingUserId
+            if(friendsList.length === 0) {
+                container.textContent = "No Friends"
+                return
+            }
+            friendsList.forEach(async (friend) => {
+                console.log(friend)
+                const friendElement = document.createElement("div")
+                friendElement.className = "friend-element"
+
+                const logo = document.createElement("img")
+                logo.src = await fetchTeamLogo(friend.favoriteTeam)
+                logo.style.height = "8vh"
+                logo.style.width = "auto"
+
+                const nameDiv = document.createElement("div")
+                nameDiv.className = "name-div"
+                const userName = document.createElement("span")
+                userName.textContent = `${friend.username}`
+                const displayName = document.createElement("span")
+                displayName.textContent = `${friend.firstName} ${friend.lastName}`
+                nameDiv.appendChild(userName)
+                nameDiv.appendChild(displayName)
+
+                friendElement.appendChild(logo)
+                friendElement.appendChild(nameDiv)
+
+                if(currentUser) {
+                    const buttonContainer = document.createElement("div")
+                    buttonContainer.className = "button-container"
+
+                    const removeButton = document.createElement("button")
+                    removeButton.className = "remove-friend-button"
+                    removeButton.title = "Remove Friend"
+                    buttonContainer.appendChild(removeButton)
+                    friendElement.appendChild(buttonContainer)
+                    removeButton.onclick = async () => {
+                        try {
+                            // API call to add the friend
+                            const response = await fetch('/api/remove-friend', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({currentUserId, viewingUserId: friend._id})
+                            })
+                            if (response.ok) {
+                                const data = await response.json()
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${currentUserId}`
+                                }
+                            }
+                            else {
+                                const errorData = await response.json()
+                                console.error(errorData.error || "An error occurred.")
+                                alert(errorData.error || "An error occurred. Please try again later.")
+                            }
+                        } 
+                        catch (error) {
+                            console.error("Error handling removing friend:", error)
+                            alert("An error occurred. Please try again later.")
+                        }
+                    }
+                }
+                container.appendChild(friendElement)
+            })
+        }
+
+        async function appendFriendRequests(container) {
+            const currentUserId = "<%= user._id %>"
+            const viewingUserId = "<%= viewingUser._id %>"
+            const friendRequests = <%- JSON.stringify(friendRequests) %>
+            const currentUser = currentUserId === viewingUserId
+            if(friendRequests.length === 0) {
+                container.textContent = "No Friend Requests"
+                return
+            }
+            friendRequests.forEach(async (friend) => {
+                console.log(friend)
+                const friendElement = document.createElement("div")
+                friendElement.className = "friend-element"
+
+                const logo = document.createElement("img")
+                logo.src = await fetchTeamLogo(friend.favoriteTeam)
+                logo.style.height = "8vh"
+                logo.style.width = "auto"
+
+                const nameDiv = document.createElement("div")
+                nameDiv.className = "name-div"
+                const userName = document.createElement("span")
+                userName.textContent = `${friend.username}`
+                const displayName = document.createElement("span")
+                displayName.textContent = `${friend.firstName} ${friend.lastName}`
+                nameDiv.appendChild(userName)
+                nameDiv.appendChild(displayName)
+
+                friendElement.appendChild(logo)
+                friendElement.appendChild(nameDiv)
+
+                const buttonContainer = document.createElement("div")
+                buttonContainer.className = "button-container"
+
+                const addButton = document.createElement("button")
+                addButton.className = "friend-button"
+                addButton.title = "Accept Request"
+                buttonContainer.appendChild(addButton)
+                addButton.onclick = async () => {
+                    try {
+                        // API call to add the friend
+                        const response = await fetch('/api/add-friend', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({currentUserId, viewingUserId: friend._id})
+                        })
+                        if (response.ok) {
+                            const data = await response.json()
+                            if (data.success) {
+                                window.location.href = `/profiles-user-id=${currentUserId}`
+                            }
+                        }
+                        else {
+                            const errorData = await response.json()
+                            console.error(errorData.error || "An error occurred.")
+                            alert(errorData.error || "An error occurred. Please try again later.")
+                        }
+                    } 
+                    catch (error) {
+                        console.error("Error handling friend request:", error)
+                        alert("An error occurred. Please try again later.")
+                    }
+                }
+
+                const removeButton = document.createElement("button")
+                removeButton.className = "remove-friend-button"
+                removeButton.title = "Decline Request"
+                buttonContainer.appendChild(removeButton)
+
+                friendElement.appendChild(buttonContainer)
+
+                removeButton.onclick = async () => {
+                    try {
+                        // API call to remove the friend
+                        const response = await fetch('/api/remove-friend', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({currentUserId, viewingUserId: friend._id})
+                        })
+                        if (response.ok) {
+                            const data = await response.json()
+                            if (data.success) {
+                                window.location.href = `/profiles-user-id=${currentUserId}`
+                            }
+                        }
+                        else {
+                            const errorData = await response.json()
+                            console.error(errorData.error || "An error occurred.")
+                            alert(errorData.error || "An error occurred. Please try again later.")
+                        }
+                    } 
+                    catch (error) {
+                        console.error("Error handling removing friend:", error)
+                        alert("An error occurred. Please try again later.")
+                    }
+                }
+                container.appendChild(friendElement)
+            })
+        }
+
+        renderPage()
+
+    </script>
 </body>
 </html>
