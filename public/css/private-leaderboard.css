@@ -1,0 +1,150 @@
+#leaderboard {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, .01);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #000;
+    margin-bottom: 1%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.profile-link {
+    display: inline-block;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+    border: 1px solid black;
+    margin: 5px;
+    border-radius: 10px;
+}
+
+.profile-link:hover {
+    background-color: rgb(179, 179, 179);
+}
+
+.name-container span {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.name-container gamerecord {
+    font-size: 1em;
+}
+
+.numbered-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%; 
+}
+
+.numbered-container rank {
+    font-size: 3em;
+    width: 70px;
+    text-align: right; 
+}
+
+.team-header, .team {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    width: 400px;
+}
+
+.team-header {
+    vertical-align: middle;
+    justify-content: center;
+    color: black;
+    font-size: 1em;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border: 1px solid transparent;
+}
+
+.team {
+    border-radius: 10px;
+    border: 1px solid #000;
+}
+
+.team img {
+    height: auto;
+    margin: 10px;
+}
+
+.team span {
+    vertical-align: middle;
+    color: black;
+}
+
+.rank-container, .rank-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    margin-left: 0px;
+    width: 122px;
+    border-radius: 10px;
+    vertical-align: middle;
+    color: black;
+}
+
+.rank-container {
+    height: 122px;
+    font-size: 2em;
+    font-weight: bold;
+    border: 1px solid #000;
+}
+
+.rank-container-header {
+    font-size: 1em;
+    border: 1px;
+    border: 1px solid transparent;
+}
+
+.settings-button, .friend-button, .remove-friend-button,
+.join-button, .leave-button, .edit-button {
+    height: 4vh;
+    width: 4vh;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    background-color: transparent;
+    border-radius: 5px;
+    margin-left: 20px;
+}
+
+.settings-button {
+    background-image: url('../images/settings-icon.png');
+}
+
+.friend-button {
+    background-image: url('../images/add-friend.png');
+}
+
+.remove-friend-button {
+    background-image: url('../images/remove-friend.png');
+}
+
+.join-button {
+    background-image: url('../images/plus-icon.png');
+}
+
+.leave-button {
+    background-image: url('../images/minus-icon.png');
+}
+
+.edit-button {
+    background-image: url('../images/edit-icon.png');
+}
+
+.settings-button:hover, .friend-button:hover, .remove-friend-button:hover, 
+.join-button:hover, .leave-button:hover, .edit-button:hover {
+    cursor: pointer;
+    background-color: rgb(179, 179, 179);
+}

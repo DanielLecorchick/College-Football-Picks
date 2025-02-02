@@ -39,21 +39,21 @@
                     const teamData = await teamResponse.json()
                     console.log(teamData)
 
-                    renderPage(teamData)
+                    renderPage(teamData.team.logos[0].href)
                 }
                 catch (error){
                     console.error("Error fetching data:", error)
                 }
             }
 
-            function renderPage(teamData) {
+            function renderPage(imgSource) {
                 document.title = `${"<%= user.username %>"} Profile`
                 const headerDiv = document.getElementById("header")
                 const nameText = document.createElement("head-text")
                 nameText.textContent = `${"<%= user.username %>"}`
 
                 const nameImg = document.createElement("img")
-                nameImg.src = teamData.team.logos[0].href
+                nameImg.src = imgSource
                 nameImg.style.height = "10vh"
                 nameImg.style.width = "auto"
                 headerDiv.appendChild(nameImg)

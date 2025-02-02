@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title><%= leaderboard.name %></title>
+    <link rel="stylesheet" href="/css/private-leaderboard.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
+</head>
+<body>
+    <%- include("header", { headText: undefined }) %>
+    <div id = "leaderboard"></div>
+    <script>
+        async function fetchProfileImage(teamID) {
+            try{
+                const teamResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${teamID}`)
+                const teamData = await teamResponse.json()
+                return teamData.team.logos[0].href
+            }
+            catch (error){
+                console.error("Error fetching data:", error)
+            }
+        }
+
+        async function renderPage() {
+            const headerDiv = document.getElementById("header")
+            const nameText = document.createElement("head-text")
+            nameText.textContent = `${"<%= leaderboard.name %>"}`
+
+            const nameImg = document.createElement("img")
+            nameImg.src = await fetchProfileImage(<%= leaderboard.profileImage %>)
+            nameImg.style.height = "10vh"
+            nameImg.style.width = "auto"
+            headerDiv.appendChild(nameImg)
+            headerDiv.appendChild(nameText)
+
+            if("<%= leaderboard.ownerId %>" === "<%= user._id %>") {
+                console.log("current user")
+                const editButton = document.createElement("button")
+                editButton.className = "edit-button"
+                editButton.title = "Edit Leaderboard"
+                editButton.onclick = async () => {
+                    window.location.href = `/edit-leaderboard-id=${"<%= leaderboard._id %>"}`;
+                }
+                headerDiv.appendChild(editButton)
+            }
+
+            const membersList = <%- JSON.stringify(members) %>
+            console.log(membersList);
+            const memberScores = <%- JSON.stringify(memberScores) %>
+            console.log(memberScores);
+
+            const leaderboardDiv = document.getElementById("leaderboard");
+
+            const rankingHeader = document.createElement("rank");
+            rankingHeader.textContent = " ";
+
+            const teamHeader = document.createElement("div");
+            teamHeader.className = "team-header";
+            teamHeader.textContent = "Users";
+
+            const pointsHeader = document.createElement("div");
+            pointsHeader.className = "rank-container-header";
+            pointsHeader.textContent = "Points";
+
+            const percentHeader = document.createElement("div");
+            percentHeader.className = "rank-container-header";
+            percentHeader.textContent = "Point Accuracy";
+
+            const gameHeader = document.createElement("div");
+            gameHeader.className = "rank-container-header";
+            gameHeader.textContent = "Game Accuracy";
+
+            const numberedHeader = document.createElement("div");
+            numberedHeader.className = "numbered-container";
+            numberedHeader.appendChild(rankingHeader);
+            numberedHeader.appendChild(teamHeader);
+            numberedHeader.appendChild(pointsHeader);
+            numberedHeader.appendChild(percentHeader);
+            numberedHeader.appendChild(gameHeader);
+
+            leaderboardDiv.appendChild(numberedHeader);
+
+            // Prepare user elements and fetch images while preserving order
+            const userElements = membersList.map(async (member, index) => {
+                const memberScore = memberScores[index]; // Get the score for the current member
+                const teamDiv = document.createElement("div");
+                teamDiv.className = "team";
+
+                const profileLink = document.createElement("a");
+                profileLink.className = "profile-link";
+                profileLink.href = `/profiles-user-id=${member._id}`;
+
+                const logo = document.createElement("img");
+                const imgURL = await fetchProfileImage(member.favoriteTeam); // Assuming fetchProfileImage() fetches the URL
+                logo.src = imgURL;
+                logo.alt = `${member.firstName} ${member.lastName} profile picture`;
+                logo.style.width = "100px";
+
+                profileLink.appendChild(logo);
+
+                const details = document.createElement("span");
+                details.textContent = `${member.firstName} ${member.lastName}`;
+
+                const totalPoints = document.createElement("span");
+                const percentPoints = document.createElement("span");
+                const percentGames = document.createElement("span");
+
+                totalPoints.textContent = `${memberScore ? memberScore.correctPoints : 0}`;
+                percentPoints.textContent = `${memberScore ? ((memberScore.correctPoints / memberScore.totalPoints) * 100).toFixed(0) : 0}%`;
+                percentGames.textContent = `${memberScore ? ((memberScore.correctGames / (memberScore.correctGames + memberScore.incorrectGames)) * 100).toFixed(0) : 0}%`;
+
+                const pointsContainer = document.createElement("div");
+                pointsContainer.className = "rank-container";
+                pointsContainer.appendChild(totalPoints);
+
+                const percentContainer = document.createElement("div");
+                percentContainer.className = "rank-container";
+                percentContainer.appendChild(percentPoints);
+
+                const gamePercentContainer = document.createElement("div");
+                gamePercentContainer.className = "rank-container";
+                gamePercentContainer.appendChild(percentGames);
+
+                const nameDiv = document.createElement("div");
+                nameDiv.className = "name-container";
+
+                const record = document.createElement("gamerecord");
+                record.textContent = `(${memberScore ? memberScore.correctGames : 0} - ${memberScore ? memberScore.incorrectGames : 0})`;
+                record.style.display = "block";
+
+                nameDiv.appendChild(details);
+                nameDiv.appendChild(record);
+
+                teamDiv.appendChild(profileLink);
+                teamDiv.appendChild(nameDiv);
+
+                const rankingNumber = document.createElement("rank");
+                rankingNumber.textContent = `#${index + 1}`;
+
+                const numberedDiv = document.createElement("div");
+                numberedDiv.className = "numbered-container";
+                numberedDiv.appendChild(rankingNumber);
+                numberedDiv.appendChild(teamDiv);
+                numberedDiv.appendChild(pointsContainer);
+                numberedDiv.appendChild(percentContainer);
+                numberedDiv.appendChild(gamePercentContainer);
+
+                return numberedDiv;
+            });
+
+            // Wait for all images to be fetched and preserve the order
+            Promise.all(userElements).then((userDivs) => {
+                // Once all images are fetched, append user elements in the original order
+                userDivs.forEach(userDiv => {
+                    leaderboardDiv.appendChild(userDiv);
+                });
+            });
+        }
+        
+        renderPage()
+    </script>
+</body>
+</html>

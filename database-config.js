@@ -60,6 +60,21 @@ const LoginSchema = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: "users",
         default: [],
+    },
+    ownLeaderboards: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "leaderboards",
+        default: [],
+    },
+    memberLeaderboards: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "leaderboards",
+        default: [],
+    },
+    leaderboardInvites: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "leaderboards",
+        default: [],
     }
 })
 
@@ -151,9 +166,38 @@ const GameSchema = new mongoose.Schema ({
     }
 })
 
+const LeaderboardSchema = new mongoose.Schema({
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+        required: true,
+    },
+    name:{
+        type: String,
+        required: true,
+    },
+    profileImage: {
+        type: Number,
+        //required: true,
+    },
+    members: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "users",
+        default: [],
+    },
+    memberRequests: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "users",
+        default: [],
+    }
+})
+
+ScoreSchema.index({ correctPoints: -1 });
+
 const User = new mongoose.model("users", LoginSchema)
 const Picks = new mongoose.model("picks", PicksSchema)
 const Score = new mongoose.model("score", ScoreSchema)
 const gamePicksData = new mongoose.model("gamePicksData", GameSchema)
+const Leaderboard = new mongoose.model("leaderboards", LeaderboardSchema)
 
-module.exports = {User, Picks, Score, gamePicksData}
+module.exports = {User, Picks, Score, gamePicksData, Leaderboard}

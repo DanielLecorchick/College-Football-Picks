@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/shared-styles.css">
 </head>
 <body>
-    <%- include('header', { headText: undefined }) %>
+    <%- include("header", { headText: undefined }) %>
     <div id="profile"></div>
     <script>
         async function fetchTeamLogo(teamId) {
@@ -32,7 +32,6 @@
             console.log(friendsListIDS)
             console.log(friendRequestsIDS)
 
-            document.title = `${"<%= viewingUser.username %>"} Profile`
             const headerDiv = document.getElementById("header")
             const nameText = document.createElement("head-text")
             nameText.textContent = `${"<%= viewingUser.username %>"} Profile`
@@ -47,75 +46,81 @@
             const profileDiv = document.getElementById("profile")
 
             if(viewingUserId !== currentUserId) {
-                if(!friendsListIDS.includes(currentUserId)) {
-                    const friendButton = document.createElement("button")
-                    if(friendRequestsIDS.includes(currentUserId)) {
-                        friendButton.className = "remove-friend-button"
-                        friendButton.title = "Cancel Friend Request"
-                        friendButton.onclick = async () => {
-                            try {
-                                // API call to add the friend
-                                const response = await fetch('/api/remove-friend', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({currentUserId, viewingUserId})
-                                })
-                                if (response.ok) {
-                                    const data = await response.json()
-                                    if (data.success) {
-                                        window.location.href = `/profiles-user-id=${viewingUserId}`
-                                    }
+                const friendButton = document.createElement("button")
+                if(friendsListIDS.includes(currentUserId) || friendRequestsIDS.includes(currentUserId)) {
+                    friendButton.className = "remove-friend-button"
+                    friendButton.title = "Cancel Friend Request"
+                    friendButton.onclick = async () => {
+                        try {
+                            // API call to add the friend
+                            const response = await fetch("/api/remove-friend", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({currentUserId, viewingUserId})
+                            })
+                            if (response.ok) {
+                                const data = await response.json()
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${viewingUserId}`
                                 }
-                                else {
-                                    const errorData = await response.json()
-                                    console.error(errorData.error || "An error occurred.")
-                                    alert(errorData.error || "An error occurred. Please try again later.")
-                                }
-                            } 
-                            catch (error) {
-                                console.error("Error handling removing friend:", error)
-                                alert("An error occurred. Please try again later.")
                             }
+                            else {
+                                const errorData = await response.json()
+                                console.error(errorData.error || "An error occurred.")
+                                alert(errorData.error || "An error occurred. Please try again later.")
+                            }
+                        } 
+                        catch (error) {
+                            console.error("Error handling removing friend:", error)
+                            alert("An error occurred. Please try again later.")
                         }
                     }
-                    else {
-                        friendButton.className = "friend-button"
-                        friendButton.title = "Send Friend Request"
-                        friendButton.onclick = async () => {
-                            try {
-                                const response = await fetch('/api/add-friend', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({currentUserId, viewingUserId})
-                                })
-                                if (response.ok) {
-                                    const data = await response.json()
-                                    if (data.success) {
-                                        window.location.href = `/profiles-user-id=${viewingUserId}`
-                                    }
-                                }
-                                else {
-                                    const errorData = await response.json()
-                                    console.error(errorData.error || "An error occurred.")
-                                    alert(errorData.error || "An error occurred. Please try again later.")
-                                }
-                            } 
-                            catch (error) {
-                                console.error("Error handling friend request:", error)
-                                alert("An error occurred. Please try again later.")
-                            }
-                        }
-                    }
-                    headerDiv.appendChild(friendButton)
                 }
-                
-                const friendsBox = createSingleDetailsBox("Friends List")
-                const friendsListContent = document.createElement('div')
-                friendsListContent.className = "tab-content tab-content-1"
-                appendFriendsList(friendsListContent)
-                friendsBox.appendChild(friendsListContent)
+                else {
+                    friendButton.className = "friend-button"
+                    friendButton.title = "Send Friend Request"
+                    friendButton.onclick = async () => {
+                        try {
+                            const response = await fetch("/api/add-friend", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({currentUserId, viewingUserId})
+                            })
+                            if (response.ok) {
+                                const data = await response.json()
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${viewingUserId}`
+                                }
+                            }
+                            else {
+                                const errorData = await response.json()
+                                console.error(errorData.error || "An error occurred.")
+                                alert(errorData.error || "An error occurred. Please try again later.")
+                            }
+                        } 
+                        catch (error) {
+                            console.error("Error handling friend request:", error)
+                            alert("An error occurred. Please try again later.")
+                        }
+                    }
+                }
+                headerDiv.appendChild(friendButton)
+
+                const friendsBox = createDetailsBox(
+                    ["Friends List"],
+                    [container => appendFriendsList(container)]
+                )
+
+                const leaderboardsBox = createDetailsBox(
+                    ["Owned Leaderboards", "Joined Leaderboards"],
+                    [
+                        container => appendOwnLeaderboards(container),
+                        container => appendMemberLeaderboards(container)
+                    ]
+                )
 
                 profileDiv.appendChild(friendsBox)
+                profileDiv.appendChild(leaderboardsBox)
             }
             if(viewingUserId === currentUserId) {
                 const settingsButton = document.createElement("button")
@@ -126,279 +131,392 @@
                 }
                 headerDiv.appendChild(settingsButton)
 
-                const friendsBox = createMultiDetailsBox("Friends List", "Friend Requests")
-                const friendsListContent = document.createElement('div')
-                friendsListContent.className = "tab-content tab-content-1"
-                appendFriendsList(friendsListContent,)
+                const friendsBox = createDetailsBox(
+                    ["Friends List", "Friend Requests"],
+                    [
+                        container => appendFriendsList(container),
+                        container => appendFriendRequests(container),
+                    ]
+                )
 
-                const friendRequestsContent = document.createElement('div')
-                friendRequestsContent.className = "tab-content tab-content-2 hidden"
-                appendFriendRequests(friendRequestsContent)
+                const leaderboardsBox = createDetailsBox(
+                    ["Owned Leaderboards", "Joined Leaderboards", "Leaderboard Invites"],
+                    [
+                        container => appendOwnLeaderboards(container),
+                        container => appendMemberLeaderboards(container),
+                        container => appendLeaderboardInvites(container)
+                    ]
+                )
 
-                friendsBox.appendChild(friendsListContent)
-                friendsBox.appendChild(friendRequestsContent)
+                const textBox = createDetailsBox(
+                    ["Test header"], [container => appendFriendsList(container)]
+                )
 
                 profileDiv.appendChild(friendsBox)
+                profileDiv.appendChild(leaderboardsBox)
+                profileDiv.appendChild(textBox)
             }
-
         }
 
-        function createSingleDetailsBox(header_text) {
-            const detailsBox = document.createElement('div')
+        function createDetailsBox(headers, contentFunctions = []) {
+            const detailsBox = document.createElement("div")
             detailsBox.className = "details-box"
 
-            const detailsBoxHeader = document.createElement('div')
+            const detailsBoxHeader = document.createElement("div")
             detailsBoxHeader.className = "details-box-header"
 
-            const tab1Header = document.createElement('div')
-            tab1Header.className = "innert-tab-header"
-            tab1Header.textContent = header_text
-            tab1Header.style.borderRight = 0;
+            headers.forEach((headerText, index) => {
+                const tabHeader = document.createElement("div")
+                tabHeader.className = "tab-header"
+                tabHeader.textContent = headerText
+                tabHeader.dataset.target = `tab-content-${index + 1}`
 
-            detailsBoxHeader.appendChild(tab1Header)
+                // Set the first tab as active by default
+                if (index === 0) {
+                    tabHeader.classList.add("active-tab")
+                }
 
-            detailsBox.appendChild(detailsBoxHeader)
+                detailsBoxHeader.appendChild(tabHeader)
+            })
 
-            return detailsBox
-        }
+            detailsBox.appendChild(detailsBoxHeader) // Append the header before content
 
-        function createMultiDetailsBox(header_text_1, header_text_2) {
-            const detailsBox = document.createElement('div')
-            detailsBox.className = "details-box"
+            headers.forEach((_, index) => {
+                // Create corresponding tab content container
+                const contentDiv = document.createElement("div")
+                contentDiv.className = `tab-content tab-content-${index + 1}`
+                if (index !== 0) contentDiv.classList.add("hidden")
 
-            const detailsBoxHeader = document.createElement('div')
-            detailsBoxHeader.className = "details-box-header"
+                // Call provided content function if it exists
+                if (contentFunctions[index]) {
+                    contentFunctions[index](contentDiv)
+                }
 
-            const tab1Header = document.createElement('div')
-            tab1Header.className = "tab-header"
-            tab1Header.textContent = header_text_1
-            tab1Header.dataset.target = "tab-content-1"
-            tab1Header.classList.add('active-tab');
-
-            detailsBoxHeader.appendChild(tab1Header)
-
-            const tab2Header = document.createElement('div')
-            tab2Header.className = "tab-header"
-            tab2Header.textContent = header_text_2
-            tab2Header.dataset.target = "tab-content-2"
-            detailsBoxHeader.appendChild(tab2Header)
-
-            detailsBox.appendChild(detailsBoxHeader)
+                detailsBox.appendChild(contentDiv)
+            })
 
             // Add the tab-switching functionality
-            detailsBoxHeader.addEventListener('click', function (e) {
-                if (e.target.classList.contains('tab-header')) {
+            detailsBoxHeader.addEventListener("click", function (e) {
+                if (e.target.classList.contains("tab-header")) {
                     // Get the target content from the clicked tab
                     const targetContentClass = e.target.dataset.target
 
                     // Hide all tab contents
-                    detailsBox.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.add('hidden')
+                    detailsBox.querySelectorAll(".tab-content").forEach(content => {
+                        content.classList.add("hidden")
                     })
 
                     // Show the selected tab content
-                    detailsBox.querySelector(`.${targetContentClass}`).classList.remove('hidden')
+                    const targetContent = detailsBox.querySelector(`.${targetContentClass}`)
+                    if (targetContent) {
+                        targetContent.classList.remove("hidden")
+                    }
 
                     // Highlight the active tab
-                    detailsBox.querySelectorAll('.tab-header').forEach(tab => {
-                        tab.classList.remove('active-tab')
+                    detailsBox.querySelectorAll(".tab-header").forEach(tab => {
+                        tab.classList.remove("active-tab")
                     })
-                    e.target.classList.add('active-tab')
+                    e.target.classList.add("active-tab")
+
+                    detailsBox.querySelectorAll(".tab-header").forEach(tab => {
+                        tab.style.borderRight = ""
+                        tab.style.borderLeft = ""
+                        tab.style.borderBottomRightRadius = ""
+                        tab.style.borderBottomLeftRadius = ""
+                    })
+
+                    const activeTab = detailsBox.querySelector(".tab-header.active-tab")
+                    const prevTab = activeTab.previousElementSibling
+
+                    // Apply styles to the previous tab
+                    if (prevTab) {
+                        prevTab.style.borderRight = "1px solid black"
+                        prevTab.style.borderLeft = "none"
+                        prevTab.style.borderBottomRightRadius = "10px"
+                        prevTab.style.borderBottomLeftRadius = "0px"
+                    }
                 }
             })
+
             return detailsBox
         }
 
-        async function appendFriendsList(container) {
-            const currentUserId = "<%= user._id %>";
-            const viewingUserId = "<%= viewingUser._id %>";
-            const friendsList = <%- JSON.stringify(friendsList) %>;
+        async function createProfileElements(friend) {
+            const profileLink = document.createElement("a")
+            profileLink.className = "profile-link"
+            profileLink.href = `/profiles-user-id=${friend._id}`
 
-            console.log(friendsList);
-            const currentUser = currentUserId === viewingUserId;
+            const logo = document.createElement("img")
+            logo.src = await fetchTeamLogo(friend.favoriteTeam)
+            logo.style.height = "8vh"
+            logo.style.width = "auto"
+            profileLink.appendChild(logo)
 
-            if (friendsList.length === 0) {
-                container.textContent = "No Friends";
-                return;
-            }
+            const nameDiv = document.createElement("div")
+            nameDiv.className = "name-div"
 
-            // Use Promise.all to fetch all logos before rendering
-            const friendElements = await Promise.all(
-                friendsList.map(async (friend) => {
-                    console.log(friend);
-                    const friendElement = document.createElement("div");
-                    friendElement.className = "friend-element";
+            const userName = document.createElement("span")
+            userName.className = "user-name"
+            userName.textContent = `${friend.username}`
 
-                    const profileLink = document.createElement("a");
-                    profileLink.className = "profile-link";
-                    profileLink.href = `/profiles-user-id=${friend._id}`;
+            const displayName = document.createElement("display-name")
+            displayName.textContent = `${friend.firstName} ${friend.lastName}`
 
-                    const logo = document.createElement("img");
-                    logo.src = await fetchTeamLogo(friend.favoriteTeam);
-                    logo.style.height = "8vh";
-                    logo.style.width = "auto";
+            nameDiv.appendChild(userName)
+            nameDiv.appendChild(displayName)
 
-                    profileLink.appendChild(logo);
-
-                    const nameDiv = document.createElement("div");
-                    nameDiv.className = "name-div";
-                    const userName = document.createElement("user-name");
-                    userName.textContent = `${friend.username}`;
-                    const displayName = document.createElement("display-name");
-                    displayName.textContent = `${friend.firstName} ${friend.lastName}`;
-                    nameDiv.appendChild(userName);
-                    nameDiv.appendChild(displayName);
-
-                    friendElement.appendChild(profileLink);
-                    friendElement.appendChild(nameDiv);
-
-                    if (currentUser) {
-                        const buttonContainer = document.createElement("div");
-                        buttonContainer.className = "button-container";
-
-                        const removeButton = document.createElement("button");
-                        removeButton.className = "remove-friend-button";
-                        removeButton.title = "Remove Friend";
-                        buttonContainer.appendChild(removeButton);
-                        friendElement.appendChild(buttonContainer);
-
-                        removeButton.onclick = async () => {
-                            try {
-                                const response = await fetch('/api/remove-friend', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
-                                });
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    if (data.success) {
-                                        window.location.href = `/profiles-user-id=${currentUserId}`;
-                                    }
-                                } else {
-                                    const errorData = await response.json();
-                                    console.error(errorData.error || "An error occurred.");
-                                    alert(errorData.error || "An error occurred. Please try again later.");
-                                }
-                            } catch (error) {
-                                console.error("Error handling removing friend:", error);
-                                alert("An error occurred. Please try again later.");
-                            }
-                        };
-                    }
-                    return friendElement;
-                })
-            );
-
-            // Append all elements at once in the correct order
-            friendElements.forEach(element => container.appendChild(element));
+            return { profileLink, nameDiv }
         }
 
-        async function appendFriendRequests(container) {
-            const currentUserId = "<%= user._id %>";
-            const viewingUserId = "<%= viewingUser._id %>";
-            const friendRequests = <%- JSON.stringify(friendRequests) %>;
-            const currentUser = currentUserId === viewingUserId;
+        // Helper function to create buttons (Accept/Decline/Remove)
+        function createButton(className, title, action) {
+            const button = document.createElement("button")
+            button.className = className
+            button.title = title
+            button.onclick = action
+            return button
+        }
 
-            if (friendRequests.length === 0) {
-                container.textContent = "No Friend Requests";
-                return;
+        // Helper function for handling API requests
+        async function handleFriendAction(url, currentUserId, friendId) {
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ currentUserId, viewingUserId: friendId })
+                })
+
+                const data = await response.json()
+                if (data.success) {
+                    window.location.href = `/profiles-user-id=${currentUserId}`
+                } else {
+                    throw new Error(data.error || "An error occurred.")
+                }
+            } catch (error) {
+                console.error(error)
+                alert(error.message || "An error occurred. Please try again later.")
+            }
+        }
+
+        // General function to handle both friends and friend requests
+        async function appendList(container, list, actionType) {
+            const currentUserId = "<%= user._id %>"
+            const currentUser = currentUserId === "<%= viewingUser._id %>"
+
+            if (list.length === 0) {
+                container.textContent = actionType === "friend" ? "No Friends" : "No Friend Requests"
+                return
             }
 
-            // Use Promise.all to fetch all logos before rendering
-            const friendRequestElements = await Promise.all(
-                friendRequests.map(async (friend) => {
-                    console.log(friend);
-                    const friendElement = document.createElement("div");
-                    friendElement.className = "friend-element";
+            const elements = await Promise.all(list.map(async (friend) => {
+                const friendElement = document.createElement("div")
+                friendElement.className = "list-element"
 
-                    const profileLink = document.createElement("a");
-                    profileLink.className = "profile-link";
-                    profileLink.href = `/profiles-user-id=${friend._id}`;
+                const { profileLink, nameDiv } = await createProfileElements(friend)
+                friendElement.appendChild(profileLink)
+                friendElement.appendChild(nameDiv)
 
-                    const logo = document.createElement("img");
-                    logo.src = await fetchTeamLogo(friend.favoriteTeam);
-                    logo.style.height = "8vh";
-                    logo.style.width = "auto";
+                if (actionType === "friend" && currentUser) {
+                    const buttonContainer = document.createElement("div")
+                    buttonContainer.className = "button-container"
 
-                    profileLink.appendChild(logo);
+                    const removeButton = createButton("remove-friend-button", "Remove Friend", () => handleFriendAction("/api/remove-friend", currentUserId, friend._id))
+                    buttonContainer.appendChild(removeButton)
+                    friendElement.appendChild(buttonContainer)
+                }
 
-                    const nameDiv = document.createElement("div");
-                    nameDiv.className = "name-div";
-                    const userName = document.createElement("user-name");
-                    userName.textContent = `${friend.username}`;
-                    const displayName = document.createElement("display-name");
-                    displayName.textContent = `${friend.firstName} ${friend.lastName}`;
-                    nameDiv.appendChild(userName);
-                    nameDiv.appendChild(displayName);
+                if (actionType === "request") {
+                    const buttonContainer = document.createElement("div")
+                    buttonContainer.className = "button-container"
 
-                    friendElement.appendChild(profileLink);
-                    friendElement.appendChild(nameDiv);
+                    const addButton = createButton("friend-button", "Accept Request", () => handleFriendAction("/api/add-friend", currentUserId, friend._id))
+                    buttonContainer.appendChild(addButton)
 
-                    const buttonContainer = document.createElement("div");
-                    buttonContainer.className = "button-container";
+                    const removeButton = createButton("remove-friend-button", "Decline Request", () => handleFriendAction("/api/remove-friend", currentUserId, friend._id))
+                    buttonContainer.appendChild(removeButton)
 
-                    const addButton = document.createElement("button");
-                    addButton.className = "friend-button";
-                    addButton.title = "Accept Request";
-                    buttonContainer.appendChild(addButton);
-                    addButton.onclick = async () => {
-                        try {
-                            const response = await fetch('/api/add-friend', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
-                            });
-                            if (response.ok) {
-                                const data = await response.json();
+                    friendElement.appendChild(buttonContainer)
+                }
+
+                return friendElement
+            }))
+
+            elements.forEach(element => container.appendChild(element))
+        }
+
+        // Function to append friend requests
+        async function appendFriendRequests(container) {
+            const friendRequests = <%- JSON.stringify(friendRequests) %>
+            await appendList(container, friendRequests, "request")
+        }
+
+        // Function to append friends list
+        async function appendFriendsList(container) {
+            const friendsList = <%- JSON.stringify(friendsList) %>
+            await appendList(container, friendsList, "friend")
+        }
+
+        async function appendLeaderboards(container, leaderboardsData, currentUser) {
+            if (leaderboardsData.length === 0) {
+                const emptyText = document.createElement("span")
+                emptyText.textContent = "No Leaderboards"
+                container.appendChild(emptyText)
+                return
+            }
+
+            const leaderboardElements = await Promise.all(leaderboardsData.map(async (leaderboard) => {
+                console.log(leaderboard)
+                const leaderboardElement = document.createElement("div")
+                leaderboardElement.className = "list-element"
+
+                const leaderboardLink = document.createElement("a")
+                leaderboardLink.className = "profile-link"
+                leaderboardLink.href = `/leaderboards-id=${leaderboard._id}`
+
+                const logo = document.createElement("img")
+                logo.src = await fetchTeamLogo(leaderboard.profileImage)
+                logo.style.height = "8vh"
+                logo.style.width = "auto"
+                leaderboardLink.appendChild(logo)
+
+                const nameDiv = document.createElement("div")
+                nameDiv.className = "name-div"
+                const leaderboardName = document.createElement("leaderboard-header")
+                leaderboardName.className = "user-name"
+                leaderboardName.textContent = `${leaderboard.name}`
+                nameDiv.appendChild(leaderboardName)
+
+                leaderboardElement.appendChild(leaderboardLink)
+                leaderboardElement.appendChild(nameDiv)
+
+                const buttonContainer = document.createElement("div")
+                buttonContainer.className = "button-container"
+
+                const dynamicButton = document.createElement("button")
+
+                // Logic for the dynamic button
+                if (currentUser) {
+                    // For owned leaderboards (Edit button)
+                    dynamicButton.className = "edit-button"
+                    dynamicButton.title = "Edit Details"
+                    buttonContainer.appendChild(dynamicButton)
+                    dynamicButton.onclick = async () => {
+                        window.location.href = `/edit-leaderboard-id=${leaderboard._id}`
+                    }
+                } else {
+                    if (leaderboardsData === <%- JSON.stringify(userMemberLeaderboards) %>) {
+                        // For member leaderboards, only show the join button if the currentUser is not part of it
+                        dynamicButton.className = "join-button"
+                        dynamicButton.title = "Request to Join"
+                        buttonContainer.appendChild(dynamicButton)
+                        dynamicButton.onclick = async () => {
+                            try {
+                                const response = await fetch("/api/join-leaderboard", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ currentUserId: currentUser._id, leaderboardId: leaderboard._id })
+                                })
+                                const data = await response.json()
                                 if (data.success) {
-                                    window.location.href = `/profiles-user-id=${currentUserId}`;
+                                    window.location.href = `/profiles-user-id=${currentUserId}`
                                 }
-                            } else {
-                                const errorData = await response.json();
-                                console.error(errorData.error || "An error occurred.");
-                                alert(errorData.error || "An error occurred. Please try again later.");
+                            } catch (error) {
+                                console.error(error)
+                                alert("An error occurred. Please try again later.")
                             }
-                        } catch (error) {
-                            console.error("Error handling friend request:", error);
-                            alert("An error occurred. Please try again later.");
                         }
-                    };
-
-                    const removeButton = document.createElement("button");
-                    removeButton.className = "remove-friend-button";
-                    removeButton.title = "Decline Request";
-                    buttonContainer.appendChild(removeButton);
-                    friendElement.appendChild(buttonContainer);
-
-                    removeButton.onclick = async () => {
-                        try {
-                            const response = await fetch('/api/remove-friend', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ currentUserId, viewingUserId: friend._id })
-                            });
-                            if (response.ok) {
-                                const data = await response.json();
+                    } else if (leaderboardsData === <%- JSON.stringify(userLeaderboardInvites) %>) {
+                        // For leaderboard invites, show both join and leave buttons
+                        const joinButton = document.createElement("button")
+                        joinButton.className = "join-button"
+                        joinButton.title = "Accept Invite"
+                        buttonContainer.appendChild(joinButton)
+                        joinButton.onclick = async () => {
+                            try {
+                                const response = await fetch("/api/join-leaderboard", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ currentUserId: currentUser._id, leaderboardId: leaderboard._id })
+                                })
+                                const data = await response.json()
                                 if (data.success) {
-                                    window.location.href = `/profiles-user-id=${currentUserId}`;
+                                    window.location.href = `/profiles-user-id=${currentUserId}`
                                 }
-                            } else {
-                                const errorData = await response.json();
-                                console.error(errorData.error || "An error occurred.");
-                                alert(errorData.error || "An error occurred. Please try again later.");
+                            } catch (error) {
+                                console.error(error)
+                                alert("An error occurred. Please try again later.")
                             }
-                        } catch (error) {
-                            console.error("Error handling removing friend:", error);
-                            alert("An error occurred. Please try again later.");
                         }
-                    };
 
-                    return friendElement;
-                })
-            );
+                        const leaveButton = document.createElement("button")
+                        leaveButton.className = "minus-button"
+                        leaveButton.title = "Decline Invite"
+                        buttonContainer.appendChild(leaveButton)
+                        leaveButton.onclick = async () => {
+                            try {
+                                const response = await fetch("/api/leave-leaderboard", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ currentUserId: currentUser._id, leaderboardId: leaderboard._id })
+                                })
+                                const data = await response.json()
+                                if (data.success) {
+                                    window.location.href = `/profiles-user-id=${currentUserId}`
+                                }
+                            } catch (error) {
+                                console.error(error)
+                                alert("An error occurred. Please try again later.")
+                            }
+                        }
+                    }
+                }
 
-            // Append all elements at once in the correct order
-            friendRequestElements.forEach(element => container.appendChild(element));
+                leaderboardElement.appendChild(buttonContainer)
+                return leaderboardElement
+            }))
+
+            leaderboardElements.forEach(element => container.appendChild(element))
+        }
+
+        // Function for appending owned leaderboards
+        async function appendOwnLeaderboards(container) {
+            const currentUserId = "<%= user._id %>"
+            const currentUser = currentUserId === "<%= viewingUser._id %>"
+            const ownLeaderboards = <%- JSON.stringify(userOwnedLeaderboards) %>
+            await appendLeaderboards(container, ownLeaderboards, currentUser)
+
+            if(currentUser) {
+                const leaderboardElement = document.createElement("div")
+                leaderboardElement.className = "list-final"
+
+                const leaderboardLink = document.createElement("a")
+                leaderboardLink.className = "create-link"
+                leaderboardLink.href = "/create-leaderboard"
+                leaderboardLink.title = "Create New Leaderboard"
+
+                const createImage = document.createElement("icon")
+                createImage.className = "join-button"
+
+                leaderboardLink.appendChild(createImage)
+                leaderboardElement.appendChild(leaderboardLink)
+                container.appendChild(leaderboardElement)
+            }
+        }
+
+        // Function for appending member leaderboards
+        async function appendMemberLeaderboards(container) {
+            const currentUserId = "<%= user._id %>"
+            const currentUser = currentUserId === "<%= viewingUser._id %>"
+            const memberLeaderboards = <%- JSON.stringify(userMemberLeaderboards) %>
+            await appendLeaderboards(container, memberLeaderboards, currentUser)
+        }
+
+        // Function for appending leaderboard invites
+        async function appendLeaderboardInvites(container) {
+            const currentUserId = "<%= user._id %>"
+            const currentUser = currentUserId === "<%= viewingUser._id %>"
+            const leaderboardInvites = <%- JSON.stringify(userLeaderboardInvites) %>
+            await appendLeaderboards(container, leaderboardInvites, currentUser)
         }
 
         renderPage()

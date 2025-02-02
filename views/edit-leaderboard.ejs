@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title>Edit <%= leaderboard.name %></title>
+    <link rel="stylesheet" href="/css/edit-leaderboard.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
+</head>
+<body>
+    <%- include('header', { headText: undefined }) %>
+    <div id = "main-container">
+    <div id = "leaderboard-editor">
+        <form action="/edit-leaderboard-id=<%= leaderboard._id %>" method="POST">
+            <h2>Edit Leaderboard</h2>
+            <label for="leaderboardName">Leaderboard Name</label>
+            <input class="editButton" type="text" id="leaderboardName" name="leaderboardName" value="<%= leaderboard.name %>" required placeholder = "Leaderboard Name">
+            <label for="profileImage">Leaderboard Icon</label>
+            <input class="editButton" type="text" id="profileImage" name="profileImage">
+            <button type="submit">Submit</button>
+        </form>
+        <script>
+            async function fetchTeamLogo(id) {
+                try{
+                    const teamResponse = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/${id}`)
+                    const teamData = await teamResponse.json()
+
+                    return teamData.team.logos[0].href
+                }
+                catch (error){
+                    console.error("Error fetching data:", error)
+                }
+            }
+
+            async function renderPage() {
+                document.title = `Edit ${"<%= leaderboard.name %>"}`;
+                const headerDiv = document.getElementById("header");
+                const nameText = document.createElement("head-text");
+                nameText.textContent = `${"<%= leaderboard.name %>"}`;
+
+                const nameImg = document.createElement("img");
+                nameImg.src = await fetchTeamLogo("<%= leaderboard.profileImage %>");
+                nameImg.style.height = "10vh";
+                nameImg.style.width = "auto";
+                headerDiv.appendChild(nameImg);
+                headerDiv.appendChild(nameText);
+
+                const friendsDiv = document.getElementById("friends-invite");
+                const membersDiv = document.getElementById("members-list");
+                const leaderboardId = "<%= leaderboard._id %>";
+                const currentUserId = "<%= user._id %>";
+
+                const friendsBox = document.createElement("div");
+                friendsBox.className = "friends-list";
+                const friendsHeader = document.createElement("h2");
+                friendsHeader.textContent = "Invite Friends";
+                friendsBox.appendChild(friendsHeader);
+
+                const membersBox = document.createElement("div");
+                membersBox.className = "members-list";
+                const membersHeader = document.createElement("h2");
+                membersHeader.textContent = "Current Members";
+                membersBox.appendChild(membersHeader);
+
+                const friendsList = <%- JSON.stringify(friendsList) %>;
+                const membersList = <%- JSON.stringify(membersList) %>;
+
+                // Function to create profile elements (like profile picture, name, etc.)
+                async function createProfileElements(user) {
+                    const profileLink = document.createElement("a");
+                    profileLink.className = "profile-link";
+                    profileLink.href = `/profiles-user-id=${user._id}`;
+
+                    const logo = document.createElement("img");
+                    logo.src = await fetchTeamLogo(user.favoriteTeam);
+                    logo.style.height = "8vh";
+                    logo.style.width = "auto";
+                    profileLink.appendChild(logo);
+
+                    const nameDiv = document.createElement("div");
+                    nameDiv.className = "name-div";
+
+                    const userName = document.createElement("span");
+                    userName.className = "user-name";
+                    userName.textContent = `${user.username}`;
+
+                    const displayName = document.createElement("display-name");
+                    displayName.textContent = `${user.firstName} ${user.lastName}`;
+
+                    nameDiv.appendChild(userName);
+                    nameDiv.appendChild(displayName);
+
+                    return { profileLink, nameDiv };
+                }
+
+                // Function to create the invite button
+                function createInviteButton(friendId) {
+                    const button = document.createElement("button");
+                    button.className = "join-button";
+                    button.title = "Invite to Leaderboard";
+
+                    button.onclick = async () => {
+                        try {
+                            const response = await fetch("/api/invite-to-leaderboard", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ userId: friendId, leaderboardId }),
+                            });
+                            const data = await response.json();
+                            if (data.success) {
+                                window.location.href = `/edit-leaderboard-id=${leaderboardId}`;
+                            } else {
+                                throw new Error(data.error || "An error occurred.");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert(error.message || "An error occurred. Please try again later.");
+                        }
+                    };
+
+                    return button;
+                }
+
+                // Function to create the leave button for members
+                function createLeaveButton(memberId) {
+                    const button = document.createElement("button");
+                    button.className = "leave-button";
+                    button.title = "Leave Leaderboard";
+
+                    button.onclick = async () => {
+                        try {
+                            const response = await fetch("/api/leave-leaderboard", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ userId: memberId, leaderboardId }),
+                            });
+                            const data = await response.json();
+                            if (data.success) {
+                                window.location.href = `/edit-leaderboard-id=${leaderboardId}`;
+                            } else {
+                                throw new Error(data.error || "An error occurred.");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert(error.message || "An error occurred. Please try again later.");
+                        }
+                    };
+
+                    return button;
+                }
+
+                // Function to append the friends list to the friends box
+                async function appendFriends() {
+                    const eligibleFriends = friendsList.filter(friend => {
+                        return !friend.memberLeaderboards.includes(leaderboardId);
+                    });
+                    if (eligibleFriends.length === 0) {
+                        const noFriendsMessage = document.createElement("p");
+                        noFriendsMessage.textContent = "No friends available to invite.";
+                        friendsBox.appendChild(noFriendsMessage);
+                        return;
+                    }
+
+                    for (const friend of eligibleFriends) {
+                        const friendElement = document.createElement("div");
+                        friendElement.className = "list-element";
+
+                        const { profileLink, nameDiv } = await createProfileElements(friend);
+                        friendElement.appendChild(profileLink);
+                        friendElement.appendChild(nameDiv);
+
+                        // Add the invite button if not already invited
+                        if (!friend.leaderboardInvites.includes(leaderboardId)) {
+                            const buttonContainer = document.createElement("div");
+                            buttonContainer.className = "button-container";  // Added container for styling
+                            const inviteButton = createInviteButton(friend._id);
+                            buttonContainer.appendChild(inviteButton);
+                            friendElement.appendChild(buttonContainer);
+                        }
+
+                        friendsBox.appendChild(friendElement);
+                    }
+                }
+
+                // Function to append the members list to the members box
+                async function appendMembers() {
+                    if (membersList.length === 0) {
+                        const noMembersMessage = document.createElement("p");
+                        noMembersMessage.textContent = "No members in this leaderboard.";
+                        membersDiv.appendChild(noMembersMessage);
+                        return;
+                    }
+
+                    for (const member of membersList) {
+                        console.log(member)
+                        if(member._id === "<%= leaderboard.ownerId %>") {
+                            continue
+                        }
+                        const memberElement = document.createElement("div");
+                        memberElement.className = "list-element";
+
+                        const { profileLink, nameDiv } = await createProfileElements(member);
+                        memberElement.appendChild(profileLink);
+                        memberElement.appendChild(nameDiv);
+
+                        const buttonContainer = document.createElement("div");
+                        buttonContainer.className = "button-container";  // Added container for styling
+                        const leaveButton = createLeaveButton(member._id);
+                        buttonContainer.appendChild(leaveButton);
+                        memberElement.appendChild(buttonContainer);
+
+                        membersBox.appendChild(memberElement);
+                    }
+                }
+
+                // Call the function to append friends and members
+                appendFriends();
+                appendMembers();
+                friendsDiv.appendChild(friendsBox);
+                membersDiv.appendChild(membersBox)
+            }
+
+
+            function renderDropDown() {
+                const select = document.createElement("select");
+                const form = document.querySelector("form");
+
+                teamNames.forEach((teamID, teamName) => {
+                    const option = document.createElement("option");
+                    option.value = teamID;
+                    option.textContent = teamName;
+                    select.appendChild(option);
+                    if (`${teamID}` === "<%= leaderboard.profileImage %>") {
+                        option.selected = true;
+                    }
+                });
+
+                profileImageInput.replaceWith(select);
+
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "profileImage";
+                hiddenInput.id = "hiddenProfileImage";
+                form.appendChild(hiddenInput);
+
+                select.addEventListener("change", (event) => {
+                    hiddenInput.value = event.target.value;
+                });
+
+                // Set the initial hidden value based on selected dropdown
+                hiddenInput.value = select.value;
+            }
+            const fbsTeams = <%- JSON.stringify(fbsTeams) %>
+            console.log(fbsTeams)
+            const profileImageInput = document.getElementById("profileImage")
+
+            const teamNames = new Map()
+            const teamIDs = new Map()
+
+            fbsTeams.forEach(team => {
+                const teamName = team[0]
+                const teamID = team[1]
+                teamNames.set(teamName, teamID)  // Map "Team Name" => team_id
+                teamIDs.set(teamID, teamName)    // Map team_id => "Team Name"
+            })
+
+            console.log("teamNames:", teamNames)
+            console.log("teamIDs:", teamIDs)
+
+            renderDropDown()
+            renderPage()
+
+        </script>
+    </div>
+    <div id = "friends-invite"></div>
+    <div id = "members-list"></div>
+    </div>
+</body>

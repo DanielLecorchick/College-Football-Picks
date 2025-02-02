@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+    <title>Create Leaderboard</title>
+    <link rel="stylesheet" href="/css/create-leaderboard.css">
+    <link rel="stylesheet" href="/css/shared-styles.css">
+</head>
+<body>
+    <%- include('header', { headText: "Create Leaderboard" }) %>
+    <div id = "leaderboard-creator">
+        <h2>New Leaderboard</h2>
+        <form action="/create-leaderboard" method="POST">
+            <input class="editButton" type="text" id="leaderboardName" name="leaderboardName" required placeholder = "Leaderboard Name">
+            <input class="editButton" type="text" id="profileImage" name="profileImage">
+            <button type="submit">Submit</button>
+        </form>
+        <script>
+            function renderDropDown() {
+                // Populate a dropdown (select element) with team names
+                // Create the select element
+                const select = document.createElement("select");
+                select.name = "profileImage";
+                select.id = "profileImage";
+
+                // Add a default option
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Leaderboard Icon";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
+                teamNames.forEach((teamID, teamName) => {
+                    const option = document.createElement("option")
+                    option.value = teamID
+                    option.textContent = teamName
+                    select.appendChild(option)
+                })
+
+                // Replace the input field with the select dropdown
+                profileImageInput.replaceWith(select)
+            }
+            const fbsTeams = <%- JSON.stringify(fbsTeams) %>
+            console.log(fbsTeams)
+            const profileImageInput = document.getElementById("profileImage")
+
+            const teamNames = new Map()
+            const teamIDs = new Map()
+
+            fbsTeams.forEach(team => {
+                const teamName = team[0]
+                const teamID = team[1]
+                teamNames.set(teamName, teamID)  // Map "Team Name" => team_id
+                teamIDs.set(teamID, teamName)    // Map team_id => "Team Name"
+            })
+
+            console.log("teamNames:", teamNames)
+            console.log("teamIDs:", teamIDs)
+
+            renderDropDown()
+
+        </script>
+    </div>
+</body>

@@ -6,7 +6,30 @@
 //this file will handle the scoring of the games and then storing them in the database
 
 //imports database info
-const {User, Picks, Score, gamePicksData} = require('./database-config.js')
+const {User, Picks, Score, gamePicksData, Leaderboard} = require('./database-config')
+
+async function sortLeaderboardMembers(leaderboardId) {
+    try {
+        const leaderboard = await Leaderboard.findById(leaderboardId)
+        if (!leaderboard) return
+
+        const membersWithScores = await Promise.all(
+            leaderboard.members.map(async (memberId) => {
+                const score = await Score.findOne({ userId: memberId })
+                return { memberId, correctPoints: score?.correctPoints || 0 }
+            })
+        )
+
+        membersWithScores.sort((a, b) => b.correctPoints - a.correctPoints)
+
+        leaderboard.members = membersWithScores.map(({ memberId }) => memberId)
+        await leaderboard.save()
+    } 
+    catch (error) {
+        console.error('Error sorting leaderboard members:', error)
+    }
+}
+
 
 //variable used to ensure the scoring is never done multiple times concurently
 let isScoringInProgress = false
@@ -161,7 +184,12 @@ async function scoreGames(gamesData, top25Teams, startOfWeek, endOfWeek, isWeek1
             }
         }
     }
+
+    const leaderboards = await Leaderboard.find()
+    for (const leaderboard of leaderboards) {
+        await sortLeaderboardMembers(leaderboard._id)
+    }
 }
 
 //exports this file so it can be used in the rest of the code
-module.exports = {fetchGamesToScore}
+module.exports = {fetchGamesToScore, sortLeaderboardMembers}

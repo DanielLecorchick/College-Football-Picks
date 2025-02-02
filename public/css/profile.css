@@ -16,6 +16,11 @@
     position: relative;
 }
 
+.details-box span {
+    display: flex;
+    margin-bottom: 5px;
+}
+
 .details-box-header {
     display: flex;
     justify-content: space-between;
@@ -26,7 +31,11 @@
     border-top-right-radius: 10px;
 }
 
-.tab-header, .innert-tab-header {
+.details-box-header {
+    display: flex;
+}
+
+.tab-header {
     flex: 1;
     text-align: center;
     display: flex;
@@ -35,18 +44,30 @@
     padding: 0.5vh;
     border-bottom: 1px solid black;
     font-weight: bold;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgb(180, 180, 180);
+    transition: background-color 0.2s ease;
+}
+
+/* Style for the last tab */
+
+/* Inactive tabs by default */
+.tab-header:not(.active-tab) {
+    border: 1px solid black;
+    border-top: none;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
 }
 
 .tab-header:first-child {
-    border-right: 1px solid black;
     border-top-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-left: none;
 }
 
 .tab-header:last-child {
-    border-left: 1px solid black;
     border-top-right-radius: 10px;
-    border-bottom-left-radius: 10px;
+    border-right: none;
 }
 
 .tab-header:hover {
@@ -54,29 +75,38 @@
     cursor: pointer;
 }
 
-.tab-content {
-    padding: 1vh;
-}
-
-.tab-header {
-    background-color: rgb(180, 180, 180);
-}
-
 .tab-header.active-tab {
     background-color: transparent;
-    border: transparent;
-    border-bottom-left-radius: 0px;
+    border-bottom: none;
+}
+
+/* Right Neighbor */
+.tab-header.active-tab + .tab-header {
+    border-left: 1px solid black;
+    border-right: none;
+    border-bottom-left-radius: 10px;
     border-bottom-right-radius: 0px;
 }
 
+.tab-header:only-child {
+    border-bottom: 1px solid black;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    cursor: default;
+}
+
+.tab-content {
+    padding: 1vh;
+}
 
 .hidden {
     display: none;
 }
 
-.settings-button, .friend-button, .remove-friend-button {
-    height: 6vh;
-    width: 6vh;
+.settings-button, .friend-button, .remove-friend-button,
+.join-button, .leave-button, .edit-button {
+    height: 4vh;
+    width: 4vh;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -98,39 +128,66 @@
     background-image: url('../images/remove-friend.png');
 }
 
-.settings-button:hover, .friend-button:hover, .remove-friend-button:hover {
+.join-button {
+    background-image: url('../images/plus-icon.png');
+}
+
+.leave-button {
+    background-image: url('../images/minus-icon.png');
+}
+
+.edit-button {
+    background-image: url('../images/edit-icon.png');
+}
+
+.settings-button:hover, .friend-button:hover, .remove-friend-button:hover, 
+.join-button:hover, .leave-button:hover, .edit-button:hover {
     cursor: pointer;
     background-color: rgb(179, 179, 179);
 }
 
-.friend-element {
+.list-element, .list-final {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
     border: 1px solid black;
     border-radius: 10px;
+}
+
+.list-element {
     padding: 5px;
 }
 
+.create-link {
+    width: 100%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-link icon {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 0px;
+}
+
 .profile-link {
-    display: inline-block;
     margin-right: 20px;
     border-radius: 10px;
 }
 
-.profile-link:hover {
+.profile-link:hover, .create-link:hover {
     background-color: rgb(179, 179, 179);
 }
 
-.friend-element .button-container {
+.list-element .button-container {
     display: flex;
     gap: 10px;
     margin-left: auto;
 }
 
 .button-container .friend-button, .button-container .remove-friend-button {
-    height: 4vh;
-    width: 4vh;
     margin: 0;
 }
 
@@ -140,6 +197,12 @@
     flex-direction: column;
 }
 
-user-name {
+.user-name {
     font-weight: bold;
+}
+
+.leaderboard-header {
+    display: flex;
+    font-weight: bold;
+    margin-bottom: 5px;
 }

@@ -13,8 +13,9 @@ const methodOverride = require('method-override')
 const crypto = require('crypto')
 
 //imports from files in the rest of the app
-const{User,Picks,Score,gamePicksData}= require('./database-config.js')
+const{User,Picks,Score,gamePicksData,Leaderboard}= require('./database-config.js')
 const {fetchGamesToScore} = require('./pointsCenter.js')
+const {sortLeaderboardMembers} = require('./pointsCenter')
 const fbsTeams = require('./fbsTeams.js')
 const {sendEmail} = require('./emailVerification.js')
 
@@ -269,7 +270,7 @@ app.get('/details', checkAuthenticated, (req, res) => {
 })
 
 app.post('/api/add-friend', checkAuthenticated, async (req, res) => {
-    const {currentUserId, viewingUserId} = req.body
+    const { currentUserId, viewingUserId } = req.body
 
     try {
         if (!currentUserId || !viewingUserId) {
@@ -283,34 +284,37 @@ app.post('/api/add-friend', checkAuthenticated, async (req, res) => {
             return res.status(404).json({ error: "User not found." })
         }
 
-        if(viewingUser.friendRequests.includes(currentUserId)) {
-            return res.status(404).json({ error: "Already sent request" })
+        // Check for existing friend request or friendship
+        if (viewingUser.friendRequests.some(id => id.equals(currentUserId))) {
+            return res.status(400).json({ error: "Friend request already sent." })
         }
 
-        if(viewingUser.friendsList.includes(currentUserId)) {
-            return res.status(404).json({ error: "Already friends" })
+        if (viewingUser.friendsList.some(id => id.equals(currentUserId))) {
+            return res.status(400).json({ error: "Already friends." })
         }
 
-        if(currentUser.friendRequests.includes(viewingUserId)) {
+        if (currentUser.friendRequests.some(id => id.equals(viewingUserId))) {
+            // Accept the friend request
             currentUser.friendsList.push(viewingUserId)
             viewingUser.friendsList.push(currentUserId)
-            currentUser.friendRequests = currentUser.friendRequests.filter(
-                id => id.toString() !== viewingUserId
-            )
-        }
-        else {
+            currentUser.friendRequests = currentUser.friendRequests.filter(id => !id.equals(viewingUserId))
+        } else {
+            // Send friend request
             viewingUser.friendRequests.push(currentUserId)
         }
 
-        // Save updates to the database
+        // Save updates
         await currentUser.save()
         await viewingUser.save()
+
+        return res.status(200).json({ success: true })
     } 
     catch (error) {
         console.error("Error adding friend:", error)
         res.status(500).json({ error: "Internal server error." })
     }
 })
+
 
 app.post('/api/remove-friend', checkAuthenticated, async (req, res) => {
     const { currentUserId, viewingUserId } = req.body
@@ -328,24 +332,161 @@ app.post('/api/remove-friend', checkAuthenticated, async (req, res) => {
         }
 
         // Remove the friend from both lists if they exist
-        currentUser.friendsList = currentUser.friendsList.filter(
-            id => id.toString() !== viewingUserId
-        )
-        viewingUser.friendsList = viewingUser.friendsList.filter(
-            id => id.toString() !== currentUserId
-        )
-        currentUser.friendRequests = currentUser.friendRequests.filter(
-            id => id.toString() !== viewingUserId
-        )
-        viewingUser.friendRequests = viewingUser.friendRequests.filter(
-            id => id.toString() !== currentUserId
-        )
+        currentUser.friendsList = currentUser.friendsList.filter(id => !id.equals(viewingUserId))
+        viewingUser.friendsList = viewingUser.friendsList.filter(id => !id.equals(currentUserId))
 
+        // Remove any pending friend requests between the users
+        currentUser.friendRequests = currentUser.friendRequests.filter(id => !id.equals(viewingUserId))
+        viewingUser.friendRequests = viewingUser.friendRequests.filter(id => !id.equals(currentUserId))
+
+        // Save changes
         await currentUser.save()
         await viewingUser.save()
+
+        return res.status(200).json({ success: true })
     } 
     catch (error) {
         console.error("Error removing friend:", error)
+        res.status(500).json({ error: "Internal server error." })
+    }
+})
+
+
+app.post('/api/join-leaderboard', checkAuthenticated, async (req, res) => {
+    const { userId, leaderboardId } = req.body;
+
+    try {
+        if (!userId || !leaderboardId) {
+            return res.status(400).json({ error: 'User or leaderboard ID missing.' });
+        }
+
+        const user = await User.findById(userId);
+        const leaderboard = await Leaderboard.findById(leaderboardId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        if (!leaderboard) {
+            return res.status(404).json({ error: 'Leaderboard not found.' });
+        }
+
+        if (leaderboard.memberRequests.some((id) => id.equals(userId))) {
+            return res.status(400).json({ error: 'Request already sent.' });
+        }
+
+        if (leaderboard.members.some((id) => id.equals(userId))) {
+            return res.status(400).json({ error: 'Already a member.' });
+        }
+
+        if (user.leaderboardInvites.some((id) => id.equals(leaderboardId))) {
+            leaderboard.members.push(userId);
+            user.memberLeaderboards.push(leaderboardId);
+            user.leaderboardInvites = user.leaderboardInvites.filter((id) => !id.equals(leaderboardId));
+        } 
+        else {
+            leaderboard.memberRequests.push(userId);
+        }
+
+        await user.save();
+        await leaderboard.save();
+
+        // Sort leaderboard members after joining
+        await sortLeaderboardMembers(leaderboardId);
+
+        res.status(200).json({ success: true });
+    } 
+    catch (error) {
+        console.error('Error joining leaderboard:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/api/invite-to-leaderboard', checkAuthenticated, async (req, res) => {
+    const { userId, leaderboardId } = req.body;
+
+    try {
+        if (!userId || !leaderboardId) {
+            return res.status(400).json({ error: 'User or leaderboard ID missing.' });
+        }
+
+        const user = await User.findById(userId);
+        const leaderboard = await Leaderboard.findById(leaderboardId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        if (!leaderboard) {
+            return res.status(404).json({ error: 'Leaderboard not found.' });
+        }
+
+        if (user.leaderboardInvites.some((id) => id.equals(leaderboardId))) {
+            return res.status(400).json({ error: 'Request already sent.' });
+        }
+
+        if (leaderboard.members.some((id) => id.equals(userId))) {
+            return res.status(400).json({ error: 'Already a member.' });
+        }
+
+        if (leaderboard.memberRequests.some((id) => id.equals(userId))) {
+            leaderboard.members.push(userId);
+            user.memberLeaderboards.push(leaderboardId);
+            user.leaderboardInvites = user.leaderboardInvites.filter((id) => !id.equals(leaderboardId))
+            leaderboard.memberRequests = leaderboard.memberRequests.filter((id) => !id.equals(userId))
+        } 
+        else {
+            user.leaderboardInvites.push(leaderboardId);
+        }
+
+        await user.save();
+        await leaderboard.save();
+
+        // Sort leaderboard members after joining
+        await sortLeaderboardMembers(leaderboardId);
+
+        res.status(200).json({ success: true });
+    } 
+    catch (error) {
+        console.error('Error joining leaderboard:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/api/leave-leaderboard', checkAuthenticated, async (req, res) => {
+    const { userId, leaderboardId } = req.body
+
+    try {
+        if (!userId || !leaderboardId) {
+            return res.status(400).json({ error: "Invalid user data." })
+        }
+
+        const user = await User.findById(userId)
+        const leaderboard = await Leaderboard.findById(leaderboardId)
+
+        if (!user || !leaderboard) {
+            return res.status(404).json({ error: "User or leaderboard not found." })
+        }
+
+        // Ensure the user is currently a member
+        if (!leaderboard.members.some(id => id.equals(userId))) {
+            return res.status(400).json({ error: "User is not a member of this leaderboard." })
+        }
+
+        // Remove the user from the leaderboard's member list
+        leaderboard.members = leaderboard.members.filter(id => !id.equals(userId))
+        user.memberLeaderboards = user.memberLeaderboards.filter(id => !id.equals(leaderboardId))
+        leaderboard.memberRequests = leaderboard.memberRequests.filter(id => !id.equals(userId))
+        user.leaderboardInvites = user.leaderboardInvites.filter(id => !id.equals(leaderboardId))
+
+        // Save updates to the database
+        await leaderboard.save()
+        await user.save()
+
+        return res.status(200).json({ success: true, message: "Successfully left the leaderboard." })
+    } 
+    catch (error) {
+        console.error("Error leaving leaderboard:", error)
         res.status(500).json({ error: "Internal server error." })
     }
 })
@@ -375,15 +516,188 @@ app.get('/profiles-user-id=:id', checkAuthenticated, async (req, res) => {
             }
         }
 
+        const userOwnedLeaderboards = []
+        for (const leaderboardId of viewingUser.ownLeaderboards) {
+            const leaderboard = await getLeaderboardById(leaderboardId)
+            if (leaderboard) {
+                userOwnedLeaderboards.push(leaderboard)
+            }
+        }
+
+        const userMemberLeaderboards = []
+        for (const leaderboardId of viewingUser.memberLeaderboards) {
+            const leaderboard = await getLeaderboardById(leaderboardId)
+            if (leaderboard) {
+                userMemberLeaderboards.push(leaderboard)
+            }
+        }
+
+        const userLeaderboardInvites = []
+        for (const leaderboardId of viewingUser.leaderboardInvites) {
+            const leaderboard = await getLeaderboardById(leaderboardId)
+            if (leaderboard) {
+                userLeaderboardInvites.push(leaderboard)
+            }
+        }
+
         res.render('profile.ejs', {
             user: req.user,
             viewingUser: viewingUser,
             friendsList: friendsList,
-            friendRequests: friendRequests
+            friendRequests: friendRequests,
+            userOwnedLeaderboards: userOwnedLeaderboards,
+            userMemberLeaderboards: userMemberLeaderboards,
+            userLeaderboardInvites: userLeaderboardInvites
         })
     } catch (error) {
         console.error("Error fetching user profile:", error)
         res.status(500).send("Internal Server Error")
+    }
+})
+
+app.get('/leaderboards-id=:id', checkAuthenticated, async (req, res) => {
+    try {
+        const leaderboardId = req.params.id
+        const viewingLeaderboard = await Leaderboard.findById(leaderboardId)
+
+        if (!viewingLeaderboard) {
+            return res.status(404).send("Leaderboard not found")
+        }
+
+        const members = []
+        const memberScores = []
+        
+        // Fetch member details and scores
+        for (const memberId of viewingLeaderboard.members) {
+            const member = await getUserById(memberId)
+            if (member) {
+                members.push(member)
+                
+                // Fetch score data for each member
+                const score = await Score.findOne({ userId: memberId })
+                if (score) {
+                    memberScores.push(score)
+                } else {
+                    memberScores.push(null) // If no score data exists
+                }
+            }
+        }
+
+        res.render('private-leaderboard.ejs', {
+            user: req.user,
+            leaderboard: viewingLeaderboard,
+            members: members,
+            memberScores: memberScores
+        })
+    } 
+    catch (error) {
+        console.error("Error fetching leaderboard data:", error)
+        res.status(500).send("Internal Server Error")
+    }
+})
+
+app.get('/create-leaderboard', checkAuthenticated, async (req, res) => {
+    const user = await User.findById(req.user._id)
+    const fbsTeamsArray = Array.from(fbsTeams)
+    res.render('create-leaderboard.ejs', { user: user, fbsTeams: fbsTeamsArray })
+})
+
+app.post('/create-leaderboard', checkAuthenticated, async(req,res) => {
+    const {leaderboardName, profileImage} = req.body
+    const user = await User.findById(req.user._id)
+
+    try {
+        //creates a new leaderboard and saves it into the DB
+        const newLeaderboard = new Leaderboard({
+            ownerId: req.user._id,
+            name: leaderboardName,
+            profileImage: profileImage,
+            members: [req.user._id],
+        })
+        await newLeaderboard.save()
+
+        user.ownLeaderboards.push(newLeaderboard._id)
+
+        await user.save()
+
+        console.log("Leaderboard created successfully")
+
+        res.redirect(`/leaderboards-id=${newLeaderboard._id}`)
+    }
+    catch(error) {
+        console.error("Error during leaderboard creation:", error)
+        res.redirect('/create-leaderboard')
+    }
+})
+
+app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
+    const user = await User.findById(req.user._id)
+    const leaderboard = await Leaderboard.findById(req.params.id)
+    const fbsTeamsArray = Array.from(fbsTeams)
+
+    if (!leaderboard) {
+        console.log("Leaderboard not found");
+        return res.redirect(`/homepage`);
+    }
+
+    // Check if the logged-in user is the owner of the leaderboard
+    if (leaderboard.ownerId.toString() !== req.user._id.toString()) {
+        console.log("User is not the owner of the leaderboard");
+        return res.redirect(`/homepage`); // Redirect to homepage if not owner
+    }
+
+    const friendsList = []
+    for (const friendId of user.friendsList) {
+        const friend = await getUserById(friendId)
+        if (friend) {
+            friendsList.push(friend)
+        }
+    }
+
+    const membersList = []
+    for (const memberId of leaderboard.members) {
+        const member = await getUserById(memberId)
+        if (member) {
+            membersList.push(member)
+        }
+    }
+
+    res.render('edit-leaderboard.ejs', { 
+        user: user,
+        leaderboard: leaderboard,
+        fbsTeams: fbsTeamsArray,
+        friendsList: friendsList,
+        membersList: membersList
+     })
+})
+
+app.post('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
+    const {leaderboardName, profileImage} = req.body
+
+    try {
+        const leaderboard = await Leaderboard.findById(req.params.id)
+        console.log(`leaderboard id: ${leaderboard._id}`)
+
+        if (!leaderboard) {
+            console.log("Leaderboard not found");
+            return res.redirect(`/homepage`);
+        }
+
+        if (leaderboard.ownerId.toString() !== req.user._id.toString()) {
+            console.log("User is not the owner of the leaderboard");
+            return res.redirect(`/homepage`); // Redirect to homepage if not owner
+        }
+
+        leaderboard.name = leaderboardName
+        leaderboard.profileImage = profileImage
+
+        await leaderboard.save()
+        console.log("Leaderboard updated successfully")
+        res.redirect(`/leaderboards-id=${req.params.id}`) // redirect after successful save
+    } 
+    catch (error) {
+        console.log("Error updating leaderboard", error)
+        res.redirect(`/edit-leaderboard-id=${req.params.id}`) // handle the error and show it on the profile page
     }
 })
 
@@ -443,7 +757,8 @@ app.post('/edit-account', checkAuthenticated, async (req, res) => {
         await user.save()
         console.log("Profile updated successfully")
         res.redirect('/edit-account') // redirect after successful save
-    } catch (error) {
+    } 
+    catch (error) {
         console.log("Error updating profile", error)
         res.redirect('/edit-account') // handle the error and show it on the profile page
     }
@@ -479,6 +794,11 @@ const getUserByUsername = async (username) => {
 const getUserById = async (id) => {
     const user = await User.findById(id)
     return user
+}
+
+const getLeaderboardById = async (id) => {
+    const leaderboard = await Leaderboard.findById(id)
+    return leaderboard
 }
 
 //404 error handling
