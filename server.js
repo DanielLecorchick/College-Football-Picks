@@ -557,29 +557,23 @@ app.get('/profiles-user-id=:id', checkAuthenticated, async (req, res) => {
 
 app.get('/leaderboards-id=:id', checkAuthenticated, async (req, res) => {
     try {
-        const leaderboardId = req.params.id
-        const viewingLeaderboard = await Leaderboard.findById(leaderboardId)
+        const leaderboardId = req.params.id;
+        const viewingLeaderboard = await Leaderboard.findById(leaderboardId);
 
         if (!viewingLeaderboard) {
-            return res.status(404).send("Leaderboard not found")
+            return res.status(404).send("Leaderboard not found");
         }
 
-        const members = []
-        const memberScores = []
-        
-        // Fetch member details and scores
+        const members = [];
+        const memberScores = [];
+
         for (const memberId of viewingLeaderboard.members) {
-            const member = await getUserById(memberId)
+            const member = await User.findById(memberId).select('_id favoriteTeam firstName lastName username');
             if (member) {
-                members.push(member)
-                
-                // Fetch score data for each member
-                const score = await Score.findOne({ userId: memberId })
-                if (score) {
-                    memberScores.push(score)
-                } else {
-                    memberScores.push(null) // If no score data exists
-                }
+                members.push(member);
+
+                const score = await Score.findOne({ userId: memberId });
+                memberScores.push(score || null);
             }
         }
 
@@ -587,14 +581,14 @@ app.get('/leaderboards-id=:id', checkAuthenticated, async (req, res) => {
             user: req.user,
             leaderboard: viewingLeaderboard,
             members: members,
-            memberScores: memberScores
-        })
+            memberScores: memberScores,
+        });
     } 
     catch (error) {
-        console.error("Error fetching leaderboard data:", error)
-        res.status(500).send("Internal Server Error")
+        console.error("Error fetching leaderboard data:", error);
+        res.status(500).send("Internal Server Error");
     }
-})
+});
 
 app.get('/create-leaderboard', checkAuthenticated, async (req, res) => {
     const user = await User.findById(req.user._id)
@@ -630,6 +624,39 @@ app.post('/create-leaderboard', checkAuthenticated, async(req,res) => {
     }
 })
 
+app.post('/delete-leaderboard/:id', checkAuthenticated, async (req, res) => {
+    const leaderboardId = req.params.id;
+
+    try {
+        // Find the leaderboard by ID and check if the current user is the owner
+        const leaderboard = await Leaderboard.findById(leaderboardId);
+        const userId = req.user._id
+
+        if (!leaderboard) {
+            return res.status(404).send("Leaderboard not found");
+        }
+
+        if (!leaderboard.ownerId.equals(userId)) {
+            return res.status(403).send("Unauthorized: You can only delete your own leaderboards");
+        }
+
+        const user = await User.findById(userId);
+        user.ownLeaderboards = user.ownLeaderboards.filter(
+            (id) => !id.equals(leaderboardId)
+        );
+        await user.save();
+
+        // Delete the leaderboard from the database
+        await Leaderboard.findByIdAndDelete(leaderboardId);
+
+        console.log("Leaderboard deleted successfully");
+        res.redirect(`/profiles-user-id=${userId}`);
+    } catch (error) {
+        console.error("Error during leaderboard deletion:", error);
+        res.status(500).send("Server error");
+    }
+});
+
 app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
     const user = await User.findById(req.user._id)
     const leaderboard = await Leaderboard.findById(req.params.id)
@@ -654,6 +681,14 @@ app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
         }
     }
 
+    const memberRequests = []
+    for (const memberId of leaderboard.memberRequests) {
+        const member = await getUserById(memberId)
+        if (member) {
+            memberRequests.push(member)
+        }
+    }
+
     const membersList = []
     for (const memberId of leaderboard.members) {
         const member = await getUserById(memberId)
@@ -667,6 +702,7 @@ app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
         leaderboard: leaderboard,
         fbsTeams: fbsTeamsArray,
         friendsList: friendsList,
+        memberRequests: memberRequests,
         membersList: membersList
      })
 })

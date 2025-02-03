@@ -23,6 +23,12 @@
         }
 
         async function renderPage() {
+            const membersList = <%- JSON.stringify(members) %>
+            console.log(membersList);
+            const memberScores = <%- JSON.stringify(memberScores) %>
+            console.log(memberScores);
+            const currentUserId = "<%= user._id %>"
+
             const headerDiv = document.getElementById("header")
             const nameText = document.createElement("head-text")
             nameText.textContent = `${"<%= leaderboard.name %>"}`
@@ -34,7 +40,7 @@
             headerDiv.appendChild(nameImg)
             headerDiv.appendChild(nameText)
 
-            if("<%= leaderboard.ownerId %>" === "<%= user._id %>") {
+            if("<%= leaderboard.ownerId %>" === currentUserId) {
                 console.log("current user")
                 const editButton = document.createElement("button")
                 editButton.className = "edit-button"
@@ -44,11 +50,77 @@
                 }
                 headerDiv.appendChild(editButton)
             }
+            else if (membersList.some(member => member._id === currentUserId)) {
+                console.log("member");
+                const leaveButton = document.createElement("button");
+                leaveButton.className = "leave-button";
+                leaveButton.title = "Leave Leaderboard"
+                leaveButton.onclick = async () => {
+                    try {
+                        const response = await fetch('/api/leave-leaderboard', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: currentUserId,
+                                leaderboardId: "<%= leaderboard._id %>",
+                            }),
+                        });
 
-            const membersList = <%- JSON.stringify(members) %>
-            console.log(membersList);
-            const memberScores = <%- JSON.stringify(memberScores) %>
-            console.log(memberScores);
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            window.location.href = `/profiles-user-id=${currentUserId}`;
+                        } 
+                        else {
+                            alert(result.error || "Failed to leave the leaderboard.");
+                        }
+                    } 
+                    catch (error) {
+                        console.error("Error leaving leaderboard:", error);
+                        alert("An unexpected error occurred.");
+                    }
+                };
+                
+                headerDiv.appendChild(leaveButton);
+            }
+            else {
+                console.log("non-member");
+                const joinButton = document.createElement("button");
+                joinButton.className = "join-button";
+                joinButton.title = "Request to Join Leaderboard"
+                joinButton.onclick = async () => {
+                    try {
+                        const response = await fetch('/api/join-leaderboard', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: currentUserId,
+                                leaderboardId: "<%= leaderboard._id %>",
+                            }),
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            window.location.href = `/leaderboards-id=${leaderboardId}`;
+                        } 
+                        else {
+                            alert(result.error || "Failed to leave the leaderboard.");
+                        }
+                    } 
+                    catch (error) {
+                        console.error("Error leaving leaderboard:", error);
+                        alert("An unexpected error occurred.");
+                    }
+                };
+                
+                headerDiv.appendChild(leaveButton);
+            }
+
 
             const leaderboardDiv = document.getElementById("leaderboard");
 

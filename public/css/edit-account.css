@@ -97,6 +97,8 @@ input:focus{
     cursor: pointer;
     margin-top: 15px;
     margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid blac
 }
 
 select {
