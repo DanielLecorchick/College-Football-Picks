@@ -222,6 +222,7 @@
                     }
 
                     for (const member of memberRequests) {
+                        console.log(member)
                         const requestElement = document.createElement("div");
                         requestElement.className = "list-element";
 
@@ -231,7 +232,7 @@
 
                         const buttonContainer = document.createElement("div");
                         buttonContainer.className = "button-container";  // Added container for styling
-                        const inviteButton = createInviteButton(friend._id);
+                        const inviteButton = createInviteButton(member._id);
                         buttonContainer.appendChild(inviteButton);
                         requestElement.appendChild(buttonContainer);
 
@@ -249,7 +250,6 @@
                     }
 
                     for (const member of membersList) {
-                        console.log(member)
                         if(member._id === "<%= leaderboard.ownerId %>") {
                             continue
                         }
@@ -314,9 +314,6 @@
                 teamNames.set(teamName, teamID)  // Map "Team Name" => team_id
                 teamIDs.set(teamID, teamName)    // Map team_id => "Team Name"
             })
-
-            console.log("teamNames:", teamNames)
-            console.log("teamIDs:", teamIDs)
 
             renderDropDown()
             renderPage()

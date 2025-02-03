@@ -675,7 +675,7 @@ app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
 
     const friendsList = []
     for (const friendId of user.friendsList) {
-        const friend = await getUserById(friendId)
+        const friend = await User.findById(friendId).select('_id favoriteTeam firstName lastName username memberLeaderboards leaderboardInvites');
         if (friend) {
             friendsList.push(friend)
         }
@@ -683,7 +683,7 @@ app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
 
     const memberRequests = []
     for (const memberId of leaderboard.memberRequests) {
-        const member = await getUserById(memberId)
+        const member = await User.findById(memberId).select('_id favoriteTeam firstName lastName username');
         if (member) {
             memberRequests.push(member)
         }
@@ -691,7 +691,7 @@ app.get('/edit-leaderboard-id=:id', checkAuthenticated, async (req, res) => {
 
     const membersList = []
     for (const memberId of leaderboard.members) {
-        const member = await getUserById(memberId)
+        const member = await User.findById(memberId).select('_id favoriteTeam firstName lastName username');
         if (member) {
             membersList.push(member)
         }
