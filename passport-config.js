@@ -14,29 +14,26 @@ const {User} = require('./database-config')
 function initalize(passport) {
     // function to aithenticate user utilizing name and password
     const authenticateUser = async (username, password, done) => {
-        try{
-            // fetches the username to attempt to login a user by ensuring the username exists, and then by comparing passwords
-            const user = await User.findOne({username})
+        try {
 
-            //checks if the user has verified their email
-            if(user.verificationStatus === false){
-                return done(null, false, {message: 'Please verify your email'})
+            const user = await User.findOne({ username })
+
+            if (!user) {
+                return done(null, false, { message: 'No user with that username' })
             }
 
-            //checks if there is a user with that username
-            if(user == null){
-                return done(null, false, {message: 'No user with that username'})
+            if (user.verificationStatus === false) {
+                return done(null, false, { message: 'Please verify your email' })
             }
 
-            //checks if the password is correct according to the DB
-            if(await bcrypt.compare(password, user.password)) {
+            const isMatch = await bcrypt.compare(password, user.password)
+            if (isMatch) {
                 return done(null, user)
             }
-            else{
-                return done(null, false, {message: 'Password incorrect'})
+            else {
+                return done(null, false, { message: 'Password incorrect' })
             }
-        }
-        catch(error) {
+        } catch (error) {
             console.error('Error during authentication:', error)
             return done(error)
         }

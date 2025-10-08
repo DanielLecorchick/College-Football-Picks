@@ -126,13 +126,14 @@
                 }
                 const homeTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "home")
                 const awayTeam = game.competitions[0].competitors.find(competitor => competitor.homeAway === "away")
+                console.log(homeTeam, awayTeam)
 
                 // logic to filter out games. during the regular season ensure the game includes at least one top 25 matchup and is the current week, 
                 // includes all conference championship games regardless of ranking, 
                 // includes the Army vs Navy Game regardless of ranking,
                 // includes all bowl games and college football playoff games, but excludes any FCS games
                 const isTop25Game = top25Teams.includes(homeTeam.team.id) || top25Teams.includes(awayTeam.team.id)
-                const isThisWeek = gameDate >= startOfWeek && gameDate <= endOfWeek
+                const isThisWeek = startDate >= startOfWeek && startDate <= endOfWeek
                 const isConferenceChampionship = (isWeek15 && gameDate >= startOfWeek && gameDate <= endOfWeek)
                 const isArmyNavy = (homeTeam.team.name === "Army" && awayTeam.team.name === "Navy") || (homeTeam.team.name === "Navy" && awayTeam.team.name === "Army")
                 const isBowlOrCFP = game.season.type === 3
@@ -145,6 +146,12 @@
                 if ((isTop25Game && isThisWeek) || (isTop25Game && offseason) || isConferenceChampionship || isArmyNavy || isBowlOrCFP) {
                     filteredGames.push({startDate, gameDate, homeTeam, awayTeam, game})
                 }
+                console.log(startOfWeek)
+                console.log(endOfWeek)
+                console.log(gameDate)
+                console.log(startDate)
+                console.log(isThisWeek)
+                console.log(filteredGames)
             })
 
             //sorts the filtered games according to the date the occur
@@ -254,13 +261,16 @@
                 const gameInfoDiv = document.createElement("div")
                 gameInfoDiv.className = "game-info"
 
-                const headline = game.competitions[0].notes[0].headline;
-                console.log(headline)
-                if (headline.includes("College Football Playoff") || headline.includes("Bowl")) {
-                    const gameHeadline = document.createElement("div")
-                    gameHeadline.className = "game-headline"
-                    gameHeadline.textContent = headline
-                    subGameDiv.appendChild(gameHeadline)
+                const headline = game.competitions?.[0]?.notes?.[0]?.headline;
+
+                if (headline) {
+                    console.log(headline);
+                    if (headline.includes("College Football Playoff") || headline.includes("Bowl")) {
+                        const gameHeadline = document.createElement("div");
+                        gameHeadline.className = "game-headline";
+                        gameHeadline.textContent = headline;
+                        subGameDiv.appendChild(gameHeadline);
+                    }
                 }
 
                 const gameCompetitors = document.createElement("game-competitors")
